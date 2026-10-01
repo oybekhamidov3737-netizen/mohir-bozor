@@ -25,10 +25,12 @@ export default function Admin() {
   const [sure, setSure] = useState('');
   const [refreshing, setRefreshing] = useState(false);
   const [cfg, setCfg] = useState(null);
+  const [paySt, setPaySt] = useState(null);
+  const [keys, setKeys] = useState({ payme: '', click: '' });
 
   const load = useCallback(async () => {
     const [o, a, th] = await Promise.all([
-      supabase.from('orders').select('*, ads(title)').order('created_at', { ascending: false }).limit(300),
+      supabase.from('orders').select('*, ads(title)').neq('status', 'unpaid').order('created_at', { ascending: false }).limit(300),
       supabase.from('ads').select('*').order('created_at', { ascending: false }).limit(300),
       supabase.from('threads').select('*, ads(title,photos,cat)').neq('last_text', '').order('last_at', { ascending: false }).limit(200),
     ]);
@@ -37,7 +39,7 @@ export default function Admin() {
     setProfs(await fetchProfiles(ids));
     setRefreshing(false);
   }, []);
-  useFocusEffect(useCallback(() => { if (isAdmin) load(); }, [isAdmin, load]));
+  useFocusEffect(useCallback(() => { if (isAdmin) { load(); supabase.rpc('admin_payment_status').then(({ data }) => setPaySt(data)); } }, [isAdmin, load]));
   useEffect(() => {
     if (!isAdmin) return;
     const ch = supabase.channel('admin-orders').on('postgres_changes', { event: '*', schema: 'public', table: 'orders' }, () => load()).subscribe();
@@ -79,7 +81,15 @@ export default function Admin() {
       pay_text: String(cfg.pay_text || '').trim(),
       prices: { vip: n('p_vip'), top: n('p_top'), bump: n('p_bump'), slots: n('p_slots'), extend: n('p_extend'), restore: n('p_restore') },
       free_ads: n('free_ads'), slot_pack: Math.max(1, n('slot_pack')), promo_days: Math.max(1, n('promo_days')), ad_days: Math.max(1, n('ad_days')),
+      payme_merchant_id: String(cfg.payme_merchant_id || '').trim(), payme_test: !!cfg.payme_test,
+      click_service_id: String(cfg.click_service_id || '').replace(/\D/g, ''), click_merchant_id: String(cfg.click_merchant_id || '').replace(/\D/g, ''),
     };
+    if (keys.payme || keys.click) {
+      const { error: kErr } = await supabase.rpc('admin_set_payment_secrets', { p_payme_key: keys.payme || null, p_click_secret: keys.click || null });
+      if (kErr) { toast(errText(kErr)); return; }
+      setKeys({ payme: '', click: '' });
+      supabase.rpc('admin_payment_status').then(({ data }) => setPaySt(data));
+    }
     const { error } = await supabase.from('config').update(row).eq('id', 1);
     if (error) toast(errText(error)); else { toast('Sozlamalar saqlandi'); loadConfig(); }
   };
@@ -112,7 +122,7 @@ export default function Admin() {
                 </View>
                 <Text style={{ fontWeight: '700', color: t.ink }}>{SVC[o.svc]} — {fmtNum(o.price)} so'm</Text>
                 {o.ads?.title ? <Text style={{ color: t.muted }} numberOfLines={1}>{o.ads.title}</Text> : null}
-                <Text style={{ color: t.muted, fontSize: 13 }}>To'lovchi: {o.payer} · {profs[o.user_id]?.name || ''} · {ago(o.created_at)}</Text>
+                <Text style={{ color: t.muted, fontSize: 13 }}>{o.provider && o.provider !== 'manual' ? `${o.provider === 'payme' ? 'Payme' : 'Click'} · avtomatik · ` : ''}To'lovchi: {o.payer} · {profs[o.user_id]?.name || ''} · {ago(o.created_at)}</Text>
                 <View style={{ flexDirection: 'row', gap: 6, flexWrap: 'wrap' }}>
                   {o.receipt_path ? <Btn small kind="sec" icon="receipt-outline" title="Chekni ko'rish" onPress={() => showReceipt(o.receipt_path)} /> : null}
                   {o.status === 'pending' ? (
@@ -175,6 +185,21 @@ export default function Admin() {
               ['free_ads', "Bepul e'lonlar limiti"], ['slot_pack', 'Bir paketda nechta joy'], ['promo_days', 'TOP/VIP muddati (kun)'], ['ad_days', "E'lon muddati (kun)"]].map(([k, l]) => (
               <Field key={k} label={l + (k.startsWith('p_') ? " (so'm)" : '')} value={String(cfg[k] ?? '')} keyboardType="number-pad" onChangeText={(v) => setCfg({ ...cfg, [k]: v.replace(/\D/g, '') })} />
             ))}
+            <H>Payme (avtomatik to'lov)</H>
+            <Field label="Merchant ID (kassa ID)" value={String(cfg.payme_merchant_id || '')} onChangeText={(v) => setCfg({ ...cfg, payme_merchant_id: v })} autoCapitalize="none" />
+            <Field label={'Kassa kaliti (Ключ)' + (paySt?.payme_key ? ' · kiritilgan ✓' : '')} value={keys.payme} onChangeText={(v) => setKeys({ ...keys, payme: v })} secureTextEntry autoCapitalize="none"
+              placeholder={paySt?.payme_key ? "O'zgartirish uchun yangisini yozing" : 'Kalitni joylang'} />
+            <Pressable onPress={() => setCfg({ ...cfg, payme_test: !cfg.payme_test })} style={{ flexDirection: 'row', gap: 8, alignItems: 'center' }}>
+              <Ionicons name={cfg.payme_test ? 'checkbox' : 'square-outline'} size={22} color={t.accent} />
+              <Text style={{ color: t.ink }}>Sinov rejimi (test.paycom.uz)</Text>
+            </Pressable>
+            <Note>Payme kabinetida "Endpoint URL": https://qtvyjmiqoknpnlilpfpf.supabase.co/functions/v1/payme · Hisob maydoni: order_id</Note>
+            <H>Click (avtomatik to'lov)</H>
+            <Field label="Service ID" value={String(cfg.click_service_id || '')} keyboardType="number-pad" onChangeText={(v) => setCfg({ ...cfg, click_service_id: v })} />
+            <Field label="Merchant ID" value={String(cfg.click_merchant_id || '')} keyboardType="number-pad" onChangeText={(v) => setCfg({ ...cfg, click_merchant_id: v })} />
+            <Field label={'Secret key' + (paySt?.click_secret ? ' · kiritilgan ✓' : '')} value={keys.click} onChangeText={(v) => setKeys({ ...keys, click: v })} secureTextEntry autoCapitalize="none"
+              placeholder={paySt?.click_secret ? "O'zgartirish uchun yangisini yozing" : 'Kalitni joylang'} />
+            <Note>Click kabinetida Prepare va Complete URL: https://qtvyjmiqoknpnlilpfpf.supabase.co/functions/v1/click</Note>
             <Btn title="Saqlash" onPress={saveCfg} />
           </View>
         ) : null}

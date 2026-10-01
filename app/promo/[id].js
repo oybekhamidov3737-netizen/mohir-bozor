@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { Pressable, ScrollView, Text, View } from 'react-native';
+import { Linking, Platform, Pressable, ScrollView, Text, View } from 'react-native';
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import { Image } from 'expo-image';
 import { Ionicons } from '@expo/vector-icons';
@@ -10,6 +10,7 @@ import { supabase, errText } from '../../src/supabase';
 import { SVC, svcDesc } from '../../src/data';
 import { adState, fmtNum } from '../../src/format';
 import { pickImages, uploadImage, newName } from '../../src/images';
+import { WEB_URL } from '../../src/config';
 import { Btn, Field, Loading, Note } from '../../src/ui';
 
 export default function Promo() {
@@ -56,6 +57,33 @@ export default function Promo() {
     } catch (e) { setErr(errText(e)); } finally { setBusy(false); }
   };
 
+  // Payme / Click: buyurtma yaratib, to'lov sahifasini ochish
+  const b64 = (str) => (typeof btoa === 'function' ? btoa(str) : globalThis.Buffer.from(str).toString('base64'));
+  const payOnline = async (provider) => {
+    setBusy(true); setErr('');
+    try {
+      const { data: o, error } = await supabase.from('orders')
+        .insert({ ad_id: id === 'slots' ? null : ad.id, svc, payer: provider, provider }).select('id, price').single();
+      if (error) throw error;
+      const back = WEB_URL + '/cabinet';
+      let url;
+      if (provider === 'payme') {
+        const base = config.payme_test ? 'https://checkout.test.paycom.uz/' : 'https://checkout.paycom.uz/';
+        url = base + b64(`m=${config.payme_merchant_id};ac.order_id=${o.id};a=${Math.round(+o.price * 100)};c=${back};l=uz`);
+      } else {
+        url = 'https://my.click.uz/services/pay?' + new URLSearchParams({
+          service_id: config.click_service_id, merchant_id: config.click_merchant_id,
+          amount: String(+o.price), transaction_param: o.id, return_url: back,
+        }).toString();
+      }
+      toast("To'lov sahifasi ochilmoqda…");
+      if (Platform.OS === 'web') window.location.href = url; else await Linking.openURL(url);
+      router.back();
+    } catch (e) { setErr(errText(e)); } finally { setBusy(false); }
+  };
+  const hasPayme = !!config.payme_merchant_id;
+  const hasClick = !!(config.click_service_id && config.click_merchant_id);
+
   const copy = async () => { try { await Clipboard.setStringAsync(config.pay_text); toast('Nusxalandi'); } catch (e) {} };
 
   return (
@@ -82,15 +110,27 @@ export default function Promo() {
           <Text style={{ color: t.muted }}>Xizmatni to'lovsiz, darhol yoqishingiz mumkin.</Text>
           <Btn title="Hozir faollashtirish" onPress={activateNow} loading={busy} />
         </View>
-      ) : !config.pay_text ? (
-        <Note kind="gold">To'lov hali ulanmagan. Bozor egasi to'lov rekvizitlarini kiritganidan keyin bu xizmatdan foydalana olasiz.</Note>
+      ) : null}
+
+      {!(isAdmin && ad) && (hasPayme || hasClick) ? (
+        <View style={{ backgroundColor: t.surface, borderWidth: 1, borderColor: t.line, borderRadius: 16, padding: 14, gap: 10 }}>
+          <Text style={{ fontWeight: '800', color: t.ink }}>Tez to'lov · xizmat darhol yoqiladi</Text>
+          <Text style={{ fontFamily: FONT.display, fontSize: 24, color: t.ink }}>{fmtNum(price)} so'm</Text>
+          {hasPayme ? <Btn title="Payme orqali to'lash" onPress={() => payOnline('payme')} loading={busy} style={{ backgroundColor: '#00CCCC' }} /> : null}
+          {hasClick ? <Btn title="Click orqali to'lash" onPress={() => payOnline('click')} loading={busy} style={{ backgroundColor: '#0077FF' }} /> : null}
+          <Text style={{ color: t.muted, fontSize: 12 }}>Humo va Uzcard kartalari qabul qilinadi.</Text>
+        </View>
+      ) : null}
+
+      {isAdmin && ad ? null : !config.pay_text ? (
+        (hasPayme || hasClick) ? null : <Note kind="gold">To'lov hali ulanmagan. Bozor egasi to'lov rekvizitlarini kiritganidan keyin bu xizmatdan foydalana olasiz.</Note>
       ) : (
         <View style={{ backgroundColor: t.surface, borderWidth: 1, borderColor: t.line, borderRadius: 16, padding: 14, gap: 12 }}>
           <View>
             <Text style={{ color: t.muted, fontSize: 12 }}>To'lanadigan summa</Text>
             <Text style={{ fontFamily: FONT.display, fontSize: 26, color: t.ink }}>{fmtNum(price)} so'm</Text>
           </View>
-          <Text style={{ fontWeight: '700', color: t.ink }}>Quyidagi rekvizitlarga o'tkazing</Text>
+          <Text style={{ fontWeight: '700', color: t.ink }}>{hasPayme || hasClick ? "Yoki kartaga o'tkazing (qo'lda tasdiqlanadi)" : "Quyidagi rekvizitlarga o'tkazing"}</Text>
           <Text selectable style={{ backgroundColor: t.chip, borderRadius: 10, padding: 12, color: t.ink, fontSize: 15, lineHeight: 22 }}>{config.pay_text}</Text>
           <View style={{ alignSelf: 'flex-start' }}><Btn small kind="sec" icon="copy-outline" title="Nusxalash" onPress={copy} /></View>
           <Field label="To'lovchi ismi yoki karta oxirgi 4 raqami" value={payer} onChangeText={setPayer} placeholder="Masalan: Aziz, 4417" maxLength={60} />

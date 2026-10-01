@@ -53,7 +53,7 @@ export default function Cabinet() {
     if (!uid) return;
     const [a, o, s, ex] = await Promise.all([
       supabase.from('ads').select('*').eq('user_id', uid).order('created_at', { ascending: false }),
-      supabase.from('orders').select('*').eq('user_id', uid).order('created_at', { ascending: false }).limit(30),
+      supabase.from('orders').select('*').eq('user_id', uid).neq('status', 'unpaid').order('created_at', { ascending: false }).limit(30),
       supabase.from('user_slots').select('extra').eq('user_id', uid).maybeSingle(),
       supabase.rpc('admin_exists'),
     ]);
