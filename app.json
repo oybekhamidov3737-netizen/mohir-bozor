@@ -1,0 +1,57 @@
+{
+  "expo": {
+    "name": "Mohir bozor",
+    "slug": "mohir-bozor",
+    "scheme": "mohir",
+    "version": "1.0.0",
+    "orientation": "portrait",
+    "icon": "./assets/icon.png",
+    "userInterfaceStyle": "automatic",
+    "newArchEnabled": true,
+    "splash": {
+      "image": "./assets/splash.png",
+      "resizeMode": "cover",
+      "backgroundColor": "#1E48D6"
+    },
+    "ios": {
+      "bundleIdentifier": "uz.mohir.bozor",
+      "supportsTablet": false,
+      "config": { "usesNonExemptEncryption": false },
+      "infoPlist": {
+        "NSPhotoLibraryUsageDescription": "E'lon, profil rasmi va to'lov chekini tanlash uchun galereyangizga ruxsat kerak.",
+        "NSCameraUsageDescription": "E'lon va profil uchun rasmga olish uchun kameraga ruxsat kerak."
+      }
+    },
+    "android": {
+      "package": "uz.mohir.bozor",
+      "adaptiveIcon": {
+        "foregroundImage": "./assets/adaptive-icon.png",
+        "backgroundColor": "#1E48D6"
+      },
+      "edgeToEdgeEnabled": true
+    },
+    "web": {
+      "output": "single",
+      "bundler": "metro",
+      "favicon": "./assets/favicon.png",
+      "name": "Mohir bozor",
+      "shortName": "Mohir",
+      "themeColor": "#1E48D6",
+      "backgroundColor": "#F2F3EE"
+    },
+    "plugins": [
+      "expo-router",
+      "expo-font",
+      [
+        "expo-image-picker",
+        {
+          "photosPermission": "E'lon, profil rasmi va to'lov chekini tanlash uchun galereyangizga ruxsat kerak.",
+          "cameraPermission": "E'lon va profil uchun rasmga olish uchun kameraga ruxsat kerak."
+        }
+      ]
+    ],
+    "experiments": {
+      "baseUrl": "/mohir-bozor"
+    }
+  }
+}
