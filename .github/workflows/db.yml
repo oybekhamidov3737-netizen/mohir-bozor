@@ -1,0 +1,44 @@
+name: Bazani sozlash
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'supabase/schema.sql'
+      - '.github/workflows/db.yml'
+  workflow_dispatch:
+
+jobs:
+  apply:
+    runs-on: ubuntu-latest
+    env:
+      PW: ${{ secrets.SUPABASE_DB_PASSWORD }}
+      REF: qtvyjmiqoknpnlilpfpf
+    steps:
+      - uses: actions/checkout@v4
+      - name: Parol borligini tekshirish
+        id: check
+        run: |
+          if [ -z "$PW" ]; then
+            echo "::warning title=Parol yo'q::SUPABASE_DB_PASSWORD secret hali qo'shilmagan"
+            echo "skip=1" >> "$GITHUB_OUTPUT"
+          fi
+      - name: SQL ni Supabase'ga yuborish
+        if: steps.check.outputs.skip != '1'
+        run: |
+          sudo apt-get install -y -qq postgresql-client >/dev/null 2>&1 || true
+          ok=0
+          for H in aws-0-eu-central-1.pooler.supabase.com aws-1-eu-central-1.pooler.supabase.com; do
+            echo "Ulanish: $H"
+            if PGPASSWORD="$PW" psql "host=$H port=5432 dbname=postgres user=postgres.$REF sslmode=require connect_timeout=15" \
+                 -v ON_ERROR_STOP=1 -q -f supabase/schema.sql > out.log 2>&1; then
+              ok=1; echo "Tayyor: $H"; break
+            fi
+            cat out.log
+            if ! grep -qiE "tenant|not found|could not translate|timeout|refused|ENOTFOUND" out.log; then break; fi
+          done
+          if [ "$ok" != "1" ]; then
+            echo "::error title=SQL xatosi::$(tail -n 25 out.log | sed -e 's/%/%25/g' | sed -e ':a;N;$!ba;s/\n/%0A/g')"
+            exit 1
+          fi
+          echo "::notice title=Baza tayyor::Jadvallar va xavfsizlik qoidalari muvaffaqiyatli o'rnatildi"
