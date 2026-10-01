@@ -5,7 +5,7 @@ import { Ionicons } from '@expo/vector-icons';
 import { useT, FONT } from '../src/theme';
 import { useApp } from '../src/app-context';
 import { supabase, errText } from '../src/supabase';
-import { ALLOWED_EMAIL, WEB_URL } from '../src/config';
+import { ALLOWED_EMAIL } from '../src/config';
 import { Btn, Field, Note } from '../src/ui';
 
 export default function Login() {
@@ -23,18 +23,25 @@ export default function Login() {
     const e = email.trim().toLowerCase();
     if (!ALLOWED_EMAIL.test(e)) { setErr('Faqat Gmail (@gmail.com) yoki iCloud (@icloud.com) pochtasini kiriting.'); return; }
     setBusy(true); setErr('');
-    const { error } = await supabase.auth.signInWithOtp({ email: e, options: { shouldCreateUser: true, emailRedirectTo: WEB_URL + '/' } });
+    const { data, error } = await supabase.functions.invoke('send-code', { body: { email: e } });
     setBusy(false);
-    if (error) { setErr(errText(error)); return; }
+    if (error || !data?.ok) {
+      let msg = data?.error;
+      try { if (!msg && error?.context) msg = (await error.context.json()).error; } catch (x) {}
+      setErr(msg || errText(error));
+      return;
+    }
     setStep('code');
-    toast('Xat pochtangizga yuborildi');
+    toast('Kod pochtangizga yuborildi');
   };
 
   const verify = async () => {
     const c = code.replace(/\D/g, '');
-    if (c.length < 6) { setErr('Pochtangizga kelgan 6 xonali kodni kiriting.'); return; }
+    if (c.length < 6) { setErr('Pochtangizga kelgan kodni kiriting.'); return; }
     setBusy(true); setErr('');
-    const { error } = await supabase.auth.verifyOtp({ email: email.trim().toLowerCase(), token: c, type: 'email' });
+    const em = email.trim().toLowerCase();
+    let { error } = await supabase.auth.verifyOtp({ email: em, token: c, type: 'email' });
+    if (error) ({ error } = await supabase.auth.verifyOtp({ email: em, token: c, type: 'magiclink' }));
     if (error) { setBusy(false); setErr(errText(error)); return; }
     const prof = await loadProfile();
     setBusy(false);
@@ -50,25 +57,25 @@ export default function Login() {
         <View style={{ width: 64, height: 64, borderRadius: 20, backgroundColor: t.accentSoft, alignItems: 'center', justifyContent: 'center', marginTop: 10 }}>
           <Ionicons name={step === 'email' ? 'mail-outline' : 'key-outline'} size={30} color={t.accent} />
         </View>
-        <Text style={{ fontFamily: FONT.display, fontSize: 24, color: t.ink }}>{step === 'email' ? 'Kirish yoki ro\'yxatdan o\'tish' : 'Pochtangizni tekshiring'}</Text>
+        <Text style={{ fontFamily: FONT.display, fontSize: 24, color: t.ink }}>{step === 'email' ? 'Kirish yoki ro\'yxatdan o\'tish' : 'Kodni kiriting'}</Text>
         <Text style={{ color: t.muted, lineHeight: 21 }}>
           {step === 'email'
-            ? "Gmail yoki iCloud pochtangizni kiriting. Unga kirish xati yuboramiz. Parol shart emas."
-            : `${email.trim()} manziliga xat yuborildi. Xatni oching va undagi tugmani (Confirm / Log In) bosing: sayt ochiladi va siz avtomatik kirasiz. Xatda 6 xonali kod bo'lsa, uni pastga yozing. Xat kelmasa, "Spam" papkasini tekshiring.`}
+            ? "Gmail yoki iCloud pochtangizni kiriting. Unga kirish kodi yuboramiz. Parol shart emas."
+            : `${email.trim()} manziliga "Mohir bozor" nomidan kod yuborildi. Kodni pastga yozing. Xat kelmasa, "Spam" papkasini tekshiring.`}
         </Text>
         {step === 'email' ? (
           <Field label="Elektron pochta" value={email} onChangeText={setEmail} placeholder="ism@gmail.com" keyboardType="email-address"
             autoCapitalize="none" autoCorrect={false} autoComplete="email" textContentType="emailAddress" onSubmitEditing={send} />
         ) : (
-          <Field label="Kod (agar xatda bo'lsa)" value={code} onChangeText={(v) => setCode(v.replace(/\D/g, '').slice(0, 6))} placeholder="123456"
-            keyboardType="number-pad" autoComplete="one-time-code" textContentType="oneTimeCode" maxLength={6} onSubmitEditing={verify} />
+          <Field label="Tasdiqlash kodi" value={code} onChangeText={(v) => setCode(v.replace(/\D/g, '').slice(0, 8))} placeholder="123456"
+            keyboardType="number-pad" autoComplete="one-time-code" textContentType="oneTimeCode" maxLength={8} onSubmitEditing={verify} />
         )}
         {err ? <Note kind="bad">{err}</Note> : null}
-        <Btn title={step === 'email' ? 'Kirish xatini yuborish' : 'Kodni tasdiqlash'} onPress={step === 'email' ? send : verify} loading={busy} />
+        <Btn title={step === 'email' ? 'Kod yuborish' : 'Kodni tasdiqlash'} onPress={step === 'email' ? send : verify} loading={busy} />
         {step === 'code' ? (
           <View style={{ flexDirection: 'row', gap: 8 }}>
             <Btn style={{ flex: 1 }} kind="ghost" small title="Pochtani o'zgartirish" onPress={() => { setStep('email'); setCode(''); setErr(''); }} />
-            <Btn style={{ flex: 1 }} kind="ghost" small title="Xatni qayta yuborish" onPress={send} disabled={busy} />
+            <Btn style={{ flex: 1 }} kind="ghost" small title="Kodni qayta yuborish" onPress={send} disabled={busy} />
           </View>
         ) : null}
         <Text style={{ color: t.muted, fontSize: 12, lineHeight: 18 }} onPress={() => router.push('/privacy')}>
