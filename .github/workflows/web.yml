@@ -27,7 +27,13 @@ jobs:
       - name: Expo versiyalarini moslashtirish
         run: npx expo install --fix || true
       - name: Saytni yig'ish
-        run: npx expo export -p web
+        run: |
+          set -o pipefail
+          npx expo export -p web 2>&1 | tee build.log
+      - name: Xatoni ko'rsatish
+        if: failure()
+        run: |
+          echo "::error title=Build log::$(tail -n 60 build.log | sed -e 's/\x1b\[[0-9;]*m//g' -e 's/%/%25/g' | sed -e ':a;N;$!ba;s/\n/%0A/g')"
       - name: GitHub Pages uchun tayyorlash
         run: |
           cp dist/index.html dist/404.html
