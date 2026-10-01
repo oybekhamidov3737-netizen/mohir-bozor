@@ -180,7 +180,7 @@ begin
     raise exception 'Bu bozor faqat ijodiy va marketing xizmatlari uchun (SMM, montaj, dizayn, marketing...).';
   end if;
 
-  if public.is_admin() then
+  if public.is_admin() or current_setting('mohir.trusted', true) = '1' then
     new.updated_at := now();
     return new;
   end if;
@@ -298,6 +298,7 @@ begin
       on conflict (user_id) do update set extra = user_slots.extra + c.slot_pack;
     return;
   end if;
+  perform set_config('mohir.trusted', '1', true);
   if p_svc = 'vip' then
     update ads set vip_until = greatest(coalesce(vip_until, now()), now()) + d,
                    top_until = greatest(coalesce(top_until, now()), now()) + d where id = p_ad;
@@ -312,6 +313,7 @@ begin
                    expires_at = now() + ad_d, bumped_at = now() where id = p_ad;
   end if;
   insert into ad_events (ad_id, kind) values (p_ad, p_svc);
+  perform set_config('mohir.trusted', '0', true);
 end $$;
 revoke execute on function public.apply_service(uuid, uuid, text) from public, anon, authenticated;
 
@@ -475,3 +477,7 @@ grant execute on function public.admin_activate(uuid, text), public.admin_delete
   public.reject_order(uuid), public.claim_first_admin(), public.delete_my_account(), public.mark_read(uuid),
   public.start_thread(uuid), public.admin_exists(), public.is_admin() to authenticated;
 grant execute on function public.is_admin() to anon;
+
+-- ---------------------------------------------------------------------
+-- 13. Onlayn to'lov (Payme / Click). Batafsil: supabase/payments.sql
+-- ---------------------------------------------------------------------
