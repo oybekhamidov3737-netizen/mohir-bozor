@@ -5,7 +5,7 @@ import { Ionicons } from '@expo/vector-icons';
 import { useT, FONT } from '../src/theme';
 import { useApp } from '../src/app-context';
 import { supabase, errText } from '../src/supabase';
-import { ALLOWED_EMAIL } from '../src/config';
+import { ALLOWED_EMAIL, WEB_URL } from '../src/config';
 import { Btn, Field, Note } from '../src/ui';
 
 export default function Login() {
@@ -23,11 +23,11 @@ export default function Login() {
     const e = email.trim().toLowerCase();
     if (!ALLOWED_EMAIL.test(e)) { setErr('Faqat Gmail (@gmail.com) yoki iCloud (@icloud.com) pochtasini kiriting.'); return; }
     setBusy(true); setErr('');
-    const { error } = await supabase.auth.signInWithOtp({ email: e, options: { shouldCreateUser: true } });
+    const { error } = await supabase.auth.signInWithOtp({ email: e, options: { shouldCreateUser: true, emailRedirectTo: WEB_URL + '/' } });
     setBusy(false);
     if (error) { setErr(errText(error)); return; }
     setStep('code');
-    toast('Kod pochtangizga yuborildi');
+    toast('Xat pochtangizga yuborildi');
   };
 
   const verify = async () => {
@@ -50,25 +50,25 @@ export default function Login() {
         <View style={{ width: 64, height: 64, borderRadius: 20, backgroundColor: t.accentSoft, alignItems: 'center', justifyContent: 'center', marginTop: 10 }}>
           <Ionicons name={step === 'email' ? 'mail-outline' : 'key-outline'} size={30} color={t.accent} />
         </View>
-        <Text style={{ fontFamily: FONT.display, fontSize: 24, color: t.ink }}>{step === 'email' ? 'Kirish yoki ro\'yxatdan o\'tish' : 'Kodni kiriting'}</Text>
+        <Text style={{ fontFamily: FONT.display, fontSize: 24, color: t.ink }}>{step === 'email' ? 'Kirish yoki ro\'yxatdan o\'tish' : 'Pochtangizni tekshiring'}</Text>
         <Text style={{ color: t.muted, lineHeight: 21 }}>
           {step === 'email'
-            ? "Gmail yoki iCloud pochtangizni kiriting. Unga 6 xonali tasdiqlash kodi yuboramiz. Parol shart emas."
-            : `${email.trim()} manziliga kod yuborildi. Kelmasa, "Spam" papkasini tekshiring.`}
+            ? "Gmail yoki iCloud pochtangizni kiriting. Unga kirish xati yuboramiz. Parol shart emas."
+            : `${email.trim()} manziliga xat yuborildi. Xatni oching va undagi tugmani (Confirm / Log In) bosing: sayt ochiladi va siz avtomatik kirasiz. Xatda 6 xonali kod bo'lsa, uni pastga yozing. Xat kelmasa, "Spam" papkasini tekshiring.`}
         </Text>
         {step === 'email' ? (
           <Field label="Elektron pochta" value={email} onChangeText={setEmail} placeholder="ism@gmail.com" keyboardType="email-address"
             autoCapitalize="none" autoCorrect={false} autoComplete="email" textContentType="emailAddress" onSubmitEditing={send} />
         ) : (
-          <Field label="Tasdiqlash kodi" value={code} onChangeText={(v) => setCode(v.replace(/\D/g, '').slice(0, 6))} placeholder="123456"
+          <Field label="Kod (agar xatda bo'lsa)" value={code} onChangeText={(v) => setCode(v.replace(/\D/g, '').slice(0, 6))} placeholder="123456"
             keyboardType="number-pad" autoComplete="one-time-code" textContentType="oneTimeCode" maxLength={6} onSubmitEditing={verify} />
         )}
         {err ? <Note kind="bad">{err}</Note> : null}
-        <Btn title={step === 'email' ? 'Kod yuborish' : 'Tasdiqlash'} onPress={step === 'email' ? send : verify} loading={busy} />
+        <Btn title={step === 'email' ? 'Kirish xatini yuborish' : 'Kodni tasdiqlash'} onPress={step === 'email' ? send : verify} loading={busy} />
         {step === 'code' ? (
           <View style={{ flexDirection: 'row', gap: 8 }}>
             <Btn style={{ flex: 1 }} kind="ghost" small title="Pochtani o'zgartirish" onPress={() => { setStep('email'); setCode(''); setErr(''); }} />
-            <Btn style={{ flex: 1 }} kind="ghost" small title="Kodni qayta yuborish" onPress={send} disabled={busy} />
+            <Btn style={{ flex: 1 }} kind="ghost" small title="Xatni qayta yuborish" onPress={send} disabled={busy} />
           </View>
         ) : null}
         <Text style={{ color: t.muted, fontSize: 12, lineHeight: 18 }} onPress={() => router.push('/privacy')}>
