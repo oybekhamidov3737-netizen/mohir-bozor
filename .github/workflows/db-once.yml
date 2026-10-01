@@ -1,0 +1,38 @@
+name: Bazada bir martalik ish
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'supabase/once/**'
+  workflow_dispatch:
+
+jobs:
+  run:
+    runs-on: ubuntu-latest
+    env:
+      PW: ${{ secrets.SUPABASE_DB_PASSWORD }}
+      REF: qtvyjmiqoknpnlilpfpf
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 2
+      - name: O'zgargan fayllarni bajarish
+        run: |
+          sudo apt-get install -y -qq postgresql-client >/dev/null 2>&1 || true
+          files=$(git diff --name-only HEAD~1 HEAD -- supabase/once/ | grep '\.sql$' || true)
+          [ -z "$files" ] && files=$(ls supabase/once/*.sql)
+          for f in $files; do
+            [ -f "$f" ] || continue
+            echo "Bajarilmoqda: $f"
+            ok=0
+            for H in aws-0-eu-central-1.pooler.supabase.com aws-1-eu-central-1.pooler.supabase.com; do
+              if PGPASSWORD="$PW" psql "host=$H port=5432 dbname=postgres user=postgres.$REF sslmode=require connect_timeout=15" \
+                   -v ON_ERROR_STOP=1 -f "$f" > out.log 2>&1; then ok=1; break; fi
+              grep -qiE "tenant|not found|could not translate|timeout|refused" out.log || break
+            done
+            cat out.log
+            res=$(grep -o 'NATIJA.*' out.log | tail -1)
+            if [ "$ok" = "1" ]; then echo "::notice title=Bajarildi::$f ${res}"; else
+              echo "::error title=Xato::$(tail -n 15 out.log | sed -e ':a;N;$!ba;s/\n/%0A/g')"; exit 1; fi
+          done
