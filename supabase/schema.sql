@@ -454,3 +454,24 @@ begin
   begin alter publication supabase_realtime add table public.threads; exception when others then null; end;
   begin alter publication supabase_realtime add table public.orders; exception when others then null; end;
 end $$;
+
+-- ---------------------------------------------------------------------
+-- 12. Funksiyalarga ruxsatlar (xavfsizlik)
+-- ---------------------------------------------------------------------
+revoke execute on function public.check_email_domain() from public, anon, authenticated;
+revoke execute on function public.ads_guard() from public, anon, authenticated;
+revoke execute on function public.orders_guard() from public, anon, authenticated;
+revoke execute on function public.on_message() from public, anon, authenticated;
+revoke execute on function public.admin_activate(uuid, text) from public, anon;
+revoke execute on function public.admin_delete_ad(uuid) from public, anon;
+revoke execute on function public.approve_order(uuid) from public, anon;
+revoke execute on function public.reject_order(uuid) from public, anon;
+revoke execute on function public.claim_first_admin() from public, anon;
+revoke execute on function public.delete_my_account() from public, anon;
+revoke execute on function public.mark_read(uuid) from public, anon;
+revoke execute on function public.start_thread(uuid) from public, anon;
+revoke execute on function public.admin_exists() from public, anon;
+grant execute on function public.admin_activate(uuid, text), public.admin_delete_ad(uuid), public.approve_order(uuid),
+  public.reject_order(uuid), public.claim_first_admin(), public.delete_my_account(), public.mark_read(uuid),
+  public.start_thread(uuid), public.admin_exists(), public.is_admin() to authenticated;
+grant execute on function public.is_admin() to anon;
