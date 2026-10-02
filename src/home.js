@@ -145,7 +145,7 @@ export function CatRow({ counts, onPick }) {
   return (
     <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={{ gap: 10, paddingRight: 16 }} style={{ marginHorizontal: -16, paddingLeft: 16 }}>
       {CATS.map((c) => (
-        <Press key={c.id} onPress={() => onPick(c.id)} style={{ width: 108 }}>
+        <Press key={c.id} onPress={() => onPick(c.id)} style={{ width: 118 }}>
           <LinearGradient colors={GRAD[c.c]} start={{ x: 0, y: 0 }} end={{ x: 1, y: 1 }}
             style={{ height: 120, borderRadius: 20, padding: 12, justifyContent: 'space-between', overflow: 'hidden' }}>
             <View pointerEvents="none" style={{ position: 'absolute', right: -24, bottom: -24, width: 90, height: 90, borderRadius: 45, backgroundColor: 'rgba(255,255,255,0.16)' }} />
@@ -153,7 +153,7 @@ export function CatRow({ counts, onPick }) {
               <Ionicons name={c.icon.replace('-outline', '')} size={22} color="#fff" />
             </View>
             <View>
-              <Text style={{ color: '#fff', fontWeight: '800', fontSize: 13 }} numberOfLines={2}>{c.n}</Text>
+              <Text style={{ color: '#fff', fontWeight: '800', fontSize: 12.5 }} numberOfLines={2}>{c.n}</Text>
               <Text style={{ color: 'rgba(255,255,255,0.8)', fontSize: 11, fontWeight: '600' }}>{counts[c.id] ? `${counts[c.id]} ta e'lon` : 'Yangi'}</Text>
             </View>
           </LinearGradient>

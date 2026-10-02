@@ -146,8 +146,10 @@ export function Cover({ cat, big = false, style }) {
     <LinearGradient colors={g} start={{ x: 0, y: 0 }} end={{ x: 1, y: 1 }}
       style={[{ padding: big ? 20 : 12, justifyContent: 'flex-end', overflow: 'hidden' }, StyleSheet.absoluteFill, style]}>
       <View style={{ position: 'absolute', right: -30, top: -30, width: big ? 220 : 130, height: big ? 220 : 130, borderRadius: 999, backgroundColor: 'rgba(255,255,255,0.14)' }} />
-      <Ionicons name={c.icon} size={big ? 120 : 64} color="#fff" style={{ position: 'absolute', right: big ? 18 : 8, top: big ? 18 : 8, opacity: 0.9 }} />
-      <Text style={{ fontFamily: FONT.display, fontSize: big ? 30 : 15, color: '#fff', letterSpacing: -0.3 }} numberOfLines={2}>{c.big}</Text>
+      <View pointerEvents="none" style={{ position: 'absolute', left: 0, right: 0, top: big ? '22%' : '20%', alignItems: 'center' }}>
+        <Ionicons name={c.icon} size={big ? 110 : 50} color="#fff" style={{ opacity: 0.95 }} />
+      </View>
+      <Text style={{ fontFamily: FONT.display, fontSize: big ? 28 : 13, color: '#fff', letterSpacing: -0.3 }} numberOfLines={1} adjustsFontSizeToFit minimumFontScale={0.6}>{c.big}</Text>
     </LinearGradient>
   );
 }
