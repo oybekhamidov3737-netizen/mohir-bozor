@@ -14,6 +14,7 @@ import { InviteCard } from '../../src/invite';
 import { BalanceCard } from '../../src/balance';
 import { AppearanceCard } from '../../src/appearance';
 import { PAYMENTS_IN_APP } from '../../src/pay';
+import { BUILD_ID } from '../../src/updater';
 
 const EV = { top: 'TOP', vip: 'VIP', bump: "ko'tarildi", extend: 'uzaytirildi', restore: 'tiklandi', moderator: "moderator o'chirdi" };
 
@@ -244,6 +245,7 @@ export default function Cabinet() {
         <Btn kind="dng" icon="trash-outline" title={sure === 'acc' ? "Ha, hisobim va e'lonlarim o'chirilsin" : "Hisobni o'chirish"} onPress={deleteAccount} />
       </View>
       <Text style={{ color: t.muted, fontSize: 12, textAlign: 'center', marginTop: 14 }}>{since(profile.created_at)}</Text>
+      <Text style={{ color: t.muted, fontSize: 11, textAlign: 'center', marginTop: 4, opacity: 0.7 }}>Versiya {BUILD_ID || '—'}</Text>
     </>
   );
 }
