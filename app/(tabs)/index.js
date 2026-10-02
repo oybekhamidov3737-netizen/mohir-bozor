@@ -10,7 +10,7 @@ import { useApp, useRequire } from '../../src/app-context';
 import { CATS, ONLINE } from '../../src/data';
 import { shortReg } from '../../src/format';
 import { fetchFeed, fetchVip, fetchProfiles, PAGE } from '../../src/api';
-import { Hero, CatRow, HowItWorks, TopCreators, useStats } from '../../src/home';
+import { CatRow, HowItWorks, TopCreators, useStats, Stories, PromoCarousel, StatStrip } from '../../src/home';
 import { RegionPicker, ListPicker } from '../../src/pickers';
 import { AdCard, Empty, FadeIn, H, Pill, Skeleton } from '../../src/ui';
 
@@ -88,7 +88,15 @@ export default function Home() {
     <View>
       {!active ? (
         <>
-          <Hero stats={stats} onPost={() => { if (need('/post')) router.push('/post'); }} onRegion={() => setRegOpen(true)} />
+          <Stories onPick={setCat} />
+          <PromoCarousel width={W - 32} slides={[
+            { colors: ['#4A6CFF', '#1631B8'], icon: 'sparkles', tag: 'Ijodkorlar bozori', title: 'Kerakli ijodkor shu yerda', text: "14 viloyat va barcha tumanlardagi mutaxassislar", cta: "Xizmatlarni ko'rish", onPress: () => setKind('xizmat') },
+            { colors: ['#FFA155', '#F0532E'], icon: 'film', tag: 'Video montaj', title: 'Reels montaj — tez va sifatli', text: 'Montajchilarning narxi va ishlarini solishtiring', cta: "Ko'rish", onPress: () => setCat('montaj') },
+            { colors: ['#34DBA5', '#0C9A6A'], icon: 'phone-portrait', tag: 'SMM', title: 'Biznesingizga SMM mutaxassisi', text: 'Instagram, Telegram va TikTok sahifalarini yuritish', cta: 'Tanlash', onPress: () => setCat('smm') },
+            { colors: ['#AE8CFF', '#6A3FE0'], icon: 'add-circle', tag: 'Bepul', title: 'Xizmatingizni joylang', text: "Mijozlar sizni o'zi topib, chatga yozadi", cta: "E'lon joylash", onPress: () => { if (need('/post')) router.push('/post'); } },
+            { colors: ['#FF77AE', '#D8246C'], icon: 'color-palette', tag: 'Dizayn', title: 'Logotip, banner va brendbuk', text: 'Grafik dizaynerlar bir joyda', cta: "Ko'rish", onPress: () => setCat('dizayn') },
+          ]} />
+          <StatStrip stats={stats} />
           <H right="12 yo'nalish">Kategoriyalar</H>
           <CatRow counts={stats.cats} onPick={setCat} />
           {vip.length ? (

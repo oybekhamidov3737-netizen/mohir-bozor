@@ -207,3 +207,93 @@ export function TopCreators({ people, onOpen }) {
     </ScrollView>
   );
 }
+
+// Uzum uslubidagi "stories" doirachalari (kategoriyalar)
+export function Stories({ onPick }) {
+  const t = useT();
+  return (
+    <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={{ gap: 12, paddingRight: 16, paddingVertical: 12 }} style={{ marginHorizontal: -16, paddingLeft: 16 }}>
+      {CATS.map((c) => (
+        <Press key={c.id} onPress={() => onPick(c.id)} style={{ width: 70, alignItems: 'center', gap: 6 }}>
+          <LinearGradient colors={['#FFC43D', '#FF5E8A', '#7B5CFF']} start={{ x: 0, y: 1 }} end={{ x: 1, y: 0 }} style={{ padding: 2.5, borderRadius: 999 }}>
+            <View style={{ backgroundColor: t.bg, padding: 2.5, borderRadius: 999 }}>
+              <LinearGradient colors={GRAD[c.c]} start={{ x: 0, y: 0 }} end={{ x: 1, y: 1 }} style={{ width: 58, height: 58, borderRadius: 29, alignItems: 'center', justifyContent: 'center' }}>
+                <Ionicons name={c.icon.replace('-outline', '')} size={26} color="#fff" />
+              </LinearGradient>
+            </View>
+          </LinearGradient>
+          <Text style={{ fontSize: 11, fontWeight: '600', color: t.ink, textAlign: 'center' }} numberOfLines={1}>{c.n.split(',')[0]}</Text>
+        </Press>
+      ))}
+    </ScrollView>
+  );
+}
+
+// Avtomatik aylanuvchi reklama bannerlari
+export function PromoCarousel({ width, slides }) {
+  const t = useT();
+  const ref = useRef(null);
+  const [i, setI] = useState(0);
+  const touching = useRef(false);
+  const W = width;
+  useEffect(() => {
+    const id = setInterval(() => {
+      if (touching.current) return;
+      setI((x) => {
+        const n = (x + 1) % slides.length;
+        ref.current?.scrollTo({ x: n * W, animated: true });
+        return n;
+      });
+    }, 3800);
+    return () => clearInterval(id);
+  }, [W, slides.length]);
+  return (
+    <View style={{ marginTop: 4 }}>
+      <ScrollView ref={ref} horizontal pagingEnabled showsHorizontalScrollIndicator={false} style={{ width: W, borderRadius: 24 }}
+        onTouchStart={() => { touching.current = true; }} onTouchEnd={() => { touching.current = false; }}
+        onMomentumScrollEnd={(e) => setI(Math.round(e.nativeEvent.contentOffset.x / W))}
+        onScroll={Platform.OS === 'web' ? (e) => { const n = Math.round(e.nativeEvent.contentOffset.x / W); if (n !== i) setI(n); } : undefined} scrollEventThrottle={64}>
+        {slides.map((s, k) => (
+          <Pressable key={k} onPress={s.onPress} style={{ width: W }}>
+            <LinearGradient colors={s.colors} start={{ x: 0, y: 0 }} end={{ x: 1, y: 1 }} style={{ height: 168, borderRadius: 24, padding: 18, overflow: 'hidden', justifyContent: 'space-between' }}>
+              <View pointerEvents="none" style={{ position: 'absolute', right: -40, top: -40, width: 200, height: 200, borderRadius: 100, backgroundColor: 'rgba(255,255,255,0.12)' }} />
+              <View pointerEvents="none" style={{ position: 'absolute', right: 30, bottom: -70, width: 150, height: 150, borderRadius: 75, backgroundColor: 'rgba(255,255,255,0.08)' }} />
+              <View pointerEvents="none" style={{ position: 'absolute', right: 18, top: 26, width: 96, height: 96, borderRadius: 30, backgroundColor: 'rgba(255,255,255,0.2)', alignItems: 'center', justifyContent: 'center', transform: [{ rotate: '-10deg' }] }}>
+                <Ionicons name={s.icon} size={52} color="#fff" />
+              </View>
+              {s.tag ? <View style={{ alignSelf: 'flex-start', backgroundColor: 'rgba(255,255,255,0.22)', borderRadius: 999, paddingHorizontal: 9, paddingVertical: 3 }}><Text style={{ color: '#fff', fontSize: 11, fontWeight: '800' }}>{s.tag}</Text></View> : <View />}
+              <View style={{ maxWidth: W - 150 }}>
+                <Text style={{ fontFamily: FONT.display, fontSize: 19, color: '#fff', lineHeight: 24 }}>{s.title}</Text>
+                <Text style={{ color: 'rgba(255,255,255,0.88)', fontSize: 12.5, marginTop: 4 }} numberOfLines={2}>{s.text}</Text>
+              </View>
+              <View style={{ alignSelf: 'flex-start', backgroundColor: '#fff', borderRadius: 12, paddingHorizontal: 12, paddingVertical: 6 }}>
+                <Text style={{ color: s.colors[s.colors.length - 1], fontWeight: '800', fontSize: 12.5 }}>{s.cta} →</Text>
+              </View>
+            </LinearGradient>
+          </Pressable>
+        ))}
+      </ScrollView>
+      <View style={{ flexDirection: 'row', justifyContent: 'center', gap: 5, marginTop: 10 }}>
+        {slides.map((_, k) => <View key={k} style={{ width: k === i ? 18 : 6, height: 6, borderRadius: 3, backgroundColor: k === i ? t.accent : t.line }} />)}
+      </View>
+    </View>
+  );
+}
+
+// Banner ostidagi kichik statistika qatori
+export function StatStrip({ stats }) {
+  const t = useT();
+  return (
+    <View style={{ flexDirection: 'row', backgroundColor: t.surface, borderRadius: 18, paddingVertical: 12, marginTop: 12 }}>
+      {[[stats.ads, "faol e'lon", 'megaphone', '#2747D6'], [stats.users, 'ijodkor', 'people', '#0C9A6A'], [REG_NAMES.length, 'viloyat', 'map', '#F0532E']].map(([v, l, ic, c], k) => (
+        <View key={l} style={{ flex: 1, flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: 8, borderLeftWidth: k ? 1 : 0, borderColor: t.line }}>
+          <Ionicons name={ic} size={18} color={c} />
+          <View>
+            <CountUp value={v} style={{ fontFamily: FONT.display, fontSize: 16, color: t.ink }} />
+            <Text style={{ color: t.muted, fontSize: 10.5, fontWeight: '600' }}>{l}</Text>
+          </View>
+        </View>
+      ))}
+    </View>
+  );
+}
