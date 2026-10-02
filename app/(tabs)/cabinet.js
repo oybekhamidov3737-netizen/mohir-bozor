@@ -9,7 +9,8 @@ import { useApp } from '../../src/app-context';
 import { supabase, adPhoto, errText } from '../../src/supabase';
 import { CATS, ONLINE, SVC, catOf } from '../../src/data';
 import { adState, ago, fmtNum, isTop, isVip, priceText, shortDate, shortReg, since } from '../../src/format';
-import { Avatar, Badge, Btn, Cover, Empty, H, Loading, Note, Seg } from '../../src/ui';
+import { Avatar, Badge, Btn, Cover, Empty, H, Loading, MenuGroup, Note, Press, Seg } from '../../src/ui';
+import { LinearGradient } from 'expo-linear-gradient';
 import { InviteCard } from '../../src/invite';
 import { BalanceCard } from '../../src/balance';
 import { AppearanceCard } from '../../src/appearance';
@@ -133,15 +134,28 @@ export default function Cabinet() {
 
   return wrap(
     <>
-      <View style={{ flexDirection: 'row', gap: 14, alignItems: 'center', backgroundColor: t.surface, borderWidth: 1, borderColor: t.line, borderRadius: 18, padding: 14 }}>
-        <Avatar profile={profile} size={64} />
-        <View style={{ flex: 1, gap: 2 }}>
-          <Text style={{ fontSize: 17, fontWeight: '800', color: t.ink }} numberOfLines={1}>{profile.name}</Text>
-          <Text style={{ fontSize: 13, color: t.muted }} numberOfLines={1}>{[profile.cat ? catOf(profile.cat).n : 'Buyurtmachi', loc].filter(Boolean).join(' · ')}</Text>
-          <Text style={{ fontSize: 12, color: t.muted }} numberOfLines={1}>✓ {session.user.email}</Text>
+      <LinearGradient colors={['#4A6CFF', '#2747D6', '#1631B8']} start={{ x: 0, y: 0 }} end={{ x: 1, y: 1 }} style={{ borderRadius: 26, padding: 18, overflow: 'hidden' }}>
+        <View pointerEvents="none" style={{ position: 'absolute', right: -50, top: -50, width: 180, height: 180, borderRadius: 90, backgroundColor: 'rgba(255,255,255,0.1)' }} />
+        <View style={{ flexDirection: 'row', gap: 14, alignItems: 'center' }}>
+          <View style={{ padding: 3, borderRadius: 22, backgroundColor: 'rgba(255,255,255,0.35)' }}><Avatar profile={profile} size={64} /></View>
+          <View style={{ flex: 1, gap: 2 }}>
+            <Text style={{ fontFamily: FONT.display, fontSize: 18, color: '#fff' }} numberOfLines={1}>{profile.name}</Text>
+            <Text style={{ fontSize: 13, color: 'rgba(255,255,255,0.85)' }} numberOfLines={1}>{[profile.cat ? catOf(profile.cat).n : 'Buyurtmachi', loc].filter(Boolean).join(' · ')}</Text>
+            <Text style={{ fontSize: 12, color: 'rgba(255,255,255,0.7)' }} numberOfLines={1}>✓ {session.user.email}</Text>
+          </View>
+          <Press onPress={() => router.push('/profile')} accessibilityLabel="Profilni tahrirlash" style={{ width: 40, height: 40, borderRadius: 14, backgroundColor: 'rgba(255,255,255,0.2)', alignItems: 'center', justifyContent: 'center' }}>
+            <Ionicons name="create-outline" size={20} color="#fff" />
+          </Press>
         </View>
-        <Btn kind="sec" small title="Tahrirlash" onPress={() => router.push('/profile')} />
-      </View>
+        <View style={{ flexDirection: 'row', marginTop: 16, backgroundColor: 'rgba(0,0,0,0.16)', borderRadius: 16, paddingVertical: 10 }}>
+          {[[grp.live.length, 'faol', 'live'], [grp.expired.length, 'tugagan', 'expired'], [grp.deleted.length, 'arxiv', 'deleted']].map(([v, l, k], i) => (
+            <Pressable key={k} onPress={() => setTab(k)} style={{ flex: 1, alignItems: 'center', borderLeftWidth: i ? 1 : 0, borderColor: 'rgba(255,255,255,0.15)' }}>
+              <Text style={{ fontFamily: FONT.display, fontSize: 18, color: '#fff' }}>{v}</Text>
+              <Text style={{ color: 'rgba(255,255,255,0.75)', fontSize: 11.5, fontWeight: '600' }}>{l}</Text>
+            </Pressable>
+          ))}
+        </View>
+      </LinearGradient>
 
       {PAYMENTS_IN_APP ? <BalanceCard /> : null}
       {PAYMENTS_IN_APP ? <InviteCard /> : null}
@@ -236,14 +250,17 @@ export default function Cabinet() {
       <AppearanceCard />
 
       <H>Hisob</H>
-      <View style={{ gap: 8 }}>
-        <Btn kind="sec" icon="headset-outline" title="Qo'llab-quvvatlash" onPress={() => router.push('/support')} />
-        <Btn kind="sec" icon="reader-outline" title="Foydalanish shartlari" onPress={() => router.push('/terms')} />
-        <Btn kind="sec" icon="document-text-outline" title="Maxfiylik siyosati" onPress={() => router.push('/privacy')} />
-        {PAYMENTS_IN_APP ? <Btn kind="sec" icon="receipt-outline" title="Ommaviy oferta (pullik xizmatlar)" onPress={() => router.push('/offer')} /> : null}
-        <Btn kind="sec" icon="log-out-outline" title="Chiqish" onPress={signOut} />
-        <Btn kind="dng" icon="trash-outline" title={sure === 'acc' ? "Ha, hisobim va e'lonlarim o'chirilsin" : "Hisobni o'chirish"} onPress={deleteAccount} />
-      </View>
+      <MenuGroup items={[
+        { icon: 'headset', title: "Qo'llab-quvvatlash", sub: config.support_phone || '+998 91 001 88 18', color: '#0C9A6A', onPress: () => router.push('/support') },
+        { icon: 'reader', title: 'Foydalanish shartlari', color: '#6A3FE0', onPress: () => router.push('/terms') },
+        { icon: 'lock-closed', title: 'Maxfiylik siyosati', color: '#2747D6', onPress: () => router.push('/privacy') },
+        PAYMENTS_IN_APP ? { icon: 'receipt', title: 'Ommaviy oferta', sub: 'Pullik xizmatlar shartnomasi', color: '#F08A00', onPress: () => router.push('/offer') } : null,
+      ]} />
+      <View style={{ height: 10 }} />
+      <MenuGroup items={[
+        { icon: 'log-out', title: 'Chiqish', color: '#5C6862', onPress: signOut },
+        { icon: 'trash', title: sure === 'acc' ? "Ha, hisobim va e'lonlarim o'chirilsin" : "Hisobni o'chirish", color: '#E5484D', danger: true, onPress: deleteAccount },
+      ]} />
       <Text style={{ color: t.muted, fontSize: 12, textAlign: 'center', marginTop: 14 }}>{since(profile.created_at)}</Text>
       <Text style={{ color: t.muted, fontSize: 11, textAlign: 'center', marginTop: 4, opacity: 0.7 }}>Versiya {BUILD_ID || '—'}</Text>
     </>

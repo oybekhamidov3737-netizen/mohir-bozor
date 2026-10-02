@@ -299,6 +299,29 @@ export function FadeIn({ index = 0, children, style }) {
   );
 }
 
+// Uzum uslubidagi menyu: rangli belgi, nom, o'ng tomonda strelka
+export function MenuGroup({ items }) {
+  const t = useT();
+  return (
+    <View style={{ backgroundColor: t.surface, borderRadius: 20, overflow: 'hidden' }}>
+      {items.filter(Boolean).map((it, i) => (
+        <Pressable key={it.title} onPress={it.onPress} accessibilityRole="button"
+          style={({ pressed }) => ({ flexDirection: 'row', alignItems: 'center', gap: 12, paddingHorizontal: 14, paddingVertical: 13, backgroundColor: pressed ? t.chip : 'transparent', borderTopWidth: i ? 1 : 0, borderColor: t.line })}>
+          <View style={{ width: 36, height: 36, borderRadius: 11, backgroundColor: it.color || t.accent, alignItems: 'center', justifyContent: 'center' }}>
+            <Ionicons name={it.icon} size={19} color="#fff" />
+          </View>
+          <View style={{ flex: 1 }}>
+            <Text style={{ color: it.danger ? t.danger : t.ink, fontWeight: '700', fontSize: 15 }}>{it.title}</Text>
+            {it.sub ? <Text style={{ color: t.muted, fontSize: 12, marginTop: 1 }} numberOfLines={1}>{it.sub}</Text> : null}
+          </View>
+          {it.right ? <Text style={{ color: t.muted, fontSize: 13, fontWeight: '600' }}>{it.right}</Text> : null}
+          <Ionicons name="chevron-forward" size={18} color={t.muted} />
+        </Pressable>
+      ))}
+    </View>
+  );
+}
+
 export function Loading() {
   const t = useT();
   return <View style={{ padding: 40, alignItems: 'center' }}><ActivityIndicator color={t.accent} /></View>;

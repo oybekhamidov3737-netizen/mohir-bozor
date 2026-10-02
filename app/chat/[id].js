@@ -9,8 +9,10 @@ import { useApp } from '../../src/app-context';
 import { supabase, adPhoto, errText } from '../../src/supabase';
 import { fetchProfiles } from '../../src/api';
 import { dayLabel, priceText, timeOnly, seenText, isOnline } from '../../src/format';
-import { Cover, Loading, Note } from '../../src/ui';
+import { Cover, FadeIn, Loading, Note } from '../../src/ui';
+import { LinearGradient } from 'expo-linear-gradient';
 
+const Bubble = ({ colors, start, end, style, children }) => (colors ? <LinearGradient colors={colors} start={start} end={end} style={style}>{children}</LinearGradient> : <View style={style}>{children}</View>);
 const QUICK = ["Assalomu alaykum! E'loningiz hali dolzarbmi?", 'Narxi kelishiladimi?', 'Portfolio yubora olasizmi?', 'Qachon boshlay olasiz?'];
 
 export default function ChatScreen() {
@@ -176,19 +178,22 @@ export default function ChatScreen() {
           const m = item.m;
           const me = member ? m.sender_id === uid : m.sender_id === th.buyer_id;
           return (
-            <View style={{ alignSelf: me ? 'flex-end' : 'flex-start', maxWidth: '80%', backgroundColor: me ? t.accent : t.surface, borderWidth: me ? 0 : 1, borderColor: t.line, borderRadius: 16, borderBottomRightRadius: me ? 5 : 16, borderBottomLeftRadius: me ? 16 : 5, paddingHorizontal: 12, paddingTop: 8, paddingBottom: 5, opacity: m._tmp ? 0.6 : 1 }}>
-              {!member ? <Text style={{ fontSize: 11, fontWeight: '700', color: me ? t.accentInk : t.muted, opacity: 0.8 }}>{profs[m.sender_id]?.name || ''}</Text> : null}
-              <Text selectable style={{ color: me ? t.accentInk : t.ink, fontSize: 15, lineHeight: 21 }}>{m.body}</Text>
+            <FadeIn index={0} style={{ alignSelf: me ? 'flex-end' : 'flex-start', maxWidth: '80%' }}>
+            <Bubble {...(me ? { colors: ['#5A7BFF', '#2747D6'], start: { x: 0, y: 0 }, end: { x: 1, y: 1 } } : {})} style={{ backgroundColor: me ? t.accent : t.surface, borderRadius: 20, borderBottomRightRadius: me ? 6 : 20, borderBottomLeftRadius: me ? 20 : 6, paddingHorizontal: 13, paddingTop: 9, paddingBottom: 6, opacity: m._tmp ? 0.6 : 1,
+              ...(Platform.OS === 'web' ? { boxShadow: '0 2px 8px rgba(0,0,0,0.06)' } : { shadowColor: '#000', shadowOpacity: 0.06, shadowRadius: 6, shadowOffset: { width: 0, height: 2 }, elevation: 1 }) }}>
+              {!member ? <Text style={{ fontSize: 11, fontWeight: '700', color: me ? '#fff' : t.muted, opacity: 0.8 }}>{profs[m.sender_id]?.name || ''}</Text> : null}
+              <Text selectable style={{ color: me ? '#fff' : t.ink, fontSize: 15, lineHeight: 21 }}>{m.body}</Text>
               <View style={{ flexDirection: 'row', alignItems: 'center', gap: 3, alignSelf: 'flex-end', marginTop: 2 }}>
-                <Text style={{ color: me ? t.accentInk : t.muted, fontSize: 10, opacity: 0.75 }}>{timeOnly(m.created_at)}</Text>
+                <Text style={{ color: me ? '#fff' : t.muted, fontSize: 10, opacity: 0.75 }}>{timeOnly(m.created_at)}</Text>
                 {me && member ? (
-                  m._tmp ? <Ionicons name="time-outline" size={12} color={t.accentInk} style={{ opacity: 0.75 }} />
+                  m._tmp ? <Ionicons name="time-outline" size={12} color="#fff" style={{ opacity: 0.75 }} />
                     : otherReadAt && Date.parse(m.created_at) <= Date.parse(otherReadAt)
-                      ? <Ionicons name="checkmark-done" size={15} color={t.accentInk} accessibilityLabel="O'qildi" />
-                      : <Ionicons name="checkmark" size={14} color={t.accentInk} style={{ opacity: 0.75 }} accessibilityLabel="Yetkazildi" />
+                      ? <Ionicons name="checkmark-done" size={15} color="#fff" accessibilityLabel="O'qildi" />
+                      : <Ionicons name="checkmark" size={14} color="#fff" style={{ opacity: 0.75 }} accessibilityLabel="Yetkazildi" />
                 ) : null}
               </View>
-            </View>
+            </Bubble>
+            </FadeIn>
           );
         }}
         ListEmptyComponent={<Text style={{ textAlign: 'center', color: t.muted, marginTop: 40 }}>{support ? 'Savolingizni yozing.' : 'Savolingizni yozing, sotuvchi javob beradi.'}</Text>}
@@ -208,10 +213,12 @@ export default function ChatScreen() {
           ) : null}
           <View style={{ flexDirection: 'row', alignItems: 'flex-end', gap: 8, maxWidth: 736, width: '100%', alignSelf: 'center' }}>
             <TextInput value={text} onChangeText={setText} placeholder="Xabar yozing…" placeholderTextColor={t.muted} multiline maxLength={2000}
-              style={{ flex: 1, minHeight: 42, maxHeight: 120, borderRadius: 21, borderWidth: 1, borderColor: t.line, backgroundColor: t.bg, color: t.ink, paddingHorizontal: 14, paddingTop: 10, paddingBottom: 10, fontSize: 16 }} />
+              style={{ flex: 1, minHeight: 44, maxHeight: 120, borderRadius: 22, borderWidth: 0, borderColor: t.line, backgroundColor: t.chip, color: t.ink, paddingHorizontal: 14, paddingTop: 10, paddingBottom: 10, fontSize: 16 }} />
             <Pressable onPress={() => send()} disabled={!text.trim() || sending} accessibilityLabel="Yuborish"
-              style={{ width: 42, height: 42, borderRadius: 21, backgroundColor: t.accent, alignItems: 'center', justifyContent: 'center', opacity: text.trim() ? 1 : 0.5 }}>
-              <Ionicons name="arrow-up" size={22} color={t.accentInk} />
+              style={({ pressed }) => ({ opacity: text.trim() ? 1 : 0.5, transform: [{ scale: pressed ? 0.9 : 1 }] })}>
+              <LinearGradient colors={['#5A7BFF', '#2747D6']} style={{ width: 44, height: 44, borderRadius: 22, alignItems: 'center', justifyContent: 'center' }}>
+                <Ionicons name="send" size={19} color="#fff" style={{ marginLeft: 2 }} />
+              </LinearGradient>
             </Pressable>
           </View>
           <Text style={{ fontSize: 10, color: t.muted, textAlign: 'center', marginTop: 6 }}>Xavfsizlik uchun suhbatni ma'muriyat ko'rishi mumkin.</Text>

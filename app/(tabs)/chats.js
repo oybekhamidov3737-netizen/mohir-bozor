@@ -56,12 +56,12 @@ export default function Chats() {
         data={rows || []}
         keyExtractor={(x) => x.id}
         contentContainerStyle={{ padding: 16, gap: 10, maxWidth: 760, width: '100%', alignSelf: 'center' }}
-        ListHeaderComponent={<Text style={{ fontFamily: FONT.displayM, fontSize: 20, color: t.ink, paddingBottom: 6 }}>Xabarlar</Text>}
+        ListHeaderComponent={<Text style={{ fontFamily: FONT.display, fontSize: 24, color: t.ink, paddingBottom: 8 }}>Xabarlar</Text>}
         renderItem={({ item }) => {
           const img = adPhoto(item.ads);
           return (
-            <Pressable onPress={() => router.push(`/chat/${item.id}`)} style={{ flexDirection: 'row', gap: 12, alignItems: 'center', backgroundColor: t.surface, borderWidth: 1, borderColor: t.line, borderRadius: 14, padding: 10 }}>
-              <View style={{ width: 56, height: 56, borderRadius: 12, overflow: 'hidden', backgroundColor: t.chip }}>
+            <Pressable onPress={() => router.push(`/chat/${item.id}`)} style={({ pressed }) => ({ flexDirection: 'row', gap: 12, alignItems: 'center', backgroundColor: t.surface, borderRadius: 20, padding: 10, transform: [{ scale: pressed ? 0.97 : 1 }], opacity: pressed ? 0.9 : 1 })}>
+              <View style={{ width: 58, height: 58, borderRadius: 18, overflow: 'hidden', backgroundColor: t.chip }}>
                 {!item.ad_id ? <View style={{ flex: 1, backgroundColor: t.accent, alignItems: 'center', justifyContent: 'center' }}><Ionicons name="headset" size={26} color={t.accentInk} /></View>
                   : img ? <Image source={{ uri: img }} style={{ width: 56, height: 56 }} contentFit="cover" /> : <Cover cat={item.ads?.cat} />}
               </View>
@@ -80,7 +80,7 @@ export default function Chats() {
               </View>
               <View style={{ alignItems: 'flex-end', gap: 6 }}>
                 <Text style={{ fontSize: 11, color: t.muted }}>{ago(item.last_at).replace(/^Bugun /, '')}</Text>
-                {item.unread ? <View style={{ width: 10, height: 10, borderRadius: 5, backgroundColor: t.danger }} /> : null}
+                {item.unread ? <View style={{ minWidth: 20, height: 20, borderRadius: 10, backgroundColor: '#2747D6', alignItems: 'center', justifyContent: 'center', paddingHorizontal: 6 }}><Text style={{ color: '#fff', fontSize: 11, fontWeight: '800' }}>●</Text></View> : null}
               </View>
             </Pressable>
           );
