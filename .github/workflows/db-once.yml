@@ -32,7 +32,7 @@ jobs:
               grep -qiE "tenant|not found|could not translate|timeout|refused" out.log || break
             done
             cat out.log
-            res=$(grep -o 'NATIJA.*' out.log | tail -1)
-            if [ "$ok" = "1" ]; then echo "::notice title=Bajarildi::$f ${res}"; else
+            res=$(grep -o 'NATIJA.*' out.log | sed -e ':a;N;$!ba;s/\n/%0A/g')
+            if [ "$ok" = "1" ]; then echo "::notice title=Bajarildi::$f%0A${res}"; else
               echo "::error title=Xato::$(tail -n 15 out.log | sed -e ':a;N;$!ba;s/\n/%0A/g')"; exit 1; fi
           done

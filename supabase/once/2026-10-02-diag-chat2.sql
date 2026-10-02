@@ -13,3 +13,4 @@ begin
     raise notice 'NATIJA suhbat [%] last=% vaqt=%', r.i, r.lt, r.la;
   end loop;
 end $$;
+-- qayta
