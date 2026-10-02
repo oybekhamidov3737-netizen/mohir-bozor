@@ -24,6 +24,8 @@ export default function Promo() {
   const [receipt, setReceipt] = useState(null);
   const [busy, setBusy] = useState(false);
   const [err, setErr] = useState('');
+  const [bonus, setBonus] = useState(0);
+  useEffect(() => { if (uid) supabase.from('wallets').select('bonus').eq('user_id', uid).maybeSingle().then(({ data }) => setBonus(data?.bonus || 0)); }, [uid]);
 
   useEffect(() => {
     if (id === 'slots') { setSvc('slots'); return; }
@@ -81,6 +83,13 @@ export default function Promo() {
       router.back();
     } catch (e) { setErr(errText(e)); } finally { setBusy(false); }
   };
+  const payBonus = async () => {
+    setBusy(true); setErr('');
+    const { error } = await supabase.rpc('pay_with_bonus', { p_ad: id === 'slots' ? null : ad.id, p_svc: svc });
+    setBusy(false);
+    if (error) { setErr(errText(error)); return; }
+    toast(SVC[svc] + ' bonus hisobidan yoqildi 🎉'); router.back();
+  };
   const hasPayme = !!config.payme_merchant_id;
   const hasClick = !!(config.click_service_id && config.click_merchant_id);
 
@@ -109,6 +118,14 @@ export default function Promo() {
           <Text style={{ fontWeight: '800', color: t.ink }}>Siz bozor egasisiz</Text>
           <Text style={{ color: t.muted }}>Xizmatni to'lovsiz, darhol yoqishingiz mumkin.</Text>
           <Btn title="Hozir faollashtirish" onPress={activateNow} loading={busy} />
+        </View>
+      ) : null}
+
+      {!(isAdmin && ad) && bonus > 0 ? (
+        <View style={{ backgroundColor: t.goldSoft, borderRadius: 16, padding: 14, gap: 8 }}>
+          <Text style={{ fontWeight: '800', color: t.ink }}>Bonus balansingiz: {fmtNum(bonus)} so'm</Text>
+          {bonus >= price ? <Btn kind="gold" icon="gift-outline" title={`Bonus bilan to'lash (${fmtNum(price)} so'm)`} onPress={payBonus} loading={busy} />
+            : <Text style={{ color: t.muted, fontSize: 13 }}>Bu xizmat uchun yana {fmtNum(price - bonus)} so'm bonus kerak. Do'stlaringizni taklif qiling!</Text>}
         </View>
       ) : null}
 

@@ -60,6 +60,7 @@ export const DEF_CFG = {
   free_ads: 5, slot_pack: 5, promo_days: 7, ad_days: 30, pay_text: '',
   payme_merchant_id: '', payme_test: false, click_service_id: '', click_merchant_id: '',
   support_phone: '+998 91 001 88 18',
+  ref_bonus_inviter: 10000, ref_bonus_invitee: 5000,
 };
 
 // Ilova tomonida tez tekshiruv (server ham xuddi shuni tekshiradi)

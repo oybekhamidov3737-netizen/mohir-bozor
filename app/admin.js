@@ -83,6 +83,7 @@ export default function Admin() {
     const row = {
       pay_text: String(cfg.pay_text || '').trim(),
       prices: { vip: n('p_vip'), top: n('p_top'), bump: n('p_bump'), slots: n('p_slots'), extend: n('p_extend'), restore: n('p_restore') },
+      ref_bonus_inviter: n('ref_bonus_inviter'), ref_bonus_invitee: n('ref_bonus_invitee'),
       free_ads: n('free_ads'), slot_pack: Math.max(1, n('slot_pack')), promo_days: Math.max(1, n('promo_days')), ad_days: Math.max(1, n('ad_days')),
       payme_merchant_id: String(cfg.payme_merchant_id || '').trim(), payme_test: !!cfg.payme_test,
       click_service_id: String(cfg.click_service_id || '').replace(/\D/g, ''), click_merchant_id: String(cfg.click_merchant_id || '').replace(/\D/g, ''),
@@ -208,6 +209,7 @@ export default function Admin() {
             <Field label="To'lov rekvizitlari" value={cfg.pay_text} onChangeText={(v) => setCfg({ ...cfg, pay_text: v })} multiline maxLength={400}
               placeholder="Karta raqami va egasining ismi yoki Click/Payme yo'riqnomasi" hint="Bu matn to'lov qilayotgan foydalanuvchilarga ko'rinadi." />
             {[['p_vip', 'VIP narxi'], ['p_top', 'TOP narxi'], ['p_bump', "Ko'tarish narxi"], ['p_extend', 'Uzaytirish narxi'], ['p_restore', 'Tiklash narxi'], ['p_slots', "+e'lon joylari narxi"],
+              ['ref_bonus_inviter', "Taklif qilganga bonus (so'm)"], ['ref_bonus_invitee', "Yangi foydalanuvchiga bonus (so'm)"],
               ['free_ads', "Bepul e'lonlar limiti"], ['slot_pack', 'Bir paketda nechta joy'], ['promo_days', 'TOP/VIP muddati (kun)'], ['ad_days', "E'lon muddati (kun)"]].map(([k, l]) => (
               <Field key={k} label={l + (k.startsWith('p_') ? " (so'm)" : '')} value={String(cfg[k] ?? '')} keyboardType="number-pad" onChangeText={(v) => setCfg({ ...cfg, [k]: v.replace(/\D/g, '') })} />
             ))}

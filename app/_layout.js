@@ -6,6 +6,8 @@ import * as SplashScreen from 'expo-splash-screen';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
 import { useFonts, Unbounded_500Medium, Unbounded_700Bold } from '@expo-google-fonts/unbounded';
 import { AppProvider } from '../src/app-context';
+import * as Linking from 'expo-linking';
+import { captureRef } from '../src/referral';
 import { useT } from '../src/theme';
 import { isConfigured } from '../src/config';
 
@@ -15,6 +17,11 @@ export default function Root() {
   const t = useT();
   const [loaded, err] = useFonts({ Unbounded_500Medium, Unbounded_700Bold });
   useEffect(() => { if (loaded || err) SplashScreen.hideAsync().catch(() => {}); }, [loaded, err]);
+  const url = Linking.useURL();
+  useEffect(() => {
+    if (typeof window !== 'undefined' && window.location) captureRef(window.location.href);
+    if (url) captureRef(url);
+  }, [url]);
   if (!loaded && !err) return null;
 
   if (!isConfigured()) {
