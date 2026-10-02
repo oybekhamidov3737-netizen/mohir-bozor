@@ -42,6 +42,7 @@ export const SVC = {
   extend: 'Muddatni uzaytirish',
   restore: "E'lonni tiklash",
   slots: "Qo'shimcha e'lon joylari",
+  topup: "Hisobni to'ldirish",
 };
 export function svcDesc(k, cfg) {
   const d = cfg?.promo_days ?? 7, a = cfg?.ad_days ?? 30, p = cfg?.slot_pack ?? 5;
