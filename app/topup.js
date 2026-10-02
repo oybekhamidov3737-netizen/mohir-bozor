@@ -7,7 +7,7 @@ import { useApp, useRequire } from '../src/app-context';
 import { supabase, errText } from '../src/supabase';
 import { fmtNum } from '../src/format';
 import { pickImages, uploadImage, newName } from '../src/images';
-import { onlinePayUrl, openPay, hasPayme, hasClick } from '../src/pay';
+import { onlinePayUrl, openPay, hasPayme, hasClick, PAYMENTS_IN_APP } from '../src/pay';
 import { Btn, Field, Note } from '../src/ui';
 import { PayDetails } from '../src/paydetails';
 
@@ -60,6 +60,14 @@ export default function TopUp() {
       router.back();
     } catch (e) { setErr(errText(e)); } finally { setBusy(false); }
   };
+
+  if (!PAYMENTS_IN_APP) {
+    return (
+      <View style={{ flex: 1, backgroundColor: t.bg, padding: 16 }}>
+        <Note>Bu bo'lim ilovada mavjud emas.</Note>
+      </View>
+    );
+  }
 
   return (
     <ScrollView style={{ flex: 1, backgroundColor: t.bg }} contentContainerStyle={{ padding: 16, gap: 14, paddingBottom: 40, maxWidth: 560, width: '100%', alignSelf: 'center' }} keyboardShouldPersistTaps="handled">

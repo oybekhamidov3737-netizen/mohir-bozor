@@ -30,3 +30,8 @@ export function cardNumber(text) {
   return m ? m[0].replace(/\D/g, '') : '';
 }
 export const fmtCard = (d) => d.replace(/(\d{4})(?=\d)/g, '$1 ');
+
+// Do'kon ilovalarida (iOS / Android) raqamli xizmatlar uchun tashqi to'lov
+// ko'rsatilmaydi: Apple va Google qoidalari. To'ldirish veb-saytda qilinadi,
+// ilovada esa tayyor balansdan foydalanish mumkin.
+export const PAYMENTS_IN_APP = Platform.OS === 'web';

@@ -12,6 +12,7 @@ import { pickImages, uploadImage, newName } from '../../src/images';
 import { WEB_URL } from '../../src/config';
 import { Btn, Field, Loading, Note } from '../../src/ui';
 import { PayDetails } from '../../src/paydetails';
+import { PAYMENTS_IN_APP } from '../../src/pay';
 
 export default function Promo() {
   const { id, svc: want } = useLocalSearchParams();
@@ -128,12 +129,12 @@ export default function Promo() {
           {mainBal + bonus >= price ? <Btn icon="wallet-outline" title={`Balansdan to'lash · ${fmtNum(price)} so'm`} onPress={payBonus} loading={busy} />
             : <>
                 <Text style={{ color: t.muted, fontSize: 13 }}>Yana {fmtNum(price - mainBal - bonus)} so'm yetishmaydi.</Text>
-                <Btn kind="sec" icon="add-circle-outline" title="Hisobni to'ldirish" onPress={() => router.push('/topup')} />
+                {PAYMENTS_IN_APP ? <Btn kind="sec" icon="add-circle-outline" title="Hisobni to'ldirish" onPress={() => router.push('/topup')} /> : null}
               </>}
         </View>
       ) : null}
 
-      {!(isAdmin && ad) && (hasPayme || hasClick) ? (
+      {PAYMENTS_IN_APP && !(isAdmin && ad) && (hasPayme || hasClick) ? (
         <View style={{ backgroundColor: t.surface, borderWidth: 1, borderColor: t.line, borderRadius: 16, padding: 14, gap: 10 }}>
           <Text style={{ fontWeight: '800', color: t.ink }}>Tez to'lov · xizmat darhol yoqiladi</Text>
           <Text style={{ fontFamily: FONT.display, fontSize: 24, color: t.ink }}>{fmtNum(price)} so'm</Text>
@@ -143,7 +144,7 @@ export default function Promo() {
         </View>
       ) : null}
 
-      {isAdmin && ad ? null : !config.pay_text ? (
+      {isAdmin && ad ? null : !PAYMENTS_IN_APP ? null : !config.pay_text ? (
         (hasPayme || hasClick) ? null : <Note kind="gold">To'lov hali ulanmagan. Bozor egasi to'lov rekvizitlarini kiritganidan keyin bu xizmatdan foydalana olasiz.</Note>
       ) : (
         <View style={{ backgroundColor: t.surface, borderWidth: 1, borderColor: t.line, borderRadius: 16, padding: 14, gap: 12 }}>

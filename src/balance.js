@@ -7,6 +7,7 @@ import { useApp } from './app-context';
 import { supabase } from './supabase';
 import { ago, fmtNum } from './format';
 import { SVC } from './data';
+import { PAYMENTS_IN_APP } from './pay';
 
 const KIND = { invitee: "Taklif bonusi", inviter: "Do'stingiz faol bo'ldi", spend: 'Xizmat uchun', admin: "Ma'muriyat tomonidan", topup: "Hisob to'ldirildi" };
 
@@ -47,11 +48,11 @@ export function BalanceCard() {
           <Text style={{ color: t.accentInk, fontSize: 17, fontWeight: '800' }}>{fmtNum(bal || 0)} so'm</Text>
         </View>
       </View>
-      <Pressable onPress={() => router.push('/topup')} accessibilityRole="button"
+      {PAYMENTS_IN_APP ? <Pressable onPress={() => router.push('/topup')} accessibilityRole="button"
         style={{ backgroundColor: t.accentInk, borderRadius: 12, height: 46, flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: 8 }}>
         <Ionicons name="add-circle" size={20} color={t.accent} />
         <Text style={{ color: t.accent, fontWeight: '800', fontSize: 15 }}>Hisobni to'ldirish</Text>
-      </Pressable>
+      </Pressable> : null}
       <Pressable onPress={() => setOpen(!open)} style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: 4, paddingVertical: 2 }}>
         <Text style={{ color: t.accentInk, fontWeight: '700', fontSize: 13 }}>Harakatlar tarixi</Text>
         <Ionicons name={open ? 'chevron-up' : 'chevron-down'} size={14} color={t.accentInk} />
