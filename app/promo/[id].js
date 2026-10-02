@@ -11,6 +11,7 @@ import { SVC, svcDesc } from '../../src/data';
 import { adState, fmtNum } from '../../src/format';
 import { pickImages, uploadImage, newName } from '../../src/images';
 import { WEB_URL } from '../../src/config';
+import { cardNumber } from '../../src/pay';
 import { Btn, Field, Loading, Note } from '../../src/ui';
 
 export default function Promo() {
@@ -94,7 +95,10 @@ export default function Promo() {
   const hasPayme = !!config.payme_merchant_id;
   const hasClick = !!(config.click_service_id && config.click_merchant_id);
 
-  const copy = async () => { try { await Clipboard.setStringAsync(config.pay_text); toast('Nusxalandi'); } catch (e) {} };
+  const copy = async () => {
+    const c = cardNumber(config.pay_text) || config.pay_text;
+    try { await Clipboard.setStringAsync(c); toast('Karta raqami nusxalandi'); } catch (e) {}
+  };
 
   return (
     <ScrollView style={{ flex: 1, backgroundColor: t.bg }} contentContainerStyle={{ padding: 16, gap: 12, paddingBottom: 40, maxWidth: 560, width: '100%', alignSelf: 'center' }} keyboardShouldPersistTaps="handled">
@@ -154,7 +158,7 @@ export default function Promo() {
           </View>
           <Text style={{ fontWeight: '700', color: t.ink }}>{hasPayme || hasClick ? "Yoki kartaga o'tkazing (qo'lda tasdiqlanadi)" : "Quyidagi rekvizitlarga o'tkazing"}</Text>
           <Text selectable style={{ backgroundColor: t.chip, borderRadius: 10, padding: 12, color: t.ink, fontSize: 15, lineHeight: 22 }}>{config.pay_text}</Text>
-          <View style={{ alignSelf: 'flex-start' }}><Btn small kind="sec" icon="copy-outline" title="Nusxalash" onPress={copy} /></View>
+          <View style={{ alignSelf: 'flex-start' }}><Btn small kind="sec" icon="copy-outline" title="Karta raqamini nusxalash" onPress={copy} /></View>
           <Field label="To'lovchi ismi yoki karta oxirgi 4 raqami" value={payer} onChangeText={setPayer} placeholder="Masalan: Aziz, 4417" maxLength={60} />
           <View style={{ gap: 8 }}>
             <Text style={{ fontWeight: '700', color: t.ink, fontSize: 13 }}>To'lov cheki (skrinshot)</Text>

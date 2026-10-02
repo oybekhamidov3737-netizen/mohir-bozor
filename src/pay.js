@@ -23,3 +23,10 @@ export async function openPay(url) {
 
 export const hasPayme = (c) => !!c.payme_merchant_id;
 export const hasClick = (c) => !!(c.click_service_id && c.click_merchant_id);
+
+// Rekvizit matnidan faqat karta raqamini ajratib olish (16 xonali)
+export function cardNumber(text) {
+  const m = String(text || '').match(/\d(?:[\s-]?\d){15,18}/);
+  return m ? m[0].replace(/\D/g, '') : '';
+}
+export const fmtCard = (d) => d.replace(/(\d{4})(?=\d)/g, '$1 ');
