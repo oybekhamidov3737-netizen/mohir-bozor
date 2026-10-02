@@ -149,7 +149,7 @@ export function Cover({ cat, big = false, style }) {
       <View pointerEvents="none" style={{ position: 'absolute', left: 0, right: 0, top: big ? '22%' : '20%', alignItems: 'center' }}>
         <Ionicons name={c.icon} size={big ? 110 : 50} color="#fff" style={{ opacity: 0.95 }} />
       </View>
-      <Text style={{ fontFamily: FONT.display, fontSize: big ? 28 : 13, color: '#fff', letterSpacing: -0.3 }} numberOfLines={1} adjustsFontSizeToFit minimumFontScale={0.6}>{c.big}</Text>
+      <Text style={{ fontFamily: FONT.display, fontSize: (big ? 28 : 13) * (c.big.length > 10 ? 0.8 : 1), color: '#fff', letterSpacing: -0.3 }} numberOfLines={1} adjustsFontSizeToFit minimumFontScale={0.6}>{c.big}</Text>
     </LinearGradient>
   );
 }
