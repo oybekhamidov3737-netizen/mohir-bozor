@@ -62,14 +62,15 @@ export default function Chats() {
           return (
             <Pressable onPress={() => router.push(`/chat/${item.id}`)} style={{ flexDirection: 'row', gap: 12, alignItems: 'center', backgroundColor: t.surface, borderWidth: 1, borderColor: t.line, borderRadius: 14, padding: 10 }}>
               <View style={{ width: 56, height: 56, borderRadius: 12, overflow: 'hidden', backgroundColor: t.chip }}>
-                {img ? <Image source={{ uri: img }} style={{ width: 56, height: 56 }} contentFit="cover" /> : <Cover cat={item.ads?.cat} />}
+                {!item.ad_id ? <View style={{ flex: 1, backgroundColor: t.accent, alignItems: 'center', justifyContent: 'center' }}><Ionicons name="headset" size={26} color={t.accentInk} /></View>
+                  : img ? <Image source={{ uri: img }} style={{ width: 56, height: 56 }} contentFit="cover" /> : <Cover cat={item.ads?.cat} />}
               </View>
               <View style={{ flex: 1, gap: 2 }}>
                 <View style={{ flexDirection: 'row', alignItems: 'center', gap: 6 }}>
                   <Avatar profile={item.other} size={18} />
-                  <Text style={{ fontWeight: '700', color: t.ink, flex: 1 }} numberOfLines={1}>{item.other?.name || 'Foydalanuvchi'}</Text>
+                  <Text style={{ fontWeight: '700', color: t.ink, flex: 1 }} numberOfLines={1}>{!item.ad_id && item.buyer_id === uid ? 'Mohir bozor jamoasi' : item.other?.name || 'Foydalanuvchi'}</Text>
                 </View>
-                <Text style={{ fontSize: 12, color: t.muted }} numberOfLines={1}>{item.ads?.title || "E'lon o'chirilgan"}</Text>
+                <Text style={{ fontSize: 12, color: t.muted }} numberOfLines={1}>{!item.ad_id ? (item.buyer_id === uid ? "Qo'llab-quvvatlash" : 'Murojaat') : item.ads?.title || "E'lon o'chirilgan"}</Text>
                 <Text style={{ fontSize: 13, color: item.unread ? t.ink : t.muted, fontWeight: item.unread ? '700' : '400' }} numberOfLines={1}>
                   {item.last_sender === uid ? 'Siz: ' : ''}{item.last_text}
                 </Text>

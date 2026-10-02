@@ -49,6 +49,8 @@ export default function Root() {
           <Stack.Screen name="promo/[id]" options={{ title: 'Reklama va xizmatlar', presentation: 'modal' }} />
           <Stack.Screen name="admin" options={{ title: 'Boshqaruv paneli' }} />
           <Stack.Screen name="privacy" options={{ title: 'Maxfiylik siyosati' }} />
+          <Stack.Screen name="terms" options={{ title: 'Foydalanish shartlari' }} />
+          <Stack.Screen name="support" options={{ title: "Qo'llab-quvvatlash" }} />
         </Stack>
       </AppProvider>
     </SafeAreaProvider>

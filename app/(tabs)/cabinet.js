@@ -99,7 +99,10 @@ export default function Cabinet() {
     <>
       <Text style={{ fontFamily: FONT.displayM, fontSize: 20, color: t.ink }}>Kabinet</Text>
       <Onboard onOpen={() => router.push('/login')} />
-      <Pressable onPress={() => router.push('/privacy')} style={{ marginTop: 18 }}><Text style={{ color: t.muted, textAlign: 'center' }}>Maxfiylik siyosati</Text></Pressable>
+      <View style={{ marginTop: 14, gap: 8 }}>
+        <Btn kind="sec" icon="headset-outline" title="Qo'llab-quvvatlash" onPress={() => router.push('/support')} />
+        <Pressable onPress={() => router.push('/privacy')}><Text style={{ color: t.muted, textAlign: 'center' }}>Maxfiylik siyosati</Text></Pressable>
+      </View>
     </>
   );
   if (profile === undefined) return wrap(<Loading />);
@@ -221,6 +224,8 @@ export default function Cabinet() {
 
       <H>Hisob</H>
       <View style={{ gap: 8 }}>
+        <Btn kind="sec" icon="headset-outline" title="Qo'llab-quvvatlash" onPress={() => router.push('/support')} />
+        <Btn kind="sec" icon="reader-outline" title="Foydalanish shartlari" onPress={() => router.push('/terms')} />
         <Btn kind="sec" icon="document-text-outline" title="Maxfiylik siyosati" onPress={() => router.push('/privacy')} />
         <Btn kind="sec" icon="log-out-outline" title="Chiqish" onPress={signOut} />
         <Btn kind="dng" icon="trash-outline" title={sure === 'acc' ? "Ha, hisobim va e'lonlarim o'chirilsin" : "Hisobni o'chirish"} onPress={deleteAccount} />

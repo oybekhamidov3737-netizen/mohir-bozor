@@ -19,6 +19,7 @@ export default function Admin() {
   const [orders, setOrders] = useState(null);
   const [ads, setAds] = useState(null);
   const [threads, setThreads] = useState(null);
+  const [reports, setReports] = useState([]);
   const [profs, setProfs] = useState({});
   const [adFilter, setAdFilter] = useState('all');
   const [receipt, setReceipt] = useState(null);
@@ -29,6 +30,8 @@ export default function Admin() {
   const [keys, setKeys] = useState({ payme: '', click: '' });
 
   const load = useCallback(async () => {
+    const { data: rp } = await supabase.from('reports').select('*, ads(id,title,seller_name,status)').order('created_at', { ascending: false }).limit(200);
+    setReports(rp || []);
     const [o, a, th] = await Promise.all([
       supabase.from('orders').select('*, ads(title)').neq('status', 'unpaid').order('created_at', { ascending: false }).limit(300),
       supabase.from('ads').select('*').order('created_at', { ascending: false }).limit(300),
@@ -99,6 +102,7 @@ export default function Admin() {
       <ScrollView horizontal showsHorizontalScrollIndicator={false} style={{ flexGrow: 0 }} contentContainerStyle={{ gap: 8, padding: 16, paddingBottom: 8 }}>
         <Pill title="To'lovlar" on={tab === 'orders'} onPress={() => setTab('orders')} count={pending.length || undefined} />
         <Pill title="Barcha e'lonlar" on={tab === 'ads'} onPress={() => setTab('ads')} />
+        <Pill title="Shikoyatlar" on={tab === 'reports'} onPress={() => setTab('reports')} count={reports.filter((r) => r.status === 'open').length || undefined} />
         <Pill title="Suhbatlar" on={tab === 'chats'} onPress={() => setTab('chats')} />
         <Pill title="Sozlamalar" on={tab === 'cfg'} onPress={() => setTab('cfg')} />
       </ScrollView>
@@ -166,13 +170,35 @@ export default function Admin() {
               );
             }) : <Empty title="Bu bo'limda e'lon yo'q" />}
           </>
+        ) : tab === 'reports' ? (
+          <>
+            {reports.length ? reports.map((r) => (
+              <View key={r.id} style={{ backgroundColor: t.surface, borderWidth: 1, borderColor: r.status === 'open' ? t.danger : t.line, borderRadius: 14, padding: 12, gap: 6 }}>
+                <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', gap: 8 }}>
+                  <Text style={{ fontWeight: '800', color: t.ink, flex: 1 }} numberOfLines={1}>{r.ads?.title || "E'lon o'chirilgan"}</Text>
+                  <Badge kind={r.status === 'open' ? 'no' : 'ok'}>{r.status === 'open' ? 'YANGI' : "KO'RILDI"}</Badge>
+                </View>
+                <Text style={{ color: t.muted, fontSize: 13 }}>{({ fraud: 'Firibgarlik', offtopic: "Mavzuga aloqasi yo'q", contact: 'Tashqi kontakt', spam: 'Spam', offensive: 'Haqoratli', other: 'Boshqa' })[r.reason]} · {r.ads?.seller_name || ''} · {ago(r.created_at)}</Text>
+                <View style={{ flexDirection: 'row', gap: 6, flexWrap: 'wrap' }}>
+                  {r.ads ? <Btn small kind="sec" title="Ko'rish" onPress={() => router.push(`/ad/${r.ad_id}`)} /> : null}
+                  {r.ads && r.ads.status === 'active' ? <Btn small kind="dng" title={sure === 'r' + r.id ? 'Ha, olib tashlash' : "E'lonni o'chirish"} onPress={() => confirm('r' + r.id, async () => {
+                    const { error } = await supabase.rpc('admin_delete_ad', { p_ad: r.ad_id });
+                    if (error) { toast(errText(error)); return; }
+                    await supabase.from('reports').update({ status: 'done' }).eq('ad_id', r.ad_id);
+                    toast("E'lon olib tashlandi"); load();
+                  })} /> : null}
+                  {r.status === 'open' ? <Btn small title="Ko'rildi" onPress={async () => { await supabase.from('reports').update({ status: 'done' }).eq('id', r.id); load(); }} /> : null}
+                </View>
+              </View>
+            )) : <Empty title="Shikoyatlar yo'q" text="Foydalanuvchilar e'longa shikoyat qilsa, shu yerda chiqadi." />}
+          </>
         ) : tab === 'chats' ? (
           <>
             <Note>Suhbatlarni faqat shikoyat yoki firibgarlikni tekshirish uchun oching. Foydalanuvchilar bu haqda chat oynasida ogohlantirilgan.</Note>
             {threads.length ? threads.map((th) => (
               <Pressable key={th.id} onPress={() => router.push(`/chat/${th.id}`)} style={{ backgroundColor: t.surface, borderWidth: 1, borderColor: t.line, borderRadius: 14, padding: 12, gap: 3 }}>
                 <Text style={{ fontWeight: '700', color: t.ink }} numberOfLines={1}>{profs[th.seller_id]?.name || 'Sotuvchi'} ↔ {profs[th.buyer_id]?.name || 'Xaridor'}</Text>
-                <Text style={{ color: t.muted, fontSize: 12 }} numberOfLines={1}>{th.ads?.title || "E'lon o'chirilgan"}</Text>
+                <Text style={{ color: t.muted, fontSize: 12 }} numberOfLines={1}>{!th.ad_id ? "Qo'llab-quvvatlash murojaati" : th.ads?.title || "E'lon o'chirilgan"}</Text>
                 <Text style={{ color: t.muted, fontSize: 13 }} numberOfLines={1}>{th.last_text} · {ago(th.last_at)}</Text>
               </Pressable>
             )) : <Empty title="Hozircha suhbatlar yo'q" />}

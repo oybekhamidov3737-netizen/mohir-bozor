@@ -78,8 +78,8 @@ export default function Login() {
             <Btn style={{ flex: 1 }} kind="ghost" small title="Kodni qayta yuborish" onPress={send} disabled={busy} />
           </View>
         ) : null}
-        <Text style={{ color: t.muted, fontSize: 12, lineHeight: 18 }} onPress={() => router.push('/privacy')}>
-          Davom etish orqali siz maxfiylik siyosatiga rozilik bildirasiz. <Text style={{ color: t.accent }}>Maxfiylik siyosati</Text>
+        <Text style={{ color: t.muted, fontSize: 12, lineHeight: 18 }}>
+          Davom etish orqali siz <Text style={{ color: t.accent }} onPress={() => router.push('/terms')}>foydalanish shartlari</Text> va <Text style={{ color: t.accent }} onPress={() => router.push('/privacy')}>maxfiylik siyosati</Text>ga rozilik bildirasiz.
         </Text>
       </ScrollView>
     </KeyboardAvoidingView>

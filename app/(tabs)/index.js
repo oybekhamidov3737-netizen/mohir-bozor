@@ -168,10 +168,15 @@ export default function Home() {
             </View>
             <Text style={{ fontFamily: FONT.display, fontSize: 20, color: t.ink }}>mohir</Text>
           </Pressable>
-          <Pressable onPress={() => setRegOpen(true)} style={{ flexDirection: 'row', alignItems: 'center', gap: 5, borderWidth: 1, borderColor: t.line, backgroundColor: t.surface, borderRadius: 999, height: 34, paddingHorizontal: 11, maxWidth: '55%' }}>
-            <Ionicons name="location-outline" size={16} color={t.accent} />
-            <Text style={{ fontSize: 13, fontWeight: '600', color: t.ink }} numberOfLines={1}>{locText}</Text>
-          </Pressable>
+          <View style={{ flexDirection: 'row', gap: 8, alignItems: 'center', maxWidth: '62%' }}>
+            <Pressable onPress={() => setRegOpen(true)} style={{ flexDirection: 'row', alignItems: 'center', gap: 5, borderWidth: 1, borderColor: t.line, backgroundColor: t.surface, borderRadius: 999, height: 34, paddingHorizontal: 11, flexShrink: 1 }}>
+              <Ionicons name="location-outline" size={16} color={t.accent} />
+              <Text style={{ fontSize: 13, fontWeight: '600', color: t.ink }} numberOfLines={1}>{locText}</Text>
+            </Pressable>
+            <Pressable onPress={() => router.push('/support')} accessibilityLabel="Qo'llab-quvvatlash" style={{ width: 34, height: 34, borderRadius: 17, borderWidth: 1, borderColor: t.line, backgroundColor: t.surface, alignItems: 'center', justifyContent: 'center' }}>
+              <Ionicons name="headset-outline" size={17} color={t.ink} />
+            </Pressable>
+          </View>
         </View>
         <View style={{ flexDirection: 'row', alignItems: 'center', gap: 8, backgroundColor: t.surface, borderWidth: 1, borderColor: t.line, borderRadius: 12, paddingHorizontal: 12, height: 46, maxWidth: 1068, width: '100%', alignSelf: 'center' }}>
           <Ionicons name="search" size={19} color={t.muted} />

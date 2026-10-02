@@ -54,7 +54,8 @@ export default function ChatScreen() {
 
   const member = uid === th.buyer_id || uid === th.seller_id;
   const otherId = uid === th.buyer_id ? th.seller_id : th.buyer_id;
-  const title = member ? profs[otherId]?.name || 'Suhbat' : `${profs[th.seller_id]?.name || 'Sotuvchi'} ↔ ${profs[th.buyer_id]?.name || 'Xaridor'}`;
+  const support = !th.ad_id;
+  const title = support ? (uid === th.buyer_id ? "Qo'llab-quvvatlash" : `Murojaat: ${profs[th.buyer_id]?.name || 'Foydalanuvchi'}`) : member ? profs[otherId]?.name || 'Suhbat' : `${profs[th.seller_id]?.name || 'Sotuvchi'} ↔ ${profs[th.buyer_id]?.name || 'Xaridor'}`;
   const img = adPhoto(th.ads);
 
   const send = async (body) => {
@@ -98,6 +99,9 @@ export default function ChatScreen() {
           <Ionicons name="chevron-forward" size={16} color={t.muted} />
         </Pressable>
       ) : null}
+      {support && uid === th.buyer_id ? (
+        <View style={{ paddingHorizontal: 12, paddingTop: 12 }}><Note>Mohir bozor jamoasi. Savolingizni yozing, odatda bir necha soat ichida javob beramiz.</Note></View>
+      ) : null}
       {!member && isAdmin ? <View style={{ paddingHorizontal: 12 }}><Note kind="gold">Siz bu suhbatni moderator sifatida faqat o'qiyapsiz.</Note></View> : null}
       <FlatList
         ref={list}
@@ -117,11 +121,11 @@ export default function ChatScreen() {
             </View>
           );
         }}
-        ListEmptyComponent={<Text style={{ textAlign: 'center', color: t.muted, marginTop: 40 }}>Savolingizni yozing, sotuvchi javob beradi.</Text>}
+        ListEmptyComponent={<Text style={{ textAlign: 'center', color: t.muted, marginTop: 40 }}>{support ? 'Savolingizni yozing.' : 'Savolingizni yozing, sotuvchi javob beradi.'}</Text>}
       />
       {member ? (
         <View style={{ borderTopWidth: 1, borderColor: t.line, backgroundColor: t.surface, paddingHorizontal: 12, paddingTop: 8, paddingBottom: ins.bottom + 8 }}>
-          {!msgs.length ? (
+          {!msgs.length && !support ? (
             <View style={{ flexDirection: 'row', flexWrap: 'wrap', gap: 6, marginBottom: 8 }}>
               {QUICK.map((q) => (
                 <Pressable key={q} onPress={() => send(q)} style={{ borderWidth: 1, borderColor: t.line, borderRadius: 999, paddingHorizontal: 11, paddingVertical: 6 }}>

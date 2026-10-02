@@ -59,6 +59,7 @@ export const DEF_CFG = {
   prices: { top: 25000, vip: 49000, bump: 9000, slots: 19000, extend: 5000, restore: 7000 },
   free_ads: 5, slot_pack: 5, promo_days: 7, ad_days: 30, pay_text: '',
   payme_merchant_id: '', payme_test: false, click_service_id: '', click_merchant_id: '',
+  support_phone: '+998 91 001 88 18',
 };
 
 // Ilova tomonida tez tekshiruv (server ham xuddi shuni tekshiradi)

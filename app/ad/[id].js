@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from 'react';
+import { ListPicker } from '../../src/pickers';
 import { Linking, Platform, Pressable, ScrollView, Share, Text, useWindowDimensions, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { Stack, useLocalSearchParams, useRouter } from 'expo-router';
@@ -29,6 +30,15 @@ export default function AdPage() {
   const [phone, setPhone] = useState(false);
   const [busy, setBusy] = useState(false);
   const [sure, setSure] = useState(false);
+  const [reportOpen, setReportOpen] = useState(false);
+  const REASONS = [['fraud', 'Firibgarlik'], ['offtopic', 'Mavzuga aloqasi yo\'q'], ['contact', 'Tashqi kontakt (Telegram va h.k.)'], ['spam', 'Spam yoki takror e\'lon'], ['offensive', 'Haqoratli matn yoki rasm'], ['other', 'Boshqa sabab']];
+  const sendReport = async (reason) => {
+    if (!need(`/ad/${id}`)) return;
+    const { error } = await supabase.from('reports').insert({ ad_id: id, reason });
+    if (error && /duplicate|unique/i.test(error.message)) { toast("Siz bu e'longa allaqachon shikoyat qilgansiz"); return; }
+    if (error) { toast(errText(error)); return; }
+    toast('Shikoyat yuborildi. Rahmat, tez orada tekshiramiz.');
+  };
 
   useEffect(() => {
     let alive = true;
@@ -155,6 +165,13 @@ export default function AdPage() {
             </View>
           ) : null}
 
+          {!mine ? (
+            <Pressable onPress={() => setReportOpen(true)} style={{ flexDirection: 'row', gap: 6, alignItems: 'center', alignSelf: 'flex-start', marginTop: 14, paddingVertical: 6 }}>
+              <Ionicons name="flag-outline" size={16} color={t.danger} />
+              <Text style={{ color: t.danger, fontWeight: '700' }}>Shikoyat qilish</Text>
+            </Pressable>
+          ) : null}
+
           {similar.length ? (
             <>
               <H>O'xshash e'lonlar</H>
@@ -166,6 +183,7 @@ export default function AdPage() {
         </View>
       </ScrollView>
 
+      <ListPicker visible={reportOpen} onClose={() => setReportOpen(false)} title="Shikoyat sababi" value={null} items={REASONS} onPick={sendReport} />
       {!mine && st === 'live' ? (
         <View style={{ position: 'absolute', left: 0, right: 0, bottom: 0, backgroundColor: t.surface, borderTopWidth: 1, borderColor: t.line, paddingHorizontal: 16, paddingTop: 10, paddingBottom: ins.bottom + 10 }}>
           <View style={{ flexDirection: 'row', gap: 8, maxWidth: 728, width: '100%', alignSelf: 'center' }}>
