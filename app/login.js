@@ -18,6 +18,7 @@ export default function Login() {
   const [step, setStep] = useState('email');
   const [busy, setBusy] = useState(false);
   const [err, setErr] = useState('');
+  const [pass, setPass] = useState('');
 
   const send = async () => {
     const e = email.trim().toLowerCase();
@@ -35,8 +36,23 @@ export default function Login() {
     toast('Kod pochtangizga yuborildi');
   };
 
-  const verify = async () => {
-    const c = code.replace(/\D/g, '');
+  // App Store / Google Play tekshiruvchilari uchun: pochta + parol
+  const passLogin = async () => {
+    const e = email.trim().toLowerCase();
+    if (!ALLOWED_EMAIL.test(e) || !pass) { setErr('Pochta va parolni kiriting.'); return; }
+    setBusy(true); setErr('');
+    const { data, error } = await supabase.functions.invoke('send-code', { body: { email: e, password: pass } });
+    if (error || !data?.otp) {
+      let msg = data?.error;
+      try { if (!msg && error?.context) msg = (await error.context.json()).error; } catch (x) {}
+      setBusy(false); setErr(msg || errText(error));
+      return;
+    }
+    verify(data.otp);
+  };
+
+  const verify = async (auto) => {
+    const c = (typeof auto === 'string' ? auto : code).replace(/\D/g, '');
     if (c.length < 6) { setErr('Pochtangizga kelgan kodni kiriting.'); return; }
     setBusy(true); setErr('');
     const em = email.trim().toLowerCase();
@@ -55,15 +71,23 @@ export default function Login() {
     <KeyboardAvoidingView style={{ flex: 1, backgroundColor: t.bg }} behavior={Platform.OS === 'ios' ? 'padding' : undefined}>
       <ScrollView contentContainerStyle={{ padding: 20, gap: 16, maxWidth: 480, width: '100%', alignSelf: 'center' }} keyboardShouldPersistTaps="handled">
         <View style={{ width: 64, height: 64, borderRadius: 20, backgroundColor: t.accentSoft, alignItems: 'center', justifyContent: 'center', marginTop: 10 }}>
-          <Ionicons name={step === 'email' ? 'mail-outline' : 'key-outline'} size={30} color={t.accent} />
+          <Ionicons name={step === 'code' ? 'key-outline' : step === 'pass' ? 'lock-closed-outline' : 'mail-outline'} size={30} color={t.accent} />
         </View>
-        <Text style={{ fontFamily: FONT.display, fontSize: 24, color: t.ink }}>{step === 'email' ? 'Kirish yoki ro\'yxatdan o\'tish' : 'Kodni kiriting'}</Text>
+        <Text style={{ fontFamily: FONT.display, fontSize: 24, color: t.ink }}>{step === 'email' ? 'Kirish yoki ro\'yxatdan o\'tish' : step === 'pass' ? 'Parol bilan kirish' : 'Kodni kiriting'}</Text>
         <Text style={{ color: t.muted, lineHeight: 21 }}>
           {step === 'email'
             ? "Gmail yoki iCloud pochtangizni kiriting. Unga kirish kodi yuboramiz. Parol shart emas."
+            : step === 'pass' ? "Faqat maxsus sinov hisobi uchun (App Store / Google Play tekshiruvi). Oddiy foydalanuvchilar pochtaga kelgan kod bilan kiradi."
             : `${email.trim()} manziliga "Mohir bozor" nomidan kod yuborildi. Kodni pastga yozing. Xat kelmasa, "Spam" papkasini tekshiring.`}
         </Text>
-        {step === 'email' ? (
+        {step === 'pass' ? (
+          <>
+            <Field label="Elektron pochta" value={email} onChangeText={setEmail} placeholder="ism@gmail.com" keyboardType="email-address"
+              autoCapitalize="none" autoCorrect={false} autoComplete="email" textContentType="username" />
+            <Field label="Parol" value={pass} onChangeText={setPass} placeholder="••••••••" secureTextEntry
+              autoCapitalize="none" autoCorrect={false} textContentType="password" onSubmitEditing={passLogin} />
+          </>
+        ) : step === 'email' ? (
           <Field label="Elektron pochta" value={email} onChangeText={setEmail} placeholder="ism@gmail.com" keyboardType="email-address"
             autoCapitalize="none" autoCorrect={false} autoComplete="email" textContentType="emailAddress" onSubmitEditing={send} />
         ) : (
@@ -71,13 +95,17 @@ export default function Login() {
             keyboardType="number-pad" autoComplete="one-time-code" textContentType="oneTimeCode" maxLength={8} onSubmitEditing={verify} />
         )}
         {err ? <Note kind="bad">{err}</Note> : null}
-        <Btn title={step === 'email' ? 'Kod yuborish' : 'Kodni tasdiqlash'} onPress={step === 'email' ? send : verify} loading={busy} />
+        <Btn title={step === 'email' ? 'Kod yuborish' : step === 'pass' ? 'Kirish' : 'Kodni tasdiqlash'} onPress={step === 'email' ? send : step === 'pass' ? passLogin : verify} loading={busy} />
         {step === 'code' ? (
           <View style={{ flexDirection: 'row', gap: 8 }}>
             <Btn style={{ flex: 1 }} kind="ghost" small title="Pochtani o'zgartirish" onPress={() => { setStep('email'); setCode(''); setErr(''); }} />
             <Btn style={{ flex: 1 }} kind="ghost" small title="Kodni qayta yuborish" onPress={send} disabled={busy} />
           </View>
         ) : null}
+        <Text onPress={() => { setStep(step === 'pass' ? 'email' : 'pass'); setErr(''); setPass(''); }}
+          style={{ color: t.muted, fontSize: 12, textAlign: 'center', textDecorationLine: 'underline' }}>
+          {step === 'pass' ? 'Pochta kodi bilan kirish' : 'Sinov hisobi bilan kirish'}
+        </Text>
         <Text style={{ color: t.muted, fontSize: 12, lineHeight: 18 }}>
           Davom etish orqali siz <Text style={{ color: t.accent }} onPress={() => router.push('/terms')}>foydalanish shartlari</Text> va <Text style={{ color: t.accent }} onPress={() => router.push('/privacy')}>maxfiylik siyosati</Text>ga rozilik bildirasiz.
         </Text>

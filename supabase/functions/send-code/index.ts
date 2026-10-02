@@ -35,6 +35,22 @@ Deno.serve(async (req) => {
     if (aErr) return json({ error: "Server xatosi (limit)" }, 500);
     if (!allowed) return json({ error: "Juda ko'p urinish. Bir daqiqadan keyin qayta urinib ko'ring." }, 429);
 
+    const { data: cfg, error: cErr } = await sb.rpc("get_mail_settings");
+
+    // App Store / Google Play tekshiruvchilari uchun sinov hisobi (parol bilan, xatsiz)
+    if (body.password !== undefined) {
+      const rev = String(cfg?.review_email || "").toLowerCase();
+      const want = String(cfg?.review_pass || "").replace(/^sha256:/, "");
+      const dig = await crypto.subtle.digest("SHA-256", new TextEncoder().encode(String(body.password)));
+      const got = Array.from(new Uint8Array(dig)).map((b) => b.toString(16).padStart(2, "0")).join("");
+      if (!rev || !want || email !== rev || got !== want) return json({ error: "Pochta yoki parol noto'g'ri" }, 401);
+      const c2 = await sb.auth.admin.createUser({ email, email_confirm: true });
+      if (c2.error && !/already|registered|exists/i.test(c2.error.message)) return json({ error: c2.error.message }, 400);
+      const { data: l2, error: e2 } = await sb.auth.admin.generateLink({ type: "magiclink", email });
+      if (e2 || !l2?.properties?.email_otp) return json({ error: e2?.message || "Kod yaratilmadi" }, 500);
+      return json({ ok: true, otp: l2.properties.email_otp });
+    }
+
     const created = await sb.auth.admin.createUser({ email, email_confirm: true });
     if (created.error && !/already|registered|exists/i.test(created.error.message)) {
       return json({ error: created.error.message }, 400);
@@ -43,7 +59,6 @@ Deno.serve(async (req) => {
     if (lErr || !link?.properties?.email_otp) return json({ error: lErr?.message || "Kod yaratilmadi" }, 500);
     const code = link.properties.email_otp;
 
-    const { data: cfg, error: cErr } = await sb.rpc("get_mail_settings");
     if (cErr || !cfg?.smtp_user) return json({ error: "Pochta sozlanmagan" }, 500);
 
     const tr = nodemailer.createTransport({
