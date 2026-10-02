@@ -193,8 +193,8 @@ export function Intro({ onDone }) {
 
   return (
     <Animated.View style={[StyleSheet.absoluteFill, { zIndex: 999, opacity: A.exit.interpolate({ inputRange: [0, 0.6, 1], outputRange: [1, 0.9, 0] }) }]}>
-      <Pressable onPress={finish} style={{ flex: 1, overflow: 'hidden' }} accessibilityLabel="O'tkazib yuborish">
-        <Image source={require('../assets/intro-bg.png')} resizeMode="stretch" style={StyleSheet.absoluteFill} />
+      <Pressable onPress={finish} style={{ flex: 1, overflow: 'hidden', backgroundColor: '#2747D6' }} accessibilityLabel="O'tkazib yuborish">
+        <Image source={require('../assets/intro-bg.png')} resizeMode="stretch" style={{ position: 'absolute', left: 0, top: 0, width, height }} />
         {bokeh}
 
         <Animated.View style={{
