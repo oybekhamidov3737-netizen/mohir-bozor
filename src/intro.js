@@ -180,7 +180,7 @@ export function Intro({ onDone }) {
     return (
       <Animated.View key={i} pointerEvents="none" style={{
         position: 'absolute', left: b.x * width - size / 2, top: b.y * height - size / 2, width: size, height: size, borderRadius: size / 2,
-        backgroundColor: i % 2 ? 'rgba(255,255,255,0.07)' : 'rgba(120,150,255,0.18)',
+        backgroundColor: i % 2 ? 'rgba(255,255,255,0.05)' : 'rgba(120,150,255,0.13)',
         opacity: A.bgIn,
         transform: [
           { translateX: A.drift[i].interpolate({ inputRange: [0, 1], outputRange: [0, (i % 2 ? -1 : 1) * width * 0.08] }) },
@@ -205,7 +205,7 @@ export function Intro({ onDone }) {
         }}>
           {/* Ustunlar: pastdan o'sib chiqadi */}
           {XS.map((cx, i) => (
-            <Animated.View key={'s' + i} style={{ position: 'absolute', left: (cx - HS) * u, top: YT * u, width: SW * u, height: (YB + HS - YT) * u, overflow: 'hidden', transform: [{ translateY: stemDip[i] }] }}>
+            <Animated.View key={'s' + i} style={{ position: 'absolute', left: (cx - HS) * u, top: (YT - 3) * u, width: SW * u, height: (YB + HS - YT + 3) * u, overflow: 'hidden', transform: [{ translateY: stemDip[i] }] }}>
               <Animated.View style={{
                 width: SW * u, height: (YB + HS - YT) * u, backgroundColor: '#fff',
                 borderBottomLeftRadius: HS * u, borderBottomRightRadius: HS * u,
