@@ -2,6 +2,7 @@ import React, { useRef } from 'react';
 import { ActivityIndicator, Animated, Platform, Pressable, StyleSheet, Text, TextInput, View } from 'react-native';
 import { Image } from 'expo-image';
 import { Ionicons } from '@expo/vector-icons';
+import * as Haptics from 'expo-haptics';
 import { useT, FONT } from './theme';
 import { catOf, gradOf } from './data';
 import { LinearGradient } from 'expo-linear-gradient';
@@ -10,14 +11,61 @@ import { initials, isTop, isVip, locLabel, priceText, ago } from './format';
 
 const ND = Platform.OS !== 'web';
 
-// Bosilganda biroz kichrayadigan tugma asosi
-export function Press({ onPress, style, children, disabled, hitSlop, accessibilityLabel }) {
+// Bosilganda siqiladi, qo'yib yuborilganda prujinadek qaytadi; harakat ko'rinib ulgurishi uchun
+// amal juda qisqa kechikish bilan bajariladi. Telefonda yengil tebranish.
+export function Press({ onPress, style, children, disabled, hitSlop, accessibilityLabel, haptic = true }) {
   const s = useRef(new Animated.Value(1)).current;
-  const to = (v) => Animated.spring(s, { toValue: v, useNativeDriver: ND, speed: 40, bounciness: 6 }).start();
+  const busy = useRef(false);
+  const down = () => Animated.spring(s, { toValue: 0.94, useNativeDriver: ND, speed: 50, bounciness: 0 }).start();
+  const up = () => Animated.spring(s, { toValue: 1, useNativeDriver: ND, speed: 14, bounciness: 14 }).start();
+  const press = (e) => {
+    if (!onPress || busy.current) return;
+    busy.current = true;
+    if (haptic && ND) { try { Haptics.selectionAsync(); } catch (x) {} }
+    setTimeout(() => { busy.current = false; onPress(e); }, 110);
+  };
   return (
-    <Pressable onPress={onPress} disabled={disabled} onPressIn={() => to(0.96)} onPressOut={() => to(1)}
+    <Pressable onPress={press} disabled={disabled} onPressIn={down} onPressOut={up}
       hitSlop={hitSlop} accessibilityRole="button" accessibilityLabel={accessibilityLabel}>
-      <Animated.View style={[style, { transform: [{ scale: s }] }, disabled && { opacity: 0.55 }]}>{children}</Animated.View>
+      <Animated.View style={[style, { transform: [{ scale: s }], opacity: s.interpolate({ inputRange: [0.94, 1], outputRange: [0.86, 1] }) }, disabled && { opacity: 0.55 }]}>{children}</Animated.View>
+    </Pressable>
+  );
+}
+
+// Yurakcha: bosilganda "puf" bo'lib kattalashadi va atrofga uchqunlar sochiladi
+export function HeartBtn({ on, onPress, style }) {
+  const s = useRef(new Animated.Value(1)).current;
+  const burst = useRef(new Animated.Value(0)).current;
+  const tap = () => {
+    const will = !on;
+    s.setValue(0.6);
+    Animated.spring(s, { toValue: 1, friction: 3, tension: 200, useNativeDriver: ND }).start();
+    if (will) {
+      burst.setValue(0);
+      Animated.timing(burst, { toValue: 1, duration: 520, useNativeDriver: ND }).start();
+      try { if (ND) Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light); } catch (x) {}
+    }
+    onPress && onPress();
+  };
+  return (
+    <Pressable onPress={tap} hitSlop={8} accessibilityLabel="Saralanganga qo'shish" style={[{ position: 'absolute', right: 8, top: 8, width: 34, height: 34, alignItems: 'center', justifyContent: 'center' }, style]}>
+      {[0, 1, 2, 3, 4, 5].map((i) => {
+        const ang = (i / 6) * Math.PI * 2;
+        return (
+          <Animated.View key={i} pointerEvents="none" style={{
+            position: 'absolute', width: 6, height: 6, borderRadius: 3, backgroundColor: i % 2 ? '#FFC43D' : '#E5484D',
+            opacity: burst.interpolate({ inputRange: [0, 0.1, 0.8, 1], outputRange: [0, 1, 1, 0] }),
+            transform: [
+              { translateX: burst.interpolate({ inputRange: [0, 1], outputRange: [0, Math.cos(ang) * 26] }) },
+              { translateY: burst.interpolate({ inputRange: [0, 1], outputRange: [0, Math.sin(ang) * 26] }) },
+              { scale: burst.interpolate({ inputRange: [0, 1], outputRange: [1, 0.3] }) },
+            ],
+          }} />
+        );
+      })}
+      <Animated.View style={{ width: 34, height: 34, borderRadius: 17, backgroundColor: 'rgba(255,255,255,0.92)', alignItems: 'center', justifyContent: 'center', transform: [{ scale: s }] }}>
+        <Ionicons name={on ? 'heart' : 'heart-outline'} size={18} color={on ? '#E5484D' : '#141D19'} />
+      </Animated.View>
     </Pressable>
   );
 }
@@ -202,11 +250,7 @@ export function AdCard({ ad, onPress, fav, onFav, width, row }) {
             <Ionicons name="images" size={11} color="#fff" /><Text style={{ color: '#fff', fontSize: 11, fontWeight: '700' }}>{ad.photos.length}</Text>
           </View>
         ) : null}
-        {onFav ? (
-          <Pressable onPress={onFav} hitSlop={8} accessibilityLabel="Saralanganga qo'shish" style={{ position: 'absolute', right: 8, top: 8, width: 34, height: 34, borderRadius: 17, backgroundColor: 'rgba(255,255,255,0.92)', alignItems: 'center', justifyContent: 'center' }}>
-            <Ionicons name={fav ? 'heart' : 'heart-outline'} size={18} color={fav ? '#E5484D' : '#141D19'} />
-          </Pressable>
-        ) : null}
+        {onFav ? <HeartBtn on={fav} onPress={onFav} /> : null}
       </View>
       <View style={{ padding: 11, gap: 5, flex: 1 }}>
         <Text style={{ color: t.ink, fontWeight: '700', fontSize: 14, lineHeight: 18, minHeight: row ? 0 : 36 }} numberOfLines={2}>{ad.title}</Text>

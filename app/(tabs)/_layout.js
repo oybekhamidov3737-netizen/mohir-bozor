@@ -1,20 +1,38 @@
-import React from 'react';
-import { Platform, View } from 'react-native';
+import React, { useEffect, useRef } from 'react';
+import { Animated, Platform, View } from 'react-native';
+import * as Haptics from 'expo-haptics';
 import { Tabs, useRouter } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
 import { LinearGradient } from 'expo-linear-gradient';
 import { useT } from '../../src/theme';
 import { useApp, useRequire } from '../../src/app-context';
 
+// Tanlangan tab belgisi sakrab kattalashadi
+function TabIcon({ name, color, focused }) {
+  const a = useRef(new Animated.Value(focused ? 1 : 0)).current;
+  useEffect(() => {
+    Animated.spring(a, { toValue: focused ? 1 : 0, friction: 4, tension: 160, useNativeDriver: Platform.OS !== 'web' }).start();
+  }, [focused]);
+  return (
+    <Animated.View style={{ transform: [
+      { scale: a.interpolate({ inputRange: [0, 1], outputRange: [1, 1.15] }) },
+      { translateY: a.interpolate({ inputRange: [0, 1], outputRange: [0, -2] }) },
+    ] }}>
+      <Ionicons name={focused ? name : name + '-outline'} size={23} color={color} />
+    </Animated.View>
+  );
+}
+
 export default function TabsLayout() {
   const t = useT();
   const router = useRouter();
   const need = useRequire();
   const { unread, fav } = useApp();
-  const icon = (n) => ({ color, focused }) => <Ionicons name={focused ? n : n + '-outline'} size={23} color={color} />;
+  const icon = (n) => ({ color, focused }) => <TabIcon name={n} color={color} focused={focused} />;
   return (
-    <Tabs screenOptions={{
+    <Tabs screenListeners={{ tabPress: () => { if (Platform.OS !== 'web') { try { Haptics.selectionAsync(); } catch (e) {} } } }} screenOptions={{
       headerShown: false,
+      animation: 'shift',
       tabBarActiveTintColor: t.accent,
       tabBarInactiveTintColor: t.muted,
       tabBarStyle: {

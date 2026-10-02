@@ -12,6 +12,7 @@ import { useAutoUpdate } from '../src/updater';
 import { ThemeProvider, useT } from '../src/theme';
 import { isConfigured } from '../src/config';
 import { Intro, shouldShowIntro } from '../src/intro';
+import { ScreenEnter } from '../src/enter';
 
 SplashScreen.preventAutoHideAsync().catch(() => {});
 
@@ -58,7 +59,7 @@ function RootInner() {
     <SafeAreaProvider>
       <AppProvider>
         <StatusBar style={intro || t.dark ? 'light' : 'dark'} />
-        <Stack screenOptions={header}>
+        <Stack screenOptions={header} screenLayout={({ children }) => <ScreenEnter>{children}</ScreenEnter>}>
           <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
           <Stack.Screen name="ad/[id]" options={{ title: '' }} />
           <Stack.Screen name="chat/[id]" options={{ title: 'Suhbat' }} />
