@@ -27,6 +27,7 @@ jobs:
       - name: Saytni yig'ish
         run: |
           set -o pipefail
+          export EXPO_PUBLIC_BUILD="${GITHUB_SHA::7}"
           npx expo export -p web 2>&1 | tee build.log
       - name: Xatoni ko'rsatish
         if: failure()
@@ -35,6 +36,7 @@ jobs:
       - name: GitHub Pages uchun tayyorlash
         run: |
           cp dist/index.html dist/404.html
+          echo "{\"build\":\"${GITHUB_SHA::7}\"}" > dist/version.json
           touch dist/.nojekyll
       - name: gh-pages tarmog'iga joylash
         run: |
