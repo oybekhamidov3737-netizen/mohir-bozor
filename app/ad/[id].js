@@ -123,7 +123,7 @@ export default function AdPage() {
               onScroll={Platform.OS === 'web' ? (e) => setPage(Math.round(e.nativeEvent.contentOffset.x / W)) : undefined} scrollEventThrottle={64}>
               {photos.map((u) => <Image key={u} source={{ uri: u }} style={{ width: W, height: imgH }} contentFit="cover" transition={250} />)}
             </ScrollView>
-          ) : <Cover cat={ad.cat} big />}
+          ) : <Cover cat={ad.cat} big style={{ paddingBottom: 46 }} />}
           <LinearGradient pointerEvents="none" colors={['rgba(0,0,0,0.35)', 'transparent']} style={{ position: 'absolute', left: 0, right: 0, top: 0, height: 110 }} />
           <View style={{ position: 'absolute', left: 14, right: 14, top: ins.top + 10, flexDirection: 'row', justifyContent: 'space-between' }}>
             {roundBtn('chevron-back', back, 'Orqaga')}
