@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { Linking, Pressable, ScrollView, Text, View } from 'react-native';
 import { useRouter } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
-import * as Clipboard from 'expo-clipboard';
+import { copyText } from '../src/copy';
 import { useT, FONT } from '../src/theme';
 import { useApp, useRequire } from '../src/app-context';
 import { supabase, errText } from '../src/supabase';
@@ -36,8 +36,8 @@ export default function Support() {
     if (error) { toast(errText(error)); return; }
     router.push(`/chat/${data}`);
   };
-  const call = () => Linking.openURL(tel).catch(async () => {
-    try { await Clipboard.setStringAsync(phone); toast('Raqam nusxalandi'); } catch (e) {}
+  const call = () => Linking.openURL(tel).catch(() => {
+    copyText(phone).then((ok) => ok && toast('Raqam nusxalandi'));
   });
 
   return (

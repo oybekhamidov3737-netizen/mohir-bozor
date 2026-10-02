@@ -2,14 +2,14 @@ import React, { useState } from 'react';
 import { Pressable, ScrollView, Text, View } from 'react-native';
 import { useRouter } from 'expo-router';
 import { Image } from 'expo-image';
-import * as Clipboard from 'expo-clipboard';
 import { useT, FONT } from '../src/theme';
 import { useApp, useRequire } from '../src/app-context';
 import { supabase, errText } from '../src/supabase';
 import { fmtNum } from '../src/format';
 import { pickImages, uploadImage, newName } from '../src/images';
-import { onlinePayUrl, openPay, hasPayme, hasClick, cardNumber } from '../src/pay';
+import { onlinePayUrl, openPay, hasPayme, hasClick } from '../src/pay';
 import { Btn, Field, Note } from '../src/ui';
+import { PayDetails } from '../src/paydetails';
 
 const PRESETS = [10000, 25000, 50000, 100000, 200000];
 const MIN = 5000, MAX = 10000000;
@@ -92,13 +92,7 @@ export default function TopUp() {
       {config.pay_text ? (
         <View style={{ backgroundColor: t.surface, borderWidth: 1, borderColor: t.line, borderRadius: 16, padding: 14, gap: 12 }}>
           <Text style={{ fontWeight: '800', color: t.ink }}>{online ? "Yoki kartaga o'tkazma (qo'lda tasdiqlanadi)" : "Kartaga o'tkazma"}</Text>
-          <Text selectable style={{ backgroundColor: t.chip, borderRadius: 10, padding: 12, color: t.ink, fontSize: 15, lineHeight: 22 }}>{config.pay_text}</Text>
-          <View style={{ alignSelf: 'flex-start' }}>
-            <Btn small kind="sec" icon="copy-outline" title="Karta raqamini nusxalash" onPress={async () => {
-              const c = cardNumber(config.pay_text) || config.pay_text;
-              try { await Clipboard.setStringAsync(c); toast('Karta raqami nusxalandi'); } catch (e) {}
-            }} />
-          </View>
+          <PayDetails text={config.pay_text} />
           <Field label="To'lovchi ismi yoki karta oxirgi 4 raqami" value={payer} onChangeText={setPayer} placeholder="Masalan: Aziz, 4417" maxLength={60} />
           <View style={{ gap: 8 }}>
             {receipt ? <Image source={{ uri: receipt.uri }} style={{ width: 120, height: 160, borderRadius: 10 }} contentFit="cover" /> : null}

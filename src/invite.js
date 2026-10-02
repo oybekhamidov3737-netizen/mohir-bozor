@@ -2,7 +2,7 @@ import React, { useCallback, useState } from 'react';
 import { Platform, Share, Text, TextInput, View } from 'react-native';
 import { useFocusEffect } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
-import * as Clipboard from 'expo-clipboard';
+import { copyText } from './copy';
 import { useT, FONT } from './theme';
 import { useApp } from './app-context';
 import { supabase, errText } from './supabase';
@@ -35,11 +35,11 @@ export function InviteCard() {
   const share = async () => {
     const msg = `Mohir bozor — SMM, montaj, dizayn va marketing ustalari bozori. Shu havola orqali ro'yxatdan o'tsang, ${fmtNum(new_)} so'm bonus olasan:\n${link}`;
     try {
-      if (Platform.OS === 'web' && !navigator.share) { await Clipboard.setStringAsync(msg); toast('Taklif matni nusxalandi'); return; }
+      if (Platform.OS === 'web' && !navigator.share) { copyText(msg).then((ok) => ok && toast('Taklif matni nusxalandi')); return; }
       await Share.share(Platform.OS === 'ios' ? { message: msg, url: link } : { message: msg });
     } catch (e) {}
   };
-  const copy = async (v, m) => { try { await Clipboard.setStringAsync(v); toast(m); } catch (e) {} };
+  const copy = (v, m) => { copyText(v).then((ok) => toast(ok ? m : "Nusxalab bo'lmadi")); };
   const apply = async () => {
     const c = cleanRef(code);
     if (c.length < 4) { toast('Taklif kodini kiriting'); return; }
