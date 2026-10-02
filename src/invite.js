@@ -13,15 +13,19 @@ import { Btn } from './ui';
 // Kabinetdagi "Do'stlarni taklif qiling" kartasi
 export function InviteCard() {
   const t = useT();
-  const { uid, config, toast } = useApp();
+  const { uid, config, profile, toast } = useApp();
   const [st, setSt] = useState(null);
   const [code, setCode] = useState('');
   const [busy, setBusy] = useState(false);
 
   const load = useCallback(() => {
     if (!uid) return;
-    supabase.rpc('my_referrals').then(({ data }) => { if (data) setSt(data); });
-  }, [uid]);
+    supabase.rpc('my_referrals').then(({ data, error }) => {
+      if (data && data.code) setSt(data);
+      else if (profile?.ref_code) setSt({ code: profile.ref_code, bonus: 0, invited: 0, active: 0, referred: !!profile.referred_by });
+      else if (error) setSt(null);
+    });
+  }, [uid, profile]);
   useFocusEffect(useCallback(() => { load(); }, [load]));
 
   if (!st || !st.code) return null;
@@ -63,7 +67,7 @@ export function InviteCard() {
         Do'stingiz havolangiz orqali ro'yxatdan o'tsa, unga <Text style={{ fontWeight: '800' }}>{fmtNum(new_)} so'm</Text>, birinchi e'lonini joylaganda sizga <Text style={{ fontWeight: '800' }}>{fmtNum(inv)} so'm</Text> bonus beriladi. Bonus TOP, VIP va boshqa xizmatlarga sarflanadi.
       </Text>
       <View style={{ flexDirection: 'row', gap: 8 }}>
-        {stat(fmtNum(st.bonus) + " so'm", 'Bonus balansi')}
+        {stat(fmtNum(st.earned || 0) + " so'm", 'Taklifdan topilgan')}
         {stat(st.invited, 'Taklif qilinganlar')}
         {stat(st.active, 'Faol do\'stlar')}
       </View>

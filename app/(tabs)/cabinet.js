@@ -11,6 +11,7 @@ import { CATS, ONLINE, SVC, catOf } from '../../src/data';
 import { adState, ago, fmtNum, isTop, isVip, priceText, shortDate, shortReg, since } from '../../src/format';
 import { Avatar, Badge, Btn, Cover, Empty, H, Loading, Note, Seg } from '../../src/ui';
 import { InviteCard } from '../../src/invite';
+import { BalanceCard } from '../../src/balance';
 import { AppearanceCard } from '../../src/appearance';
 
 const EV = { top: 'TOP', vip: 'VIP', bump: "ko'tarildi", extend: 'uzaytirildi', restore: 'tiklandi', moderator: "moderator o'chirdi" };
@@ -139,6 +140,7 @@ export default function Cabinet() {
         <Btn kind="sec" small title="Tahrirlash" onPress={() => router.push('/profile')} />
       </View>
 
+      <BalanceCard />
       <InviteCard />
       {isAdmin ? <Btn style={{ marginTop: 12 }} kind="gold" icon="speedometer-outline" title="Boshqaruv paneli (to'lovlar, e'lonlar, suhbatlar)" onPress={() => router.push('/admin')} /> : null}
       {canClaim ? (
