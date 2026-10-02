@@ -183,6 +183,7 @@ export default function AdPage() {
               </View>
               <View style={{ flex: 1, gap: 2 }}>
                 <Text style={{ fontWeight: '800', color: t.ink, fontSize: 16 }} numberOfLines={1}>{seller?.name || ad.seller_name}</Text>
+                {seller?.public_id ? <Text style={{ color: t.muted, fontSize: 12, fontWeight: '700' }}>ID {seller.public_id}</Text> : null}
                 {seller?.last_seen ? <Text style={{ color: isOnline(seller.last_seen) ? t.price : t.muted, fontSize: 12.5, fontWeight: '600' }}>{seenText(seller.last_seen)}</Text> : null}
                 {seller ? <Text style={{ color: t.muted, fontSize: 12 }}>{since(seller.created_at)}</Text> : null}
               </View>

@@ -16,6 +16,7 @@ import { BalanceCard } from '../../src/balance';
 import { AppearanceCard } from '../../src/appearance';
 import { PAYMENTS_IN_APP } from '../../src/pay';
 import { BUILD_ID } from '../../src/updater';
+import { copyText } from '../../src/copy';
 
 const EV = { top: 'TOP', vip: 'VIP', bump: "ko'tarildi", extend: 'uzaytirildi', restore: 'tiklandi', moderator: "moderator o'chirdi" };
 
@@ -142,6 +143,13 @@ export default function Cabinet() {
             <Text style={{ fontFamily: FONT.display, fontSize: 18, color: '#fff' }} numberOfLines={1}>{profile.name}</Text>
             <Text style={{ fontSize: 13, color: 'rgba(255,255,255,0.85)' }} numberOfLines={1}>{[profile.cat ? catOf(profile.cat).n : 'Buyurtmachi', loc].filter(Boolean).join(' · ')}</Text>
             <Text style={{ fontSize: 12, color: 'rgba(255,255,255,0.7)' }} numberOfLines={1}>✓ {session.user.email}</Text>
+            {profile.public_id ? (
+              <Pressable onPress={() => { copyText(String(profile.public_id)); toast('ID nusxalandi: ' + profile.public_id); }} accessibilityLabel="ID ni nusxalash"
+                style={{ flexDirection: 'row', alignItems: 'center', gap: 5, alignSelf: 'flex-start', backgroundColor: 'rgba(255,255,255,0.2)', borderRadius: 999, paddingHorizontal: 9, paddingVertical: 3, marginTop: 4 }}>
+                <Text style={{ color: '#fff', fontSize: 12, fontWeight: '800', letterSpacing: 0.5 }}>ID {profile.public_id}</Text>
+                <Ionicons name="copy-outline" size={12} color="#fff" />
+              </Pressable>
+            ) : null}
           </View>
           <Press onPress={() => router.push('/profile')} accessibilityLabel="Profilni tahrirlash" style={{ width: 40, height: 40, borderRadius: 14, backgroundColor: 'rgba(255,255,255,0.2)', alignItems: 'center', justifyContent: 'center' }}>
             <Ionicons name="create-outline" size={20} color="#fff" />

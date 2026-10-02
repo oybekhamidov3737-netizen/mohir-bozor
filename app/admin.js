@@ -131,7 +131,7 @@ export default function Admin() {
                 </View>
                 <Text style={{ fontWeight: '700', color: t.ink }}>{SVC[o.svc]} — {fmtNum(o.price)} so'm</Text>
                 {o.ads?.title ? <Text style={{ color: t.muted }} numberOfLines={1}>{o.ads.title}</Text> : null}
-                <Text style={{ color: t.muted, fontSize: 13 }}>{o.provider && o.provider !== 'manual' ? `${o.provider === 'payme' ? 'Payme' : 'Click'} · avtomatik · ` : ''}To'lovchi: {o.payer} · {profs[o.user_id]?.name || ''} · {ago(o.created_at)}</Text>
+                <Text style={{ color: t.muted, fontSize: 13 }}>{o.provider && o.provider !== 'manual' ? `${o.provider === 'payme' ? 'Payme' : 'Click'} · avtomatik · ` : ''}To'lovchi: {o.payer} · {profs[o.user_id]?.name || ''}{profs[o.user_id]?.public_id ? ` (ID ${profs[o.user_id].public_id})` : ''} · {ago(o.created_at)}</Text>
                 <View style={{ flexDirection: 'row', gap: 6, flexWrap: 'wrap' }}>
                   {o.receipt_path ? <Btn small kind="sec" icon="receipt-outline" title="Chekni ko'rish" onPress={() => showReceipt(o.receipt_path)} /> : null}
                   {o.status === 'pending' ? (

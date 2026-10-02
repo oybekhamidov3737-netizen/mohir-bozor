@@ -9,6 +9,7 @@ import { useT, FONT } from '../../src/theme';
 import { useApp, useRequire } from '../../src/app-context';
 import { CATS, ONLINE } from '../../src/data';
 import { shortReg } from '../../src/format';
+import { supabase } from '../../src/supabase';
 import { fetchFeed, fetchVip, fetchProfiles, PAGE } from '../../src/api';
 import { CatRow, HowItWorks, TopCreators, useStats, Stories, PromoCarousel, StatStrip } from '../../src/home';
 import { RegionPicker, ListPicker } from '../../src/pickers';
@@ -55,7 +56,13 @@ export default function Home() {
     try {
       setErr('');
       const from = reset ? 0 : items.length;
-      const rows = await fetchFeed({ ...filters, from });
+      let f = { ...filters };
+      const idq = String(filters.search || '').trim().replace(/^id\s*/i, '');
+      if (/^\d{6,9}$/.test(idq)) {
+        const { data: pr } = await supabase.from('profiles').select('id').eq('public_id', +idq).maybeSingle();
+        f = { ...f, search: '', userId: pr?.id || '00000000-0000-0000-0000-000000000000' };
+      }
+      const rows = await fetchFeed({ ...f, from });
       if (id !== reqId.current) return;
       setItems(reset ? rows : [...items, ...rows]);
       setMore(rows.length === PAGE);
@@ -152,7 +159,7 @@ export default function Home() {
         </View>
         <View style={{ flexDirection: 'row', alignItems: 'center', gap: 8, backgroundColor: t.surface, borderWidth: 1, borderColor: t.line, borderRadius: 12, paddingHorizontal: 12, height: 46, maxWidth: 1068, width: '100%', alignSelf: 'center' }}>
           <Ionicons name="search" size={19} color={t.muted} />
-          <TextInput value={search} onChangeText={setSearch} placeholder="Xizmat, shahar yoki tuman: montaj, Chilonzor…" placeholderTextColor={t.muted}
+          <TextInput value={search} onChangeText={setSearch} placeholder="Xizmat, tuman yoki foydalanuvchi ID…" placeholderTextColor={t.muted}
             style={{ flex: 1, fontSize: 16, color: t.ink, height: '100%' }} returnKeyType="search" autoCorrect={false} />
           {search ? <Pressable onPress={() => setSearch('')} hitSlop={10}><Ionicons name="close-circle" size={19} color={t.muted} /></Pressable> : null}
         </View>
