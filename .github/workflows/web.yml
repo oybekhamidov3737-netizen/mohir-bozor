@@ -23,7 +23,9 @@ jobs:
       - name: Paketlarni o'rnatish
         run: npm install --no-audit --no-fund
       - name: Expo versiyalarini moslashtirish
-        run: npx expo install --fix || true
+        run: |
+          npx expo install --fix || true
+          git diff -U0 package.json | grep '^[-+] ' | sed 's/^/::notice title=Versiya tuzatildi::/' || true
       - name: Saytni yig'ish
         run: |
           set -o pipefail

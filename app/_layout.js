@@ -1,4 +1,4 @@
-import React, { useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
 import { Text, View } from 'react-native';
 import { Stack } from 'expo-router';
 import { StatusBar } from 'expo-status-bar';
@@ -11,6 +11,7 @@ import { captureRef } from '../src/referral';
 import { useAutoUpdate } from '../src/updater';
 import { ThemeProvider, useT } from '../src/theme';
 import { isConfigured } from '../src/config';
+import { Intro, shouldShowIntro } from '../src/intro';
 
 SplashScreen.preventAutoHideAsync().catch(() => {});
 
@@ -24,6 +25,7 @@ export default function Root() {
 
 function RootInner() {
   const t = useT();
+  const [intro, setIntro] = useState(shouldShowIntro);
   const [loaded, err] = useFonts({ Unbounded_500Medium, Unbounded_700Bold });
   useEffect(() => { if (loaded || err) SplashScreen.hideAsync().catch(() => {}); }, [loaded, err]);
   useAutoUpdate();
@@ -55,7 +57,7 @@ function RootInner() {
   return (
     <SafeAreaProvider>
       <AppProvider>
-        <StatusBar style={t.dark ? 'light' : 'dark'} />
+        <StatusBar style={intro || t.dark ? 'light' : 'dark'} />
         <Stack screenOptions={header}>
           <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
           <Stack.Screen name="ad/[id]" options={{ title: '' }} />
@@ -70,6 +72,7 @@ function RootInner() {
           <Stack.Screen name="support" options={{ title: "Qo'llab-quvvatlash" }} />
           <Stack.Screen name="topup" options={{ title: "Hisobni to'ldirish", presentation: 'modal' }} />
         </Stack>
+        {intro ? <Intro onDone={() => setIntro(false)} /> : null}
       </AppProvider>
     </SafeAreaProvider>
   );
