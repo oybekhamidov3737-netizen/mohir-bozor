@@ -90,7 +90,7 @@ export default function Home() {
         <>
           <Stories onPick={setCat} />
           <PromoCarousel width={W - 32} slides={[
-            { colors: ['#4A6CFF', '#1631B8'], icon: 'sparkles', tag: 'Ijodkorlar bozori', title: 'Kerakli ijodkor shu yerda', text: "14 viloyat va barcha tumanlardagi mutaxassislar", cta: "Xizmatlarni ko'rish", onPress: () => setKind('xizmat') },
+            { colors: ['#4A6CFF', '#1631B8'], icon: 'sparkles', tag: 'Ijodkorlar bozori', title: 'Kerakli ijodkor shu yerda', text: "Barcha viloyat va tumanlardagi mutaxassislar", cta: "Xizmatlarni ko'rish", onPress: () => setKind('xizmat') },
             { colors: ['#FFA155', '#F0532E'], icon: 'film', tag: 'Video montaj', title: 'Reels montaj — tez va sifatli', text: 'Montajchilarning narxi va ishlarini solishtiring', cta: "Ko'rish", onPress: () => setCat('montaj') },
             { colors: ['#34DBA5', '#0C9A6A'], icon: 'phone-portrait', tag: 'SMM', title: 'Biznesingizga SMM mutaxassisi', text: 'Instagram, Telegram va TikTok sahifalarini yuritish', cta: 'Tanlash', onPress: () => setCat('smm') },
             { colors: ['#AE8CFF', '#6A3FE0'], icon: 'add-circle', tag: 'Bepul', title: 'Xizmatingizni joylang', text: "Mijozlar sizni o'zi topib, chatga yozadi", cta: "E'lon joylash", onPress: () => { if (need('/post')) router.push('/post'); } },

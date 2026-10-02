@@ -115,7 +115,7 @@ export function Hero({ stats, onPost, onRegion }) {
       <Rotator />
       <Text style={{ fontFamily: FONT.display, fontSize: 26, color: '#fff', lineHeight: 32 }}>shu yerda</Text>
       <Text style={{ color: 'rgba(255,255,255,0.85)', marginTop: 8, marginBottom: 16, lineHeight: 20, maxWidth: 300 }}>
-        14 viloyat va barcha tumanlardagi ijodkorlar. Narxni ko'ring, ilova ichida yozing.
+        Barcha viloyat va tumanlardagi ijodkorlar. Narxni ko'ring, ilova ichida yozing.
       </Text>
       <View style={{ flexDirection: 'row', gap: 8, flexWrap: 'wrap' }}>
         <Press onPress={onPost} style={{ backgroundColor: '#fff', borderRadius: 14, paddingHorizontal: 16, height: 44, flexDirection: 'row', alignItems: 'center', gap: 6 }}>
@@ -129,7 +129,7 @@ export function Hero({ stats, onPost, onRegion }) {
       </View>
 
       <View style={{ flexDirection: 'row', marginTop: 18, backgroundColor: 'rgba(0,0,0,0.16)', borderRadius: 16, paddingVertical: 12 }}>
-        {[[stats.ads, "e'lon"], [stats.users, 'ijodkor'], [REG_NAMES.length, 'viloyat']].map(([v, l], i) => (
+        {[[stats.ads, "e'lon"], [stats.users, 'ijodkor'], [12, 'viloyat']].map(([v, l], i) => (
           <View key={l} style={{ flex: 1, alignItems: 'center', borderLeftWidth: i ? 1 : 0, borderColor: 'rgba(255,255,255,0.15)' }}>
             <CountUp value={v} style={{ fontFamily: FONT.display, fontSize: 20, color: '#fff' }} />
             <Text style={{ color: 'rgba(255,255,255,0.75)', fontSize: 12, fontWeight: '600' }}>{l}</Text>
@@ -285,7 +285,7 @@ export function StatStrip({ stats }) {
   const t = useT();
   return (
     <View style={{ flexDirection: 'row', backgroundColor: t.surface, borderRadius: 18, paddingVertical: 12, marginTop: 12 }}>
-      {[[stats.ads, "faol e'lon", 'megaphone', '#2747D6'], [stats.users, 'ijodkor', 'people', '#0C9A6A'], [REG_NAMES.length, 'viloyat', 'map', '#F0532E']].map(([v, l, ic, c], k) => (
+      {[[stats.ads, "faol e'lon", 'megaphone', '#2747D6'], [stats.users, 'ijodkor', 'people', '#0C9A6A'], [12, 'viloyat', 'map', '#F0532E']].map(([v, l, ic, c], k) => (
         <View key={l} style={{ flex: 1, flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: 8, borderLeftWidth: k ? 1 : 0, borderColor: t.line }}>
           <Ionicons name={ic} size={18} color={c} />
           <View>
