@@ -87,6 +87,10 @@ export default function Admin() {
       free_ads: n('free_ads'), slot_pack: Math.max(1, n('slot_pack')), promo_days: Math.max(1, n('promo_days')), ad_days: Math.max(1, n('ad_days')),
       payme_merchant_id: String(cfg.payme_merchant_id || '').trim(), payme_test: !!cfg.payme_test,
       click_service_id: String(cfg.click_service_id || '').replace(/\D/g, ''), click_merchant_id: String(cfg.click_merchant_id || '').replace(/\D/g, ''),
+      legal_name: String(cfg.legal_name || '').trim(), legal_inn: String(cfg.legal_inn || '').replace(/\D/g, ''),
+      legal_address: String(cfg.legal_address || '').trim(), legal_bank: String(cfg.legal_bank || '').trim(),
+      fiscal_mxik: String(cfg.fiscal_mxik || '').replace(/\D/g, ''), fiscal_package: String(cfg.fiscal_package || '').replace(/\D/g, ''),
+      fiscal_vat: Math.min(100, n('fiscal_vat')),
     };
     if (keys.payme || keys.click) {
       const { error: kErr } = await supabase.rpc('admin_set_payment_secrets', { p_payme_key: keys.payme || null, p_click_secret: keys.click || null });
@@ -213,6 +217,15 @@ export default function Admin() {
               ['free_ads', "Bepul e'lonlar limiti"], ['slot_pack', 'Bir paketda nechta joy'], ['promo_days', 'TOP/VIP muddati (kun)'], ['ad_days', "E'lon muddati (kun)"]].map(([k, l]) => (
               <Field key={k} label={l + (k.startsWith('p_') ? " (so'm)" : '')} value={String(cfg[k] ?? '')} keyboardType="number-pad" onChangeText={(v) => setCfg({ ...cfg, [k]: v.replace(/\D/g, '') })} />
             ))}
+            <H>Rekvizitlar (oferta uchun)</H>
+            <Field label="Sotuvchi (YaTT F.I.Sh. yoki MChJ nomi)" value={String(cfg.legal_name || '')} onChangeText={(v) => setCfg({ ...cfg, legal_name: v })} placeholder="YaTT Hamidov Oybek" />
+            <Field label="STIR (INN)" value={String(cfg.legal_inn || '')} keyboardType="number-pad" onChangeText={(v) => setCfg({ ...cfg, legal_inn: v })} />
+            <Field label="Manzil" value={String(cfg.legal_address || '')} onChangeText={(v) => setCfg({ ...cfg, legal_address: v })} placeholder="Buxoro sh., ..." />
+            <Field label="Bank rekvizitlari" value={String(cfg.legal_bank || '')} onChangeText={(v) => setCfg({ ...cfg, legal_bank: v })} placeholder="H/r: 2020 8000 ... · Bank · MFO" />
+            <H>Fiskal chek (soliq)</H>
+            <Field label="MXIK (IKPU) kodi" value={String(cfg.fiscal_mxik || '')} keyboardType="number-pad" onChangeText={(v) => setCfg({ ...cfg, fiscal_mxik: v })} hint="tasnif.soliq.uz saytidan xizmatingiz kodi (17 raqam)" />
+            <Field label="Qadoq (o'lchov) kodi" value={String(cfg.fiscal_package || '')} keyboardType="number-pad" onChangeText={(v) => setCfg({ ...cfg, fiscal_package: v })} hint="Shu MXIK kodiga biriktirilgan o'lchov kodi" />
+            <Field label="QQS foizi" value={String(cfg.fiscal_vat ?? 0)} keyboardType="number-pad" onChangeText={(v) => setCfg({ ...cfg, fiscal_vat: v.replace(/\D/g, '') })} hint="QQS to'lovchisi bo'lmasangiz 0" />
             <H>Payme (avtomatik to'lov)</H>
             <Field label="Merchant ID (kassa ID)" value={String(cfg.payme_merchant_id || '')} onChangeText={(v) => setCfg({ ...cfg, payme_merchant_id: v })} autoCapitalize="none" />
             <Field label={'Kassa kaliti (Ключ)' + (paySt?.payme_key ? ' · kiritilgan ✓' : '')} value={keys.payme} onChangeText={(v) => setKeys({ ...keys, payme: v })} secureTextEntry autoCapitalize="none"

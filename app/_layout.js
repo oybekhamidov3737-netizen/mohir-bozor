@@ -69,6 +69,7 @@ function RootInner() {
           <Stack.Screen name="admin" options={{ title: 'Boshqaruv paneli' }} />
           <Stack.Screen name="privacy" options={{ title: 'Maxfiylik siyosati' }} />
           <Stack.Screen name="terms" options={{ title: 'Foydalanish shartlari' }} />
+          <Stack.Screen name="offer" options={{ title: 'Ommaviy oferta' }} />
           <Stack.Screen name="support" options={{ title: "Qo'llab-quvvatlash" }} />
           <Stack.Screen name="topup" options={{ title: "Hisobni to'ldirish", presentation: 'modal' }} />
         </Stack>

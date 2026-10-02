@@ -34,6 +34,21 @@ async function getOrder(account: Record<string, unknown> | undefined) {
   const { data } = await sb.from("orders").select("*").eq("id", oid).maybeSingle();
   return data;
 }
+// Fiskal chek ma'lumoti (MXIK kodi admin panelda kiritiladi)
+const SVC_NAME: Record<string, string> = {
+  vip: "VIP e'lon xizmati", top: "TOP e'lon xizmati", bump: "E'lonni ko'tarish xizmati", extend: "E'lon muddatini uzaytirish",
+  restore: "E'lonni tiklash xizmati", slots: "Qo'shimcha e'lon joylari", topup: "Mohir bozor hisobini to'ldirish",
+};
+async function fiscalDetail(o: Record<string, any>) {
+  const { data: c } = await sb.from("config").select("fiscal_mxik,fiscal_package,fiscal_vat").eq("id", 1).maybeSingle();
+  if (!c?.fiscal_mxik) return {};
+  const item: Record<string, unknown> = {
+    title: SVC_NAME[o.svc] || "Mohir bozor xizmati", price: Math.round(Number(o.price) * 100), count: 1,
+    code: String(c.fiscal_mxik), vat_percent: Number(c.fiscal_vat) || 0,
+  };
+  if (c.fiscal_package) item.package_code = String(c.fiscal_package);
+  return { detail: { receipt_type: 0, items: [item] } };
+}
 const txOut = (t: Record<string, any>) => ({
   create_time: Number(t.create_time), perform_time: Number(t.perform_time), cancel_time: Number(t.cancel_time),
   transaction: t.id, state: t.state, reason: t.reason ?? null,
@@ -58,7 +73,7 @@ Deno.serve(async (req) => {
         if (!o || o.provider !== "payme") return E.order(id);
         if (o.status !== "unpaid") return E.cantPerform(id);
         if (Math.round(Number(o.price) * 100) !== Number(p.amount)) return E.amount(id);
-        return reply(id, { result: { allow: true } });
+        return reply(id, { result: { allow: true, ...(await fiscalDetail(o)) } });
       }
       case "CreateTransaction": {
         const { data: ex } = await sb.from("payme_tx").select("*").eq("id", p.id).maybeSingle();

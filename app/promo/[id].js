@@ -140,7 +140,7 @@ export default function Promo() {
           <Text style={{ fontFamily: FONT.display, fontSize: 24, color: t.ink }}>{fmtNum(price)} so'm</Text>
           {hasPayme ? <Btn title="Payme orqali to'lash" onPress={() => payOnline('payme')} loading={busy} style={{ backgroundColor: '#00CCCC' }} /> : null}
           {hasClick ? <Btn title="Click orqali to'lash" onPress={() => payOnline('click')} loading={busy} style={{ backgroundColor: '#0077FF' }} /> : null}
-          <Text style={{ color: t.muted, fontSize: 12 }}>Humo va Uzcard kartalari qabul qilinadi.</Text>
+          <Text style={{ color: t.muted, fontSize: 12 }}>Humo va Uzcard kartalari qabul qilinadi. To'lov qilish orqali <Text style={{ color: t.accent }} onPress={() => router.push('/offer')}>ommaviy oferta</Text> shartlariga rozilik bildirasiz.</Text>
         </View>
       ) : null}
 

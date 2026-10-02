@@ -108,6 +108,7 @@ export default function Cabinet() {
       <View style={{ marginTop: 14, gap: 8 }}>
         <Btn kind="sec" icon="headset-outline" title="Qo'llab-quvvatlash" onPress={() => router.push('/support')} />
         <Pressable onPress={() => router.push('/privacy')}><Text style={{ color: t.muted, textAlign: 'center' }}>Maxfiylik siyosati</Text></Pressable>
+        {PAYMENTS_IN_APP ? <Pressable onPress={() => router.push('/offer')}><Text style={{ color: t.muted, textAlign: 'center' }}>Ommaviy oferta</Text></Pressable> : null}
       </View>
     </>
   );
@@ -238,6 +239,7 @@ export default function Cabinet() {
         <Btn kind="sec" icon="headset-outline" title="Qo'llab-quvvatlash" onPress={() => router.push('/support')} />
         <Btn kind="sec" icon="reader-outline" title="Foydalanish shartlari" onPress={() => router.push('/terms')} />
         <Btn kind="sec" icon="document-text-outline" title="Maxfiylik siyosati" onPress={() => router.push('/privacy')} />
+        {PAYMENTS_IN_APP ? <Btn kind="sec" icon="receipt-outline" title="Ommaviy oferta (pullik xizmatlar)" onPress={() => router.push('/offer')} /> : null}
         <Btn kind="sec" icon="log-out-outline" title="Chiqish" onPress={signOut} />
         <Btn kind="dng" icon="trash-outline" title={sure === 'acc' ? "Ha, hisobim va e'lonlarim o'chirilsin" : "Hisobni o'chirish"} onPress={deleteAccount} />
       </View>
