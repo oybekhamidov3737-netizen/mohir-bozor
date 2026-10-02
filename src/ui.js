@@ -3,7 +3,8 @@ import { ActivityIndicator, Animated, Platform, Pressable, StyleSheet, Text, Tex
 import { Image } from 'expo-image';
 import { Ionicons } from '@expo/vector-icons';
 import { useT, FONT } from './theme';
-import { catOf } from './data';
+import { catOf, gradOf } from './data';
+import { LinearGradient } from 'expo-linear-gradient';
 import { adPhoto, publicUrl } from './supabase';
 import { initials, isTop, isVip, locLabel, priceText, ago } from './format';
 
@@ -139,13 +140,15 @@ export function Empty({ title, text, action, onAction }) {
 }
 
 export function Cover({ cat, big = false, style }) {
-  const t = useT();
   const c = catOf(cat);
+  const g = gradOf(cat);
   return (
-    <View style={[{ backgroundColor: t.cover[c.c], padding: 12, justifyContent: 'flex-end', overflow: 'hidden' }, StyleSheet.absoluteFill, style]}>
-      <Ionicons name={c.icon} size={big ? 130 : 84} color={t.coverInk} style={{ position: 'absolute', right: -12, top: -10, opacity: 0.16 }} />
-      <Text style={{ fontFamily: FONT.display, fontSize: big ? 32 : 17, color: t.coverInk, letterSpacing: -0.5 }} numberOfLines={2}>{c.big}</Text>
-    </View>
+    <LinearGradient colors={g} start={{ x: 0, y: 0 }} end={{ x: 1, y: 1 }}
+      style={[{ padding: big ? 20 : 12, justifyContent: 'flex-end', overflow: 'hidden' }, StyleSheet.absoluteFill, style]}>
+      <View style={{ position: 'absolute', right: -30, top: -30, width: big ? 220 : 130, height: big ? 220 : 130, borderRadius: 999, backgroundColor: 'rgba(255,255,255,0.14)' }} />
+      <Ionicons name={c.icon} size={big ? 120 : 64} color="#fff" style={{ position: 'absolute', right: big ? 18 : 8, top: big ? 18 : 8, opacity: 0.9 }} />
+      <Text style={{ fontFamily: FONT.display, fontSize: big ? 30 : 15, color: '#fff', letterSpacing: -0.3 }} numberOfLines={2}>{c.big}</Text>
+    </LinearGradient>
   );
 }
 
@@ -177,34 +180,76 @@ export function AdCard({ ad, onPress, fav, onFav, width, row }) {
   const t = useT();
   const img = adPhoto(ad);
   const vip = isVip(ad), top = isTop(ad);
+  const shadow = Platform.OS === 'web'
+    ? { boxShadow: t.dark ? '0 6px 18px rgba(0,0,0,.35)' : '0 6px 18px rgba(20,29,25,.08)' }
+    : { shadowColor: '#000', shadowOpacity: t.dark ? 0.35 : 0.08, shadowRadius: 12, shadowOffset: { width: 0, height: 6 }, elevation: 3 };
   return (
-    <Press onPress={onPress} style={{
-      width, backgroundColor: t.surface, borderRadius: 14, overflow: 'hidden',
-      borderWidth: vip ? 2 : 1, borderColor: vip ? t.gold : t.line, flexDirection: row ? 'row' : 'column',
-    }}>
+    <Press onPress={onPress} style={[{
+      width, backgroundColor: t.surface, borderRadius: 18, overflow: 'hidden',
+      borderWidth: vip ? 2 : 0, borderColor: t.gold, flexDirection: row ? 'row' : 'column',
+    }, shadow]}>
       <View style={{ width: row ? 120 : '100%', aspectRatio: row ? 1 : 4 / 3, backgroundColor: t.chip }}>
-        {img ? <Image source={{ uri: img }} style={StyleSheet.absoluteFill} contentFit="cover" transition={250} /> : <Cover cat={ad.cat} />}
+        {img ? <Image source={{ uri: img }} style={StyleSheet.absoluteFill} contentFit="cover" transition={300} /> : <Cover cat={ad.cat} />}
+        {img ? <LinearGradient colors={['transparent', 'rgba(0,0,0,0.45)']} style={{ position: 'absolute', left: 0, right: 0, bottom: 0, height: '45%' }} /> : null}
         <View style={{ position: 'absolute', left: 8, top: 8, flexDirection: 'row', gap: 4 }}>
-          {vip ? <Badge kind="vip">VIP</Badge> : top ? <Badge kind="top">TOP</Badge> : null}
+          {vip ? <Badge kind="vip">★ VIP</Badge> : top ? <Badge kind="top">TOP</Badge> : null}
           {ad.kind === 'buyurtma' ? <Badge kind="req">BUYURTMA</Badge> : null}
         </View>
         {ad.photos?.length > 1 ? (
-          <View style={{ position: 'absolute', left: 8, bottom: 8, backgroundColor: 'rgba(0,0,0,.55)', borderRadius: 6, paddingHorizontal: 6, paddingVertical: 2, flexDirection: 'row', alignItems: 'center', gap: 3 }}>
-            <Ionicons name="camera" size={11} color="#fff" /><Text style={{ color: '#fff', fontSize: 11, fontWeight: '700' }}>{ad.photos.length}</Text>
+          <View style={{ position: 'absolute', right: 8, bottom: 8, backgroundColor: 'rgba(0,0,0,.5)', borderRadius: 999, paddingHorizontal: 7, paddingVertical: 2, flexDirection: 'row', alignItems: 'center', gap: 3 }}>
+            <Ionicons name="images" size={11} color="#fff" /><Text style={{ color: '#fff', fontSize: 11, fontWeight: '700' }}>{ad.photos.length}</Text>
           </View>
         ) : null}
         {onFav ? (
-          <Pressable onPress={onFav} hitSlop={8} style={{ position: 'absolute', right: 8, top: 8, width: 34, height: 34, borderRadius: 17, backgroundColor: t.surface, alignItems: 'center', justifyContent: 'center' }}>
-            <Ionicons name={fav ? 'heart' : 'heart-outline'} size={18} color={fav ? t.danger : t.muted} />
+          <Pressable onPress={onFav} hitSlop={8} accessibilityLabel="Saralanganga qo'shish" style={{ position: 'absolute', right: 8, top: 8, width: 34, height: 34, borderRadius: 17, backgroundColor: 'rgba(255,255,255,0.92)', alignItems: 'center', justifyContent: 'center' }}>
+            <Ionicons name={fav ? 'heart' : 'heart-outline'} size={18} color={fav ? '#E5484D' : '#141D19'} />
           </Pressable>
         ) : null}
       </View>
-      <View style={{ padding: 10, gap: 4, flex: 1 }}>
-        <Text style={{ color: t.ink, fontWeight: '600', fontSize: 14, lineHeight: 18, minHeight: row ? 0 : 36 }} numberOfLines={2}>{ad.title}</Text>
-        <Text style={{ color: t.price, fontWeight: '800', fontSize: 15 }} numberOfLines={1}>{priceText(ad)}</Text>
-        <Text style={{ color: t.muted, fontSize: 12 }} numberOfLines={1}>{locLabel(ad)} · {ago(ad.sort_at || ad.created_at)}</Text>
+      <View style={{ padding: 11, gap: 5, flex: 1 }}>
+        <Text style={{ color: t.ink, fontWeight: '700', fontSize: 14, lineHeight: 18, minHeight: row ? 0 : 36 }} numberOfLines={2}>{ad.title}</Text>
+        <Text style={{ color: t.price, fontWeight: '800', fontSize: 15.5 }} numberOfLines={1}>{priceText(ad)}</Text>
+        <View style={{ flexDirection: 'row', alignItems: 'center', gap: 4 }}>
+          <Ionicons name="location" size={11} color={t.muted} />
+          <Text style={{ color: t.muted, fontSize: 11.5, flex: 1 }} numberOfLines={1}>{locLabel(ad)} · {ago(ad.sort_at || ad.created_at)}</Text>
+        </View>
       </View>
     </Press>
+  );
+}
+
+// Yuklanayotganda ko'rinadigan "skelet" kartochka (yaltirab turadi)
+export function Skeleton({ width }) {
+  const t = useT();
+  const a = useRef(new Animated.Value(0)).current;
+  React.useEffect(() => {
+    const l = Animated.loop(Animated.sequence([
+      Animated.timing(a, { toValue: 1, duration: 700, useNativeDriver: ND }),
+      Animated.timing(a, { toValue: 0, duration: 700, useNativeDriver: ND }),
+    ]));
+    l.start();
+    return () => l.stop();
+  }, [a]);
+  const op = a.interpolate({ inputRange: [0, 1], outputRange: [0.55, 1] });
+  const bar = (w, h = 12) => <Animated.View style={{ width: w, height: h, borderRadius: 6, backgroundColor: t.chip, opacity: op }} />;
+  return (
+    <View style={{ width, backgroundColor: t.surface, borderRadius: 18, overflow: 'hidden' }}>
+      <Animated.View style={{ width: '100%', aspectRatio: 4 / 3, backgroundColor: t.chip, opacity: op }} />
+      <View style={{ padding: 11, gap: 8 }}>{bar('90%')}{bar('60%')}{bar('45%', 14)}</View>
+    </View>
+  );
+}
+
+// Ro'yxatda paydo bo'lganda pastdan suzib chiqish
+export function FadeIn({ index = 0, children, style }) {
+  const a = useRef(new Animated.Value(0)).current;
+  React.useEffect(() => {
+    Animated.timing(a, { toValue: 1, duration: 420, delay: Math.min(index, 8) * 60, useNativeDriver: ND }).start();
+  }, [a, index]);
+  return (
+    <Animated.View style={[style, { opacity: a, transform: [{ translateY: a.interpolate({ inputRange: [0, 1], outputRange: [18, 0] }) }] }]}>
+      {children}
+    </Animated.View>
   );
 }
 

@@ -9,30 +9,10 @@ import { useT, FONT } from '../../src/theme';
 import { useApp, useRequire } from '../../src/app-context';
 import { CATS, ONLINE } from '../../src/data';
 import { shortReg } from '../../src/format';
-import { fetchFeed, fetchVip, PAGE } from '../../src/api';
+import { fetchFeed, fetchVip, fetchProfiles, PAGE } from '../../src/api';
+import { Hero, CatRow, HowItWorks, TopCreators, useStats } from '../../src/home';
 import { RegionPicker, ListPicker } from '../../src/pickers';
-import { AdCard, Btn, Empty, H, Loading, Pill, Press } from '../../src/ui';
-
-const WORDS = ['SMMchi', 'montajchi', 'mobilograf', 'targetolog', 'dizayner', 'kopirayter'];
-
-function Rotator({ color }) {
-  const [i, setI] = useState(0);
-  const a = useRef(new Animated.Value(1)).current;
-  useEffect(() => {
-    const id = setInterval(() => {
-      Animated.timing(a, { toValue: 0, duration: 220, useNativeDriver: Platform.OS !== 'web' }).start(() => {
-        setI((x) => (x + 1) % WORDS.length);
-        Animated.timing(a, { toValue: 1, duration: 260, useNativeDriver: Platform.OS !== 'web' }).start();
-      });
-    }, 2200);
-    return () => clearInterval(id);
-  }, [a]);
-  return (
-    <Animated.Text style={{ fontFamily: FONT.display, fontSize: 26, color, textDecorationLine: 'underline', opacity: a, transform: [{ translateY: a.interpolate({ inputRange: [0, 1], outputRange: [10, 0] }) }] }}>
-      {WORDS[i]}
-    </Animated.Text>
-  );
-}
+import { AdCard, Empty, FadeIn, H, Pill, Skeleton } from '../../src/ui';
 
 export default function Home() {
   const t = useT();
@@ -61,6 +41,8 @@ export default function Home() {
   const [sortOpen, setSortOpen] = useState(false);
   const [refreshing, setRefreshing] = useState(false);
   const reqId = useRef(0);
+  const stats = useStats();
+  const [people, setPeople] = useState([]);
 
   useEffect(() => { AsyncStorage.getItem('loc').then((v) => { try { if (v) setLoc(JSON.parse(v)); } catch (e) {} }); }, []);
   useEffect(() => { const id = setTimeout(() => setSq(search), 300); return () => clearTimeout(id); }, [search]);
@@ -86,6 +68,14 @@ export default function Home() {
 
   useEffect(() => { setLoading(true); load(true); /* eslint-disable-next-line */ }, [filters]);
   useEffect(() => { fetchVip(loc.region).then(setVip).catch(() => {}); }, [loc.region]);
+  // Top ijodkorlar: lentadagi eng ko'p e'lonli sotuvchilar
+  useEffect(() => {
+    if (active || !items.length) return;
+    const cnt = {}, first = {};
+    items.forEach((a) => { cnt[a.user_id] = (cnt[a.user_id] || 0) + 1; if (!first[a.user_id]) first[a.user_id] = a.id; });
+    const ids = Object.keys(cnt).sort((x, y) => cnt[y] - cnt[x]).slice(0, 12);
+    fetchProfiles(ids).then((pr) => setPeople(ids.filter((i) => pr[i]).map((i) => ({ ...pr[i], id: i, n: cnt[i], ad: first[i] })))).catch(() => {});
+  }, [items, active]);
 
   const pickLoc = (region, district) => {
     const v = { region, district };
@@ -97,46 +87,21 @@ export default function Home() {
   const header = (
     <View>
       {!active ? (
-        <View style={{ marginTop: 14, borderRadius: 22, backgroundColor: t.accent, padding: 20, overflow: 'hidden' }}>
-          <Ionicons name="sparkles" size={110} color={t.accentInk} style={{ position: 'absolute', right: -16, top: -18, opacity: 0.12 }} />
-          <Text style={{ fontFamily: FONT.display, fontSize: 26, color: t.accentInk, lineHeight: 32 }}>Kerakli</Text>
-          <Rotator color={t.accentInk} />
-          <Text style={{ fontFamily: FONT.display, fontSize: 26, color: t.accentInk, lineHeight: 32 }}>shu yerda</Text>
-          <Text style={{ color: t.accentInk, opacity: 0.85, marginTop: 10, marginBottom: 14, lineHeight: 20 }}>
-            O'zbekistonning barcha viloyat va tumanlaridagi ijodkorlar. Narxni ko'ring, ilova ichida yozing.
-          </Text>
-          <View style={{ flexDirection: 'row', gap: 8, flexWrap: 'wrap' }}>
-            <Press onPress={() => { if (need('/post')) router.push('/post'); }} style={{ backgroundColor: t.accentInk, borderRadius: 10, paddingHorizontal: 14, height: 38, justifyContent: 'center' }}>
-              <Text style={{ color: t.accent, fontWeight: '800' }}>E'lon joylash</Text>
-            </Press>
-            <Press onPress={() => setRegOpen(true)} style={{ borderColor: t.accentInk, borderWidth: 1, borderRadius: 10, paddingHorizontal: 14, height: 38, justifyContent: 'center' }}>
-              <Text style={{ color: t.accentInk, fontWeight: '700' }}>Hududni tanlash</Text>
-            </Press>
-          </View>
-        </View>
-      ) : null}
-
-      {!active ? (
         <>
-          <H>Kategoriyalar</H>
-          <View style={{ flexDirection: 'row', flexWrap: 'wrap', rowGap: 12 }}>
-            {CATS.map((c) => (
-              <Press key={c.id} onPress={() => setCat(c.id)} style={{ width: (W - 32) / (cols === 2 ? 4 : cols === 3 ? 6 : 12), alignItems: 'center', gap: 6 }}>
-                <View style={{ width: 54, height: 54, borderRadius: 17, backgroundColor: t.cover[c.c], alignItems: 'center', justifyContent: 'center' }}>
-                  <Ionicons name={c.icon} size={25} color={t.coverInk} />
-                </View>
-                <Text style={{ fontSize: 11.5, fontWeight: '600', color: t.ink, textAlign: 'center' }} numberOfLines={2}>{c.n}</Text>
-              </Press>
-            ))}
-          </View>
+          <Hero stats={stats} onPost={() => { if (need('/post')) router.push('/post'); }} onRegion={() => setRegOpen(true)} />
+          <H right="12 yo'nalish">Kategoriyalar</H>
+          <CatRow counts={stats.cats} onPick={setCat} />
           {vip.length ? (
-            <View style={{ backgroundColor: t.goldSoft, borderRadius: 18, padding: 14, paddingTop: 0, marginTop: 18 }}>
-              <H right={`${vip.length} ta`}>VIP e'lonlar</H>
+            <View style={{ backgroundColor: t.goldSoft, borderRadius: 22, padding: 14, paddingTop: 0, marginTop: 18 }}>
+              <H right={`${vip.length} ta`}>★ VIP e'lonlar</H>
               <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={{ gap: 10 }}>
                 {vip.map((a) => <AdCard key={a.id} ad={a} width={160} onPress={() => open(a)} fav={fav.includes(a.id)} onFav={() => toggleFav(a.id)} />)}
               </ScrollView>
             </View>
           ) : null}
+          {people.length ? (<><H right="eng faollar">Top ijodkorlar</H><TopCreators people={people} onOpen={(p) => router.push(`/ad/${p.ad}`)} /></>) : null}
+          <H>Qanday ishlaydi</H>
+          <HowItWorks />
         </>
       ) : (
         <View style={{ paddingTop: 14, gap: 4 }}>
@@ -187,16 +152,18 @@ export default function Home() {
 
       <FlatList
         key={'cols' + cols}
-        data={loading ? [] : items}
+        data={loading ? Array.from({ length: cols * 2 }, (_, i) => ({ id: 'sk' + i, _sk: true })) : items}
         numColumns={cols}
         keyExtractor={(a) => a.id}
         columnWrapperStyle={{ gap }}
         contentContainerStyle={{ paddingHorizontal: 16, paddingBottom: 30, gap, maxWidth: 1100, width: '100%', alignSelf: 'center' }}
         ListHeaderComponent={header}
-        renderItem={({ item }) => (
-          <AdCard ad={item} width={cardW} onPress={() => open(item)} fav={fav.includes(item.id)} onFav={() => toggleFav(item.id)} />
+        renderItem={({ item, index }) => item._sk ? <Skeleton width={cardW} /> : (
+          <FadeIn index={index % (cols * 4)}>
+            <AdCard ad={item} width={cardW} onPress={() => open(item)} fav={fav.includes(item.id)} onFav={() => toggleFav(item.id)} />
+          </FadeIn>
         )}
-        ListEmptyComponent={loading ? <Loading /> : err ? null : (
+        ListEmptyComponent={loading || err ? null : (
           <Empty title={active || loc.region ? 'Hech narsa topilmadi' : "Hozircha e'lonlar yo'q"}
             text={active || loc.region ? "Boshqa so'z bilan qidiring yoki hududni kengaytiring." : "Birinchi bo'lib xizmatingizni joylang: mijozlar sizni shu yerdan topadi."}
             action={active ? 'Filtrlarni tozalash' : "E'lon joylash"}

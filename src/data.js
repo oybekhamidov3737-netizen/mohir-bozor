@@ -12,6 +12,12 @@ export const CATS = [
   { id: 'ovoz', n: 'Ovoz, dublyaj', big: 'OVOZ', c: 3, icon: 'mic-outline' },
   { id: 'bloger', n: 'Bloger, reklama', big: 'BLOGER', c: 5, icon: 'star-outline' },
 ];
+// Har bir kategoriya rangi uchun yorqin gradient (kartochka va muqovalarda)
+export const GRAD = [
+  ['#6A8BFF', '#2D46E0'], ['#FFA155', '#F0532E'], ['#34DBA5', '#0C9A6A'],
+  ['#FF77AE', '#D8246C'], ['#AE8CFF', '#6A3FE0'], ['#FFCF55', '#F08A00'],
+];
+export const gradOf = (id) => GRAD[(CATS.find((c) => c.id === id) || CATS[0]).c];
 export const catOf = (id) => CATS.find((c) => c.id === id) || CATS[0];
 
 export const ONLINE = 'Onlayn';
