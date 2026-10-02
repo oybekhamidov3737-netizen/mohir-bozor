@@ -9,7 +9,7 @@ import { useT, FONT } from '../../src/theme';
 import { useApp, useRequire } from '../../src/app-context';
 import { supabase, publicUrl, errText } from '../../src/supabase';
 import { catOf } from '../../src/data';
-import { ago, adState, isTop, isVip, locLabel, priceText, since } from '../../src/format';
+import { ago, adState, isTop, isVip, locLabel, priceText, since, seenText, isOnline } from '../../src/format';
 import { fetchFeed } from '../../src/api';
 import { WEB_URL } from '../../src/config';
 import { AdCard, Avatar, Badge, Btn, Cover, Empty, H, Loading, Note } from '../../src/ui';
@@ -148,6 +148,7 @@ export default function AdPage() {
             <View style={{ flex: 1, gap: 2 }}>
               <Text style={{ fontWeight: '700', color: t.ink, fontSize: 15 }} numberOfLines={1}>{seller?.name || ad.seller_name}</Text>
               {seller?.bio ? <Text style={{ color: t.muted, fontSize: 13 }} numberOfLines={3}>{seller.bio}</Text> : null}
+              {seller?.last_seen ? <Text style={{ color: isOnline(seller.last_seen) ? t.price : t.muted, fontSize: 12, fontWeight: isOnline(seller.last_seen) ? '700' : '400' }}>{isOnline(seller.last_seen) ? '● ' : ''}{seenText(seller.last_seen)}</Text> : null}
               {seller ? <Text style={{ color: t.muted, fontSize: 12 }}>{since(seller.created_at)}</Text> : null}
             </View>
           </View>

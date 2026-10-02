@@ -8,7 +8,7 @@ import { useT, FONT } from '../../src/theme';
 import { useApp } from '../../src/app-context';
 import { supabase, adPhoto } from '../../src/supabase';
 import { fetchProfiles } from '../../src/api';
-import { ago } from '../../src/format';
+import { ago, isOnline } from '../../src/format';
 import { Avatar, Btn, Cover, Empty, Loading } from '../../src/ui';
 
 export default function Chats() {
@@ -67,12 +67,15 @@ export default function Chats() {
               </View>
               <View style={{ flex: 1, gap: 2 }}>
                 <View style={{ flexDirection: 'row', alignItems: 'center', gap: 6 }}>
-                  <Avatar profile={item.other} size={18} />
+                  <View>
+                    <Avatar profile={item.other} size={18} />
+                    {isOnline(item.other?.last_seen) ? <View style={{ position: 'absolute', right: -2, bottom: -2, width: 8, height: 8, borderRadius: 4, backgroundColor: t.price, borderWidth: 1.5, borderColor: t.surface }} /> : null}
+                  </View>
                   <Text style={{ fontWeight: '700', color: t.ink, flex: 1 }} numberOfLines={1}>{!item.ad_id && item.buyer_id === uid ? 'Mohir bozor jamoasi' : item.other?.name || 'Foydalanuvchi'}</Text>
                 </View>
                 <Text style={{ fontSize: 12, color: t.muted }} numberOfLines={1}>{!item.ad_id ? (item.buyer_id === uid ? "Qo'llab-quvvatlash" : 'Murojaat') : item.ads?.title || "E'lon o'chirilgan"}</Text>
                 <Text style={{ fontSize: 13, color: item.unread ? t.ink : t.muted, fontWeight: item.unread ? '700' : '400' }} numberOfLines={1}>
-                  {item.last_sender === uid ? 'Siz: ' : ''}{item.last_text}
+                  {item.last_sender === uid ? (Date.parse(item.buyer_id === uid ? item.seller_read_at : item.buyer_read_at) >= Date.parse(item.last_at) ? '✓✓ ' : '✓ ') : ''}{item.last_text}
                 </Text>
               </View>
               <View style={{ alignItems: 'flex-end', gap: 6 }}>

@@ -8,7 +8,7 @@ import { useT } from '../../src/theme';
 import { useApp } from '../../src/app-context';
 import { supabase, adPhoto, errText } from '../../src/supabase';
 import { fetchProfiles } from '../../src/api';
-import { dayLabel, priceText, timeOnly } from '../../src/format';
+import { dayLabel, priceText, timeOnly, seenText, isOnline } from '../../src/format';
 import { Cover, Loading, Note } from '../../src/ui';
 
 const QUICK = ["Assalomu alaykum! E'loningiz hali dolzarbmi?", 'Narxi kelishiladimi?', 'Portfolio yubora olasizmi?', 'Qachon boshlay olasiz?'];
@@ -46,8 +46,18 @@ export default function ChatScreen() {
         setMsgs((m) => (m && !m.some((x) => x.id === p.new.id) ? [...m.filter((x) => !(x._tmp && x.body === p.new.body && x.sender_id === p.new.sender_id)), p.new] : m));
         markRead();
       })
+      .on('postgres_changes', { event: 'UPDATE', schema: 'public', table: 'threads', filter: `id=eq.${id}` }, (p) => {
+        setTh((cur) => (cur ? { ...cur, ...p.new, ads: cur.ads } : cur));
+      })
       .subscribe();
-    return () => { alive = false; supabase.removeChannel(ch); };
+    // Suhbatdoshning onlayn holatini yangilab turish
+    const iv = setInterval(async () => {
+      const { data: tr } = await supabase.from('threads').select('buyer_id,seller_id,buyer_read_at,seller_read_at').eq('id', id).maybeSingle();
+      if (!alive || !tr) return;
+      setTh((cur) => (cur ? { ...cur, buyer_read_at: tr.buyer_read_at, seller_read_at: tr.seller_read_at } : cur));
+      setProfs(await fetchProfiles([tr.buyer_id, tr.seller_id]));
+    }, 30000);
+    return () => { alive = false; clearInterval(iv); supabase.removeChannel(ch); };
   }, [id]);
 
   if (!th || !msgs) return <View style={{ flex: 1, backgroundColor: t.bg }}><Loading /></View>;
@@ -55,6 +65,7 @@ export default function ChatScreen() {
   const member = uid === th.buyer_id || uid === th.seller_id;
   const otherId = uid === th.buyer_id ? th.seller_id : th.buyer_id;
   const support = !th.ad_id;
+  const otherReadAt = uid === th.buyer_id ? th.seller_read_at : th.buyer_read_at;
   const title = support ? (uid === th.buyer_id ? "Qo'llab-quvvatlash" : `Murojaat: ${profs[th.buyer_id]?.name || 'Foydalanuvchi'}`) : member ? profs[otherId]?.name || 'Suhbat' : `${profs[th.seller_id]?.name || 'Sotuvchi'} ↔ ${profs[th.buyer_id]?.name || 'Xaridor'}`;
   const img = adPhoto(th.ads);
 
@@ -86,7 +97,19 @@ export default function ChatScreen() {
 
   return (
     <KeyboardAvoidingView style={{ flex: 1, backgroundColor: t.bg }} behavior={Platform.OS === 'ios' ? 'padding' : undefined} keyboardVerticalOffset={Platform.OS === 'ios' ? 90 : 0}>
-      <Stack.Screen options={{ title }} />
+      <Stack.Screen options={{
+        headerTitle: () => (
+          <View style={{ alignItems: Platform.OS === 'ios' ? 'center' : 'flex-start' }}>
+            <Text style={{ color: t.ink, fontWeight: '700', fontSize: 16 }} numberOfLines={1}>{title}</Text>
+            {member && !support && profs[otherId]?.last_seen ? (
+              <View style={{ flexDirection: 'row', alignItems: 'center', gap: 4 }}>
+                {isOnline(profs[otherId].last_seen) ? <View style={{ width: 7, height: 7, borderRadius: 4, backgroundColor: t.price }} /> : null}
+                <Text style={{ color: isOnline(profs[otherId].last_seen) ? t.price : t.muted, fontSize: 12 }}>{seenText(profs[otherId].last_seen)}</Text>
+              </View>
+            ) : null}
+          </View>
+        ),
+      }} />
       {th.ads ? (
         <Pressable onPress={() => router.push(`/ad/${th.ads.id}`)} style={{ flexDirection: 'row', gap: 10, alignItems: 'center', margin: 12, marginBottom: 0, padding: 8, backgroundColor: t.surface, borderWidth: 1, borderColor: t.line, borderRadius: 12 }}>
           <View style={{ width: 44, height: 44, borderRadius: 8, overflow: 'hidden', backgroundColor: t.chip }}>
@@ -117,7 +140,15 @@ export default function ChatScreen() {
             <View style={{ alignSelf: me ? 'flex-end' : 'flex-start', maxWidth: '80%', backgroundColor: me ? t.accent : t.surface, borderWidth: me ? 0 : 1, borderColor: t.line, borderRadius: 16, borderBottomRightRadius: me ? 5 : 16, borderBottomLeftRadius: me ? 16 : 5, paddingHorizontal: 12, paddingTop: 8, paddingBottom: 5, opacity: m._tmp ? 0.6 : 1 }}>
               {!member ? <Text style={{ fontSize: 11, fontWeight: '700', color: me ? t.accentInk : t.muted, opacity: 0.8 }}>{profs[m.sender_id]?.name || ''}</Text> : null}
               <Text selectable style={{ color: me ? t.accentInk : t.ink, fontSize: 15, lineHeight: 21 }}>{m.body}</Text>
-              <Text style={{ color: me ? t.accentInk : t.muted, fontSize: 10, alignSelf: 'flex-end', opacity: 0.75, marginTop: 2 }}>{timeOnly(m.created_at)}{me && member ? (m._tmp ? ' · yuborilmoqda' : ' ✓') : ''}</Text>
+              <View style={{ flexDirection: 'row', alignItems: 'center', gap: 3, alignSelf: 'flex-end', marginTop: 2 }}>
+                <Text style={{ color: me ? t.accentInk : t.muted, fontSize: 10, opacity: 0.75 }}>{timeOnly(m.created_at)}</Text>
+                {me && member ? (
+                  m._tmp ? <Ionicons name="time-outline" size={12} color={t.accentInk} style={{ opacity: 0.75 }} />
+                    : otherReadAt && Date.parse(m.created_at) <= Date.parse(otherReadAt)
+                      ? <Ionicons name="checkmark-done" size={15} color={t.accentInk} accessibilityLabel="O'qildi" />
+                      : <Ionicons name="checkmark" size={14} color={t.accentInk} style={{ opacity: 0.75 }} accessibilityLabel="Yetkazildi" />
+                ) : null}
+              </View>
             </View>
           );
         }}

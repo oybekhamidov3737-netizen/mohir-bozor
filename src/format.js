@@ -42,3 +42,13 @@ export function adState(a) {
 export const isVip = (a) => a.vip_until && Date.parse(a.vip_until) > Date.now();
 export const isTop = (a) => isVip(a) || (a.top_until && Date.parse(a.top_until) > Date.now());
 export const initials = (s) => String(s || '?').trim().split(/\s+/).map((w) => w[0]).slice(0, 2).join('').toUpperCase();
+
+// Onlayn holati: 2 daqiqa ichida faol bo'lsa "onlayn"
+export function seenText(iso) {
+  const t = Date.parse(iso);
+  if (!t) return '';
+  if (Date.now() - t < 150000) return 'onlayn';
+  const a = ago(iso);
+  return 'oxirgi marta ' + (a.startsWith('Bugun') || a.startsWith('Kecha') ? a.charAt(0).toLowerCase() + a.slice(1) : a);
+}
+export const isOnline = (iso) => !!iso && Date.now() - Date.parse(iso) < 150000;

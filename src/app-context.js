@@ -1,5 +1,5 @@
 import React, { createContext, useCallback, useContext, useEffect, useRef, useState } from 'react';
-import { Animated, Platform, Text, View } from 'react-native';
+import { AppState, Animated, Platform, Text, View } from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { useRouter } from 'expo-router';
 import { supabase } from './supabase';
@@ -83,6 +83,19 @@ export function AppProvider({ children }) {
       .subscribe();
     return () => { supabase.removeChannel(ch); };
   }, [uid, loadUnread]);
+
+  // Onlayn holati: ilova ochiq turganda har daqiqada belgilanadi
+  useEffect(() => {
+    if (!uid || !profile) return;
+    const ping = () => { supabase.rpc('touch_seen').then(() => {}, () => {}); };
+    ping();
+    const iv = setInterval(() => {
+      if (Platform.OS === 'web' && typeof document !== 'undefined' && document.hidden) return;
+      ping();
+    }, 60000);
+    const sub = AppState.addEventListener('change', (s) => { if (s === 'active') ping(); });
+    return () => { clearInterval(iv); sub.remove(); };
+  }, [uid, !!profile]);
 
   const toast = useCallback((msg) => {
     setToastMsg(msg);
