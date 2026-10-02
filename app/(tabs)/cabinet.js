@@ -11,6 +11,7 @@ import { CATS, ONLINE, SVC, catOf } from '../../src/data';
 import { adState, ago, fmtNum, isTop, isVip, priceText, shortDate, shortReg, since } from '../../src/format';
 import { Avatar, Badge, Btn, Cover, Empty, H, Loading, Note, Seg } from '../../src/ui';
 import { InviteCard } from '../../src/invite';
+import { AppearanceCard } from '../../src/appearance';
 
 const EV = { top: 'TOP', vip: 'VIP', bump: "ko'tarildi", extend: 'uzaytirildi', restore: 'tiklandi', moderator: "moderator o'chirdi" };
 
@@ -100,6 +101,8 @@ export default function Cabinet() {
     <>
       <Text style={{ fontFamily: FONT.displayM, fontSize: 20, color: t.ink }}>Kabinet</Text>
       <Onboard onOpen={() => router.push('/login')} />
+      <H>Ko'rinish</H>
+      <AppearanceCard />
       <View style={{ marginTop: 14, gap: 8 }}>
         <Btn kind="sec" icon="headset-outline" title="Qo'llab-quvvatlash" onPress={() => router.push('/support')} />
         <Pressable onPress={() => router.push('/privacy')}><Text style={{ color: t.muted, textAlign: 'center' }}>Maxfiylik siyosati</Text></Pressable>
@@ -223,6 +226,9 @@ export default function Cabinet() {
           </View>
         </>
       ) : null}
+
+      <H>Ko'rinish</H>
+      <AppearanceCard />
 
       <H>Hisob</H>
       <View style={{ gap: 8 }}>

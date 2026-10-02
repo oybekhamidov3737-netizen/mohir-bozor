@@ -8,12 +8,20 @@ import { useFonts, Unbounded_500Medium, Unbounded_700Bold } from '@expo-google-f
 import { AppProvider } from '../src/app-context';
 import * as Linking from 'expo-linking';
 import { captureRef } from '../src/referral';
-import { useT } from '../src/theme';
+import { ThemeProvider, useT } from '../src/theme';
 import { isConfigured } from '../src/config';
 
 SplashScreen.preventAutoHideAsync().catch(() => {});
 
 export default function Root() {
+  return (
+    <ThemeProvider>
+      <RootInner />
+    </ThemeProvider>
+  );
+}
+
+function RootInner() {
   const t = useT();
   const [loaded, err] = useFonts({ Unbounded_500Medium, Unbounded_700Bold });
   useEffect(() => { if (loaded || err) SplashScreen.hideAsync().catch(() => {}); }, [loaded, err]);
