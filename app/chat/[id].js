@@ -25,6 +25,8 @@ export default function ChatScreen() {
   const [text, setText] = useState('');
   const [sending, setSending] = useState(false);
   const list = useRef(null);
+  const [menu, setMenu] = useState(false);
+  const [blocked, setBlocked] = useState(false);
 
   const markRead = useCallback(() => { supabase.rpc('mark_read', { p_thread: id }).then(() => loadUnread()); }, [id, loadUnread]);
 
@@ -36,6 +38,11 @@ export default function ChatScreen() {
       if (!tr) { toast('Suhbat topilmadi'); router.back(); return; }
       setTh(tr);
       setProfs(await fetchProfiles([tr.buyer_id, tr.seller_id]));
+      const oth = uid === tr.buyer_id ? tr.seller_id : tr.buyer_id;
+      if (uid && oth) {
+        const { data: b } = await supabase.from('blocks').select('blocked').eq('blocker', uid).eq('blocked', oth).maybeSingle();
+        if (alive) setBlocked(!!b);
+      }
       const { data } = await supabase.from('messages').select('*').eq('thread_id', id).order('id', { ascending: true }).limit(500);
       if (!alive) return;
       setMsgs(data || []);
@@ -87,6 +94,23 @@ export default function ChatScreen() {
     setMsgs((m) => (m.some((x) => x.id === data.id) ? m.filter((x) => x.id !== tmp.id) : m.map((x) => (x.id === tmp.id ? data : x))));
   };
 
+  const toggleBlock = async () => {
+    setMenu(false);
+    const { error } = blocked
+      ? await supabase.from('blocks').delete().eq('blocker', uid).eq('blocked', otherId)
+      : await supabase.from('blocks').insert({ blocked: otherId });
+    if (error) { toast(errText(error)); return; }
+    setBlocked(!blocked);
+    toast(blocked ? 'Blokdan chiqarildi' : 'Foydalanuvchi bloklandi. U sizga yoza olmaydi.');
+  };
+  const reportUser = async () => {
+    setMenu(false);
+    const { error } = await supabase.from('reports').insert({ ad_id: th.ad_id, reason: 'offensive', note: 'Chatdagi xatti-harakat: ' + (profs[otherId]?.name || otherId) });
+    if (error && /duplicate|unique/i.test(error.message)) { toast('Siz allaqachon shikoyat qilgansiz'); return; }
+    if (error) { toast(errText(error)); return; }
+    toast('Shikoyat yuborildi. 24 soat ichida tekshiramiz.');
+  };
+
   const rows = [];
   let lastDay = '';
   msgs.forEach((m) => {
@@ -109,7 +133,22 @@ export default function ChatScreen() {
             ) : null}
           </View>
         ),
+        headerRight: member && !support ? () => (
+          <Pressable onPress={() => setMenu((v) => !v)} hitSlop={10} accessibilityLabel="Boshqa amallar" style={{ paddingHorizontal: 8 }}>
+            <Ionicons name="ellipsis-horizontal-circle-outline" size={24} color={t.ink} />
+          </Pressable>
+        ) : undefined,
       }} />
+      {menu ? (
+        <View style={{ margin: 12, marginBottom: 0, backgroundColor: t.surface, borderWidth: 1, borderColor: t.line, borderRadius: 12, overflow: 'hidden' }}>
+          <Pressable onPress={reportUser} style={{ flexDirection: 'row', gap: 10, alignItems: 'center', padding: 14, borderBottomWidth: 1, borderColor: t.line }}>
+            <Ionicons name="flag-outline" size={18} color={t.ink} /><Text style={{ color: t.ink, fontSize: 15 }}>Shikoyat qilish</Text>
+          </Pressable>
+          <Pressable onPress={toggleBlock} style={{ flexDirection: 'row', gap: 10, alignItems: 'center', padding: 14 }}>
+            <Ionicons name={blocked ? 'lock-open-outline' : 'ban-outline'} size={18} color={t.danger} /><Text style={{ color: t.danger, fontSize: 15 }}>{blocked ? 'Blokdan chiqarish' : 'Foydalanuvchini bloklash'}</Text>
+          </Pressable>
+        </View>
+      ) : null}
       {th.ads ? (
         <Pressable onPress={() => router.push(`/ad/${th.ads.id}`)} style={{ flexDirection: 'row', gap: 10, alignItems: 'center', margin: 12, marginBottom: 0, padding: 8, backgroundColor: t.surface, borderWidth: 1, borderColor: t.line, borderRadius: 12 }}>
           <View style={{ width: 44, height: 44, borderRadius: 8, overflow: 'hidden', backgroundColor: t.chip }}>
@@ -154,7 +193,9 @@ export default function ChatScreen() {
         }}
         ListEmptyComponent={<Text style={{ textAlign: 'center', color: t.muted, marginTop: 40 }}>{support ? 'Savolingizni yozing.' : 'Savolingizni yozing, sotuvchi javob beradi.'}</Text>}
       />
-      {member ? (
+      {member && blocked && !support ? (
+        <View style={{ padding: 12, paddingBottom: ins.bottom + 12 }}><Note kind="bad">Siz bu foydalanuvchini bloklagansiz. Yozish uchun "…" menyusidan blokdan chiqaring.</Note></View>
+      ) : member ? (
         <View style={{ borderTopWidth: 1, borderColor: t.line, backgroundColor: t.surface, paddingHorizontal: 12, paddingTop: 8, paddingBottom: ins.bottom + 8 }}>
           {!msgs.length && !support ? (
             <View style={{ flexDirection: 'row', flexWrap: 'wrap', gap: 6, marginBottom: 8 }}>

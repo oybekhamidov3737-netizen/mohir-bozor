@@ -13,6 +13,7 @@ import { Avatar, Badge, Btn, Cover, Empty, H, Loading, Note, Seg } from '../../s
 import { InviteCard } from '../../src/invite';
 import { BalanceCard } from '../../src/balance';
 import { AppearanceCard } from '../../src/appearance';
+import { PAYMENTS_IN_APP } from '../../src/pay';
 
 const EV = { top: 'TOP', vip: 'VIP', bump: "ko'tarildi", extend: 'uzaytirildi', restore: 'tiklandi', moderator: "moderator o'chirdi" };
 
@@ -140,8 +141,8 @@ export default function Cabinet() {
         <Btn kind="sec" small title="Tahrirlash" onPress={() => router.push('/profile')} />
       </View>
 
-      <BalanceCard />
-      <InviteCard />
+      {PAYMENTS_IN_APP ? <BalanceCard /> : null}
+      {PAYMENTS_IN_APP ? <InviteCard /> : null}
       {isAdmin ? <Btn style={{ marginTop: 12 }} kind="gold" icon="speedometer-outline" title="Boshqaruv paneli (to'lovlar, e'lonlar, suhbatlar)" onPress={() => router.push('/admin')} /> : null}
       {canClaim ? (
         <View style={{ marginTop: 12 }}>
@@ -157,7 +158,7 @@ export default function Cabinet() {
           <View style={{ height: 6, borderRadius: 3, backgroundColor: t.line, overflow: 'hidden' }}>
             <View style={{ width: `${Math.min(100, (live.length / lim) * 100)}%`, height: 6, backgroundColor: t.accent }} />
           </View>
-          {live.length >= lim - 1 ? <View style={{ alignSelf: 'flex-start' }}><Btn small kind="sec" title="Limitni oshirish" onPress={() => router.push('/promo/slots')} /></View> : null}
+          {(PAYMENTS_IN_APP || isAdmin) && live.length >= lim - 1 ? <View style={{ alignSelf: 'flex-start' }}><Btn small kind="sec" title="Limitni oshirish" onPress={() => router.push('/promo/slots')} /></View> : null}
         </View>
       ) : null}
 
@@ -187,18 +188,18 @@ export default function Cabinet() {
               <View style={{ flexDirection: 'row', gap: 6, flexWrap: 'wrap' }}>
                 {s === 'live' ? (
                   <>
-                    <Btn small title="Reklama" icon="rocket-outline" onPress={() => router.push(`/promo/${a.id}`)} />
+                    {PAYMENTS_IN_APP || isAdmin ? <Btn small title="Reklama" icon="rocket-outline" onPress={() => router.push(`/promo/${a.id}`)} /> : null}
                     <Btn small kind="sec" title="Tahrirlash" onPress={() => router.push({ pathname: '/post', params: { id: a.id } })} />
                     <Btn small kind="dng" title={sure === 'del' + a.id ? "Ha, o'chirish" : "O'chirish"} onPress={() => del(a)} />
                   </>
                 ) : s === 'expired' ? (
                   <>
-                    <Btn small title={`Uzaytirish · ${fmtNum(config.prices.extend)} so'm`} onPress={() => router.push({ pathname: `/promo/${a.id}`, params: { svc: 'extend' } })} />
+                    {PAYMENTS_IN_APP || isAdmin ? <Btn small title={`Uzaytirish · ${fmtNum(config.prices.extend)} so'm`} onPress={() => router.push({ pathname: `/promo/${a.id}`, params: { svc: 'extend' } })} /> : null}
                     <Btn small kind="dng" title={sure === 'del' + a.id ? "Ha, o'chirish" : "O'chirish"} onPress={() => del(a)} />
                   </>
                 ) : (
                   <>
-                    {!a.mod_deleted ? <Btn small title={`Tiklash · ${fmtNum(config.prices.restore)} so'm`} onPress={() => router.push({ pathname: `/promo/${a.id}`, params: { svc: 'restore' } })} /> : null}
+                    {!a.mod_deleted && (PAYMENTS_IN_APP || isAdmin) ? <Btn small title={`Tiklash · ${fmtNum(config.prices.restore)} so'm`} onPress={() => router.push({ pathname: `/promo/${a.id}`, params: { svc: 'restore' } })} /> : null}
                     <Btn small kind="dng" title={sure === 'purge' + a.id ? 'Butunlay o\'chirilsinmi?' : "Butunlay o'chirish"} onPress={() => purge(a)} />
                   </>
                 )}

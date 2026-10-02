@@ -11,12 +11,14 @@
     "splash": {
       "image": "./assets/splash.png",
       "resizeMode": "cover",
-      "backgroundColor": "#1E48D6"
+      "backgroundColor": "#2747D6"
     },
     "ios": {
       "bundleIdentifier": "uz.mohir.bozor",
       "supportsTablet": false,
-      "config": { "usesNonExemptEncryption": false },
+      "config": {
+        "usesNonExemptEncryption": false
+      },
       "infoPlist": {
         "NSPhotoLibraryUsageDescription": "E'lon, profil rasmi va to'lov chekini tanlash uchun galereyangizga ruxsat kerak.",
         "NSCameraUsageDescription": "E'lon va profil uchun rasmga olish uchun kameraga ruxsat kerak."
@@ -26,7 +28,7 @@
       "package": "uz.mohir.bozor",
       "adaptiveIcon": {
         "foregroundImage": "./assets/adaptive-icon.png",
-        "backgroundColor": "#1E48D6"
+        "backgroundColor": "#2747D6"
       },
       "edgeToEdgeEnabled": true
     },

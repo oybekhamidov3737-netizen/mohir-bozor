@@ -12,6 +12,7 @@ import { shortReg } from '../src/format';
 import { pickImages, uploadImage, newName } from '../src/images';
 import { RegionPicker, ListPicker } from '../src/pickers';
 import { Avatar, Btn, Field, Loading, Note, Select } from '../src/ui';
+import { PAYMENTS_IN_APP } from '../src/pay';
 import { getStoredRef, clearStoredRef, cleanRef } from '../src/referral';
 import { fmtNum } from '../src/format';
 
@@ -93,7 +94,7 @@ export default function ProfileScreen() {
         <Select label="Asosiy yo'nalishingiz" value={f.cat ? catOf(f.cat).n : 'Men xizmat buyurtma qilaman'} onPress={() => setPicker('cat')} />
         <Select label="Hudud" value={f.region ? (f.region === ONLINE ? 'Onlayn (masofadan)' : (f.district ? f.district + ', ' : '') + shortReg(f.region)) : ''} placeholder="Viloyat va tuman" onPress={() => setPicker('region')} error={errs.region} />
         <Field label="O'zingiz haqingizda" value={f.bio} onChangeText={set('bio')} multiline maxLength={300} placeholder="Tajribangiz, qanday loyihalar qilgansiz…" error={errs.bio} />
-        {isNew ? <Field label="Taklif kodi (ixtiyoriy)" value={ref} onChangeText={(v) => setRef(cleanRef(v))} autoCapitalize="characters" placeholder="Masalan: K7M2QX" hint="Do'stingiz bergan kod bo'lsa, bonus olasiz." /> : null}
+        {isNew && PAYMENTS_IN_APP ? <Field label="Taklif kodi (ixtiyoriy)" value={ref} onChangeText={(v) => setRef(cleanRef(v))} autoCapitalize="characters" placeholder="Masalan: K7M2QX" hint="Do'stingiz bergan kod bo'lsa, bonus olasiz." /> : null}
         <Btn title={isNew ? 'Kabinetni ochish' : 'Saqlash'} onPress={save} loading={busy} />
       </ScrollView>
       <ListPicker visible={picker === 'cat'} onClose={() => setPicker(null)} title="Yo'nalish" value={f.cat} onPick={set('cat')} items={[['', 'Men xizmat buyurtma qilaman'], ...CATS.map((c) => [c.id, c.n])]} />

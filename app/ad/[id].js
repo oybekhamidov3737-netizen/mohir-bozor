@@ -6,6 +6,7 @@ import { Stack, useLocalSearchParams, useRouter } from 'expo-router';
 import { Image } from 'expo-image';
 import { Ionicons } from '@expo/vector-icons';
 import { useT, FONT } from '../../src/theme';
+import { PAYMENTS_IN_APP } from '../../src/pay';
 import { useApp, useRequire } from '../../src/app-context';
 import { supabase, publicUrl, errText } from '../../src/supabase';
 import { catOf } from '../../src/data';
@@ -155,7 +156,7 @@ export default function AdPage() {
 
           {mine ? (
             <View style={{ gap: 8, marginTop: 14 }}>
-              <Btn title="Reklama qilish (TOP / VIP)" icon="rocket-outline" onPress={() => router.push(`/promo/${ad.id}`)} />
+              {PAYMENTS_IN_APP || isAdmin ? <Btn title="Reklama qilish (TOP / VIP)" icon="rocket-outline" onPress={() => router.push(`/promo/${ad.id}`)} /> : null}
               <Btn kind="sec" title="Tahrirlash" icon="create-outline" onPress={() => router.push({ pathname: '/post', params: { id: ad.id } })} />
             </View>
           ) : null}
