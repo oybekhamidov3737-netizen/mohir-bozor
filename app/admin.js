@@ -27,7 +27,7 @@ export default function Admin() {
   const [refreshing, setRefreshing] = useState(false);
   const [cfg, setCfg] = useState(null);
   const [paySt, setPaySt] = useState(null);
-  const [keys, setKeys] = useState({ payme: '', click: '' });
+  const [keys, setKeys] = useState({ payme: '', click: '', mail: '' });
 
   const load = useCallback(async () => {
     const { data: rp } = await supabase.from('reports').select('*, ads(id,title,seller_name,status)').order('created_at', { ascending: false }).limit(200);
@@ -92,12 +92,17 @@ export default function Admin() {
       fiscal_mxik: String(cfg.fiscal_mxik || '').replace(/\D/g, ''), fiscal_package: String(cfg.fiscal_package || '').replace(/\D/g, ''),
       fiscal_vat: Math.min(100, n('fiscal_vat')),
     };
+    if (keys.mail) {
+      const { error: mErr } = await supabase.rpc('admin_set_mail_password', { p_pass: keys.mail });
+      if (mErr) { toast(errText(mErr)); return; }
+    }
     if (keys.payme || keys.click) {
       const { error: kErr } = await supabase.rpc('admin_set_payment_secrets', { p_payme_key: keys.payme || null, p_click_secret: keys.click || null });
       if (kErr) { toast(errText(kErr)); return; }
-      setKeys({ payme: '', click: '' });
+      setKeys({ payme: '', click: '', mail: '' });
       supabase.rpc('admin_payment_status').then(({ data }) => setPaySt(data));
     }
+    if (keys.mail) setKeys((k) => ({ ...k, mail: '' }));
     const { error } = await supabase.from('config').update(row).eq('id', 1);
     if (error) toast(errText(error)); else { toast('Sozlamalar saqlandi'); loadConfig(); }
   };
@@ -217,6 +222,9 @@ export default function Admin() {
               ['free_ads', "Bepul e'lonlar limiti"], ['slot_pack', 'Bir paketda nechta joy'], ['promo_days', 'TOP/VIP muddati (kun)'], ['ad_days', "E'lon muddati (kun)"]].map(([k, l]) => (
               <Field key={k} label={l + (k.startsWith('p_') ? " (so'm)" : '')} value={String(cfg[k] ?? '')} keyboardType="number-pad" onChangeText={(v) => setCfg({ ...cfg, [k]: v.replace(/\D/g, '') })} />
             ))}
+            <H>Xavfsizlik</H>
+            <Field label="Gmail ilova parolini almashtirish" value={keys.mail} onChangeText={(v) => setKeys({ ...keys, mail: v })} secureTextEntry autoCapitalize="none"
+              placeholder="Yangi 16 harfli parol" hint="Google hisobi → Xavfsizlik → Ilova parollari. Eski parolni o'chirib, yangisini shu yerga yozing. Chatga hech kimga yubormang." />
             <H>Rekvizitlar (oferta uchun)</H>
             <Field label="Sotuvchi (YaTT F.I.Sh. yoki MChJ nomi)" value={String(cfg.legal_name || '')} onChangeText={(v) => setCfg({ ...cfg, legal_name: v })} placeholder="YaTT Hamidov Oybek" />
             <Field label="STIR (INN)" value={String(cfg.legal_inn || '')} keyboardType="number-pad" onChangeText={(v) => setCfg({ ...cfg, legal_inn: v })} />

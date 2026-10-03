@@ -17,6 +17,7 @@ import { AppearanceCard } from '../../src/appearance';
 import { PAYMENTS_IN_APP } from '../../src/pay';
 import { BUILD_ID } from '../../src/updater';
 import { copyText } from '../../src/copy';
+import { MfaChallenge, MfaSetup, useMfaNeeded } from '../../src/mfa';
 
 const EV = { top: 'TOP', vip: 'VIP', bump: "ko'tarildi", extend: 'uzaytirildi', restore: 'tiklandi', moderator: "moderator o'chirdi" };
 
@@ -55,6 +56,7 @@ export default function Cabinet() {
   const [canClaim, setCanClaim] = useState(false);
   const [sure, setSure] = useState('');
   const [refreshing, setRefreshing] = useState(false);
+  const [mfaNeed, recheckMfa] = useMfaNeeded();
 
   const load = useCallback(async () => {
     if (!uid) return;
@@ -165,6 +167,8 @@ export default function Cabinet() {
         </View>
       </LinearGradient>
 
+      {mfaNeed ? <MfaChallenge onDone={recheckMfa} /> : null}
+      {isAdmin ? <MfaSetup /> : null}
       {PAYMENTS_IN_APP ? <BalanceCard /> : null}
       {PAYMENTS_IN_APP ? <InviteCard /> : null}
       {isAdmin ? <Btn style={{ marginTop: 12 }} kind="gold" icon="speedometer-outline" title="Boshqaruv paneli (to'lovlar, e'lonlar, suhbatlar)" onPress={() => router.push('/admin')} /> : null}
