@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react';
-import { Text, View } from 'react-native';
-import { Stack } from 'expo-router';
+import { Platform, Pressable, Text, View } from 'react-native';
+import { Ionicons } from '@expo/vector-icons';
+import { Stack, useRouter } from 'expo-router';
 import { StatusBar } from 'expo-status-bar';
 import * as SplashScreen from 'expo-splash-screen';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
@@ -15,6 +16,21 @@ import { Intro, shouldShowIntro } from '../src/intro';
 import { ScreenEnter } from '../src/enter';
 
 SplashScreen.preventAutoHideAsync().catch(() => {});
+
+// Har bir sahifadagi "orqaga" tugmasi: tarix bo'lsa orqaga, bo'lmasa (havola orqali kirilgan bo'lsa) bosh sahifaga
+function BackBtn() {
+  const t = useT();
+  const router = useRouter();
+  const go = () => { if (router.canGoBack()) router.back(); else router.replace('/'); };
+  return (
+    <Pressable onPress={go} hitSlop={10} accessibilityRole="button" accessibilityLabel="Orqaga"
+      style={({ pressed }) => ({ width: 38, height: 38, borderRadius: 19, backgroundColor: t.surface, alignItems: 'center', justifyContent: 'center',
+        marginLeft: Platform.OS === 'web' ? 12 : 0, marginRight: 8, transform: [{ scale: pressed ? 0.9 : 1 }],
+        ...(Platform.OS === 'web' ? { boxShadow: '0 2px 8px rgba(0,0,0,0.08)' } : { shadowColor: '#000', shadowOpacity: 0.08, shadowRadius: 6, shadowOffset: { width: 0, height: 2 }, elevation: 2 }) })}>
+      <Ionicons name="chevron-back" size={22} color={t.ink} style={{ marginLeft: -2 }} />
+    </Pressable>
+  );
+}
 
 export default function Root() {
   return (
@@ -52,6 +68,8 @@ function RootInner() {
     headerTintColor: t.ink,
     headerShadowVisible: false,
     headerBackTitle: 'Orqaga',
+    headerBackVisible: false,
+    headerLeft: () => <BackBtn />,
     contentStyle: { backgroundColor: t.bg },
   };
 
