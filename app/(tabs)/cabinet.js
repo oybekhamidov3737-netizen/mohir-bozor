@@ -119,7 +119,7 @@ export default function Cabinet() {
   const tile = (colors, icon, title, sub, onPress, badge) => (
     <View key={title} style={{ width: '48.5%' }}>
     <Press onPress={onPress} style={{ width: '100%' }}>
-      <View style={{ backgroundColor: t.surface, borderRadius: 22, padding: 14, gap: 10, minHeight: 118, width: '100%' }}>
+      <View style={{ backgroundColor: t.surface, borderRadius: 22, padding: 14, width: '100%', height: 142, justifyContent: 'space-between' }}>
         <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'flex-start' }}>
           <LinearGradient colors={colors} start={{ x: 0, y: 0 }} end={{ x: 1, y: 1 }} style={{ width: 44, height: 44, borderRadius: 15, alignItems: 'center', justifyContent: 'center' }}>
             <Ionicons name={icon} size={22} color="#fff" />
@@ -128,7 +128,7 @@ export default function Cabinet() {
         </View>
         <View>
           <Text style={{ color: t.ink, fontWeight: '800', fontSize: 15 }} numberOfLines={1}>{title}</Text>
-          <Text style={{ color: t.muted, fontSize: 12, marginTop: 2 }} numberOfLines={2}>{sub}</Text>
+          <Text style={{ color: t.muted, fontSize: 12, marginTop: 2, lineHeight: 16, height: 32 }} numberOfLines={2}>{sub}</Text>
         </View>
       </View>
     </Press>
