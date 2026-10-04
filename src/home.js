@@ -9,7 +9,7 @@ import { CATS, GRAD, REG_NAMES } from './data';
 import { supabase } from './supabase';
 import { fmtNum } from './format';
 import { Avatar, Press } from './ui';
-import { tr } from './i18n';
+import { tr, adsCount } from './i18n';
 
 const ND = Platform.OS !== 'web';
 const WORDS = ['SMMchi', 'montajchi', 'mobilograf', 'targetolog', 'dizayner', 'kopirayter', 'fotograf', 'bloger'];
@@ -155,7 +155,7 @@ export function CatRow({ counts, onPick }) {
             </View>
             <View>
               <Text style={{ color: '#fff', fontWeight: '800', fontSize: 12.5 }} numberOfLines={2}>{c.n}</Text>
-              <Text style={{ color: 'rgba(255,255,255,0.8)', fontSize: 11, fontWeight: '600' }}>{counts[c.id] ? tr("{0} ta e'lon", counts[c.id]) : tr("Yangi")}</Text>
+              <Text style={{ color: 'rgba(255,255,255,0.8)', fontSize: 11, fontWeight: '600' }}>{counts[c.id] ? adsCount(counts[c.id]) : tr("Yangi")}</Text>
             </View>
           </LinearGradient>
         </Press>
@@ -202,7 +202,7 @@ export function TopCreators({ people, onOpen }) {
             </View>
           </LinearGradient>
           <Text style={{ color: t.ink, fontSize: 12, fontWeight: '700', textAlign: 'center' }} numberOfLines={1}>{(p.name || '').split(' ')[0]}</Text>
-          <Text style={{ color: t.muted, fontSize: 10.5, marginTop: -4 }} numberOfLines={1}>{p.n} {tr("ta e'lon")}</Text>
+          <Text style={{ color: t.muted, fontSize: 10.5, marginTop: -4 }} numberOfLines={1}>{adsCount(p.n)}</Text>
         </Pressable>
       ))}
     </ScrollView>

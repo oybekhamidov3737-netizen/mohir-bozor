@@ -48,3 +48,15 @@ export function useLang() {
   useEffect(() => { subs.add(setL); return () => subs.delete(setL); }, []);
   return l;
 }
+
+// "N ta e'lon" — har bir tilning ko'plik shakli bilan
+export function adsCount(n) {
+  n = Number(n) || 0;
+  if (LANG === 'ru') {
+    const a = n % 10, b = n % 100;
+    const w = a === 1 && b !== 11 ? 'объявление' : a >= 2 && a <= 4 && (b < 12 || b > 14) ? 'объявления' : 'объявлений';
+    return n + ' ' + w;
+  }
+  if (LANG === 'en') return n + (n === 1 ? ' ad' : ' ads');
+  return n + " ta e'lon";
+}
