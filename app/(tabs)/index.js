@@ -91,7 +91,7 @@ export default function Home() {
     const v = { region, district };
     setLoc(v); setRegOpen(false); AsyncStorage.setItem('loc', JSON.stringify(v));
   };
-  const locText = loc.region ? (loc.district || shortReg(loc.region)) : "Butun O'zbekiston";
+  const locText = loc.region ? (loc.district || shortReg(loc.region)) : tr("Butun O'zbekiston");
   const open = (ad) => router.push(`/ad/${ad.id}`);
 
   const header = (
@@ -135,7 +135,7 @@ export default function Home() {
         {cat ? <Pill title={CATS.find((c) => c.id === cat)?.n + '  ✕'} on onPress={() => setCat(null)} /> : null}
         <Pill title={tr("Xizmatlar")} on={kind === 'xizmat'} onPress={() => setKind(kind === 'xizmat' ? null : 'xizmat')} />
         <Pill title={tr("Buyurtmalar")} on={kind === 'buyurtma'} onPress={() => setKind(kind === 'buyurtma' ? null : 'buyurtma')} />
-        <Pill title={{ new: 'Avval yangilari', cheap: 'Avval arzonlari', exp: 'Avval qimmatlari' }[sort]} icon="swap-vertical" onPress={() => setSortOpen(true)} />
+        <Pill title={tr({ new: 'Avval yangilari', cheap: 'Avval arzonlari', exp: 'Avval qimmatlari' }[sort])} icon="swap-vertical" onPress={() => setSortOpen(true)} />
       </ScrollView>
       {!active ? <H style={{ paddingTop: 4 }} right={loc.region ? locText + tr(" + onlayn") : tr("Butun O'zbekiston")}>{tr("Yangi e'lonlar")}</H> : null}
       {err ? <Empty title={tr("Xatolik")} text={err} action={tr("Qayta urinish")} onAction={() => { setLoading(true); load(true); }} /> : null}

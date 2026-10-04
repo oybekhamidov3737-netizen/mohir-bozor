@@ -20,7 +20,12 @@ export const GRAD = [
 ];
 export const gradOf = (id) => GRAD[(CATS.find((c) => c.id === id) || CATS[0]).c];
 // Kategoriya nomlari tanlangan tilda (getter orqali)
-export const CATS = RAW_CATS.map((c) => ({ ...c, get n() { return tr(c.n); }, get big() { return tr(c.big); } }));
+export const CATS = RAW_CATS.map((c) => {
+  const o = { ...c };
+  Object.defineProperty(o, 'n', { get: () => tr(c.n), enumerable: true });
+  Object.defineProperty(o, 'big', { get: () => tr(c.big), enumerable: true });
+  return o;
+});
 const trProxy = (o) => new Proxy(o, { get: (x, k) => (typeof x[k] === 'string' ? tr(x[k]) : x[k]) });
 export const catOf = (id) => CATS.find((c) => c.id === id) || CATS[0];
 

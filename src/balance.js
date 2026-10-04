@@ -63,7 +63,7 @@ export function BalanceCard() {
           {log.length ? log.map((x) => (
             <View key={x.id} style={{ flexDirection: 'row', gap: 8, alignItems: 'center' }}>
               <View style={{ flex: 1 }}>
-                <Text style={{ color: t.ink, fontSize: 13, fontWeight: '600' }} numberOfLines={1}>{x.kind === 'spend' ? (SVC[x.note] || tr("Xizmat")) : KIND[x.kind] || x.kind}{x.wallet === 'bonus' ? tr(" · bonus") : ''}</Text>
+                <Text style={{ color: t.ink, fontSize: 13, fontWeight: '600' }} numberOfLines={1}>{x.kind === 'spend' ? (SVC[x.note] || tr("Xizmat")) : tr(KIND[x.kind]) || x.kind}{x.wallet === 'bonus' ? tr(" · bonus") : ''}</Text>
                 <Text style={{ color: t.muted, fontSize: 11 }}>{ago(x.created_at)}</Text>
               </View>
               <Text style={{ fontWeight: '800', color: x.amount < 0 ? t.danger : t.price }}>{x.amount > 0 ? '+' : ''}{fmtNum(x.amount)}</Text>

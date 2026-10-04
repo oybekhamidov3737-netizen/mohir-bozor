@@ -189,7 +189,7 @@ export default function Admin() {
                   <Text style={{ fontWeight: '800', color: t.ink, flex: 1 }} numberOfLines={1}>{r.ads?.title || tr("E'lon o'chirilgan")}</Text>
                   <Badge kind={r.status === 'open' ? 'no' : 'ok'}>{r.status === 'open' ? tr("YANGI") : tr("KO'RILDI")}</Badge>
                 </View>
-                <Text style={{ color: t.muted, fontSize: 13 }}>{({ fraud: 'Firibgarlik', offtopic: "Mavzuga aloqasi yo'q", contact: 'Tashqi kontakt', spam: 'Spam', offensive: 'Haqoratli', other: 'Boshqa' })[r.reason]} · {r.ads?.seller_name || ''} · {ago(r.created_at)}</Text>
+                <Text style={{ color: t.muted, fontSize: 13 }}>{tr(({ fraud: 'Firibgarlik', offtopic: "Mavzuga aloqasi yo'q", contact: 'Tashqi kontakt', spam: 'Spam', offensive: 'Haqoratli', other: 'Boshqa' })[r.reason])} · {r.ads?.seller_name || ''} · {ago(r.created_at)}</Text>
                 <View style={{ flexDirection: 'row', gap: 6, flexWrap: 'wrap' }}>
                   {r.ads ? <Btn small kind="sec" title={tr("Ko'rish")} onPress={() => router.push(`/ad/${r.ad_id}`)} /> : null}
                   {r.ads && r.ads.status === 'active' ? <Btn small kind="dng" title={sure === 'r' + r.id ? tr("Ha, olib tashlash") : tr("E'lonni o'chirish")} onPress={() => confirm('r' + r.id, async () => {

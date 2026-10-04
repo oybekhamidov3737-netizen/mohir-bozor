@@ -1,4 +1,4 @@
-// Tarjimalar: o'zbekcha matn → [ruscha, inglizcha]. Avtomatik yig'ilgan.
+// Tarjimalar: o'zbekcha matn → [ruscha, inglizcha].
 export default {
 "Asosiy": [
 "Главная",
@@ -2747,5 +2747,49 @@ export default {
 "short:Qoraqalpog'iston": [
 "Каракалпакстан",
 "Karakalpakstan"
+],
+"ijodkor": [
+"специалистов",
+"creators"
+],
+"viloyat": [
+"областей",
+"regions"
+],
+"Tashqi kontakt": [
+"Внешний контакт",
+"External contact"
+],
+"Spam": [
+"Спам",
+"Spam"
+],
+"Haqoratli": [
+"Оскорбление",
+"Offensive"
+],
+"Boshqa": [
+"Другое",
+"Other"
+],
+"Taklif bonusi": [
+"Бонус за приглашение",
+"Invite bonus"
+],
+"Do'stingiz faol bo'ldi": [
+"Друг стал активным",
+"Your friend became active"
+],
+"Xizmat uchun": [
+"За услугу",
+"For a service"
+],
+"Ma'muriyat tomonidan": [
+"От администрации",
+"By admin"
+],
+"Hisob to'ldirildi": [
+"Счёт пополнен",
+"Balance topped up"
 ]
 };
