@@ -3,6 +3,7 @@ import { Platform } from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { createClient } from '@supabase/supabase-js';
 import { SUPABASE_URL, SUPABASE_ANON_KEY } from './config';
+import { tr } from './i18n';
 
 export const supabase = createClient(SUPABASE_URL, SUPABASE_ANON_KEY, {
   auth: {
@@ -19,7 +20,8 @@ export const publicUrl = (bucket, path) =>
 export const adPhoto = (ad, i = 0) => (ad && ad.photos && ad.photos[i] ? publicUrl('ads', ad.photos[i]) : null);
 
 // Supabase xatolarini foydalanuvchiga tushunarli matnga aylantirish
-export function errText(e) {
+export function errText(e) { return tr(errTextUz(e)); }
+function errTextUz(e) {
   const m = (e && (e.message || e.error_description)) || '';
   if (/Failed to fetch|Network request failed/i.test(m)) return "Internet bilan aloqa yo'q. Qayta urinib ko'ring.";
   if (/Gmail yoki iCloud|Database error saving new user/i.test(m)) return "Faqat Gmail yoki iCloud pochtasi bilan ro'yxatdan o'tish mumkin.";

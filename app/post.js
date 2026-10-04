@@ -12,6 +12,7 @@ import { fmtNum, shortReg } from '../src/format';
 import { pickImages, uploadImage, newName } from '../src/images';
 import { RegionPicker, ListPicker } from '../src/pickers';
 import { Btn, Check, Field, Loading, Note, Seg, Select } from '../src/ui';
+import { tr } from '../src/i18n';
 
 const MAX_PH = 6;
 
@@ -34,7 +35,7 @@ export default function PostAd() {
     if (!uid || !profile) return;
     if (id) {
       supabase.from('ads').select('*').eq('id', id).maybeSingle().then(({ data }) => {
-        if (!data) { toast("E'lon topilmadi"); router.back(); return; }
+        if (!data) { toast(tr("E'lon topilmadi")); router.back(); return; }
         setF({ ...data, price: data.price ? fmtNum(data.price) : '' });
         setPhotos((data.photos || []).map((p) => ({ path: p })));
       });
@@ -67,7 +68,7 @@ export default function PostAd() {
     const bad = checkText(f.title + ' ' + f.description);
     if (bad) e.description = bad;
     setErrs(e);
-    if (Object.keys(e).length) { toast("Xatolarni to'g'rilang"); return; }
+    if (Object.keys(e).length) { toast(tr("Xatolarni to'g'rilang")); return; }
 
     const row = {
       kind: f.kind, title: f.title.trim(), cat: f.cat, price, cur: f.cur, unit: f.unit, price_from: f.price_from, negotiable: f.negotiable,
@@ -75,7 +76,7 @@ export default function PostAd() {
       seller_name: f.seller_name.trim(), phone: f.phone.trim(),
     };
     try {
-      setSaving('Saqlanmoqda…');
+      setSaving(tr("Saqlanmoqda…"));
       let adId = id;
       if (!adId) {
         const { data, error } = await supabase.from('ads').insert(row).select('id').single();
@@ -89,12 +90,12 @@ export default function PostAd() {
       for (let i = 0; i < photos.length; i++) {
         const p = photos[i];
         if (p.path) { paths.push(p.path); continue; }
-        setSaving(`Rasm ${i + 1}/${photos.length}…`);
+        setSaving(tr("Rasm {0}/{1}…", i + 1, photos.length));
         paths.push(await uploadImage('ads', `${uid}/${adId}/${newName()}`, p));
       }
       const { error: e2 } = await supabase.from('ads').update({ photos: paths }).eq('id', adId);
       if (e2) throw e2;
-      toast(id ? "E'lon yangilandi" : "E'lon joylandi 🎉");
+      toast(id ? tr("E'lon yangilandi") : tr("E'lon joylandi 🎉"));
       router.replace(`/ad/${adId}`);
     } catch (err) {
       toast(errText(err));
@@ -104,12 +105,12 @@ export default function PostAd() {
 
   return (
     <KeyboardAvoidingView style={{ flex: 1, backgroundColor: t.bg }} behavior={Platform.OS === 'ios' ? 'padding' : undefined}>
-      <Stack.Screen options={{ title: id ? "E'lonni tahrirlash" : "Yangi e'lon" }} />
+      <Stack.Screen options={{ title: id ? tr("E'lonni tahrirlash") : tr("Yangi e'lon") }} />
       <ScrollView contentContainerStyle={{ padding: 16, gap: 16, paddingBottom: 40, maxWidth: 640, width: '100%', alignSelf: 'center' }} keyboardShouldPersistTaps="handled">
-        <Seg value={f.kind} onChange={set('kind')} options={[['xizmat', 'Xizmat taklif qilaman'], ['buyurtma', 'Ijodkor qidiryapman']]} />
+        <Seg value={f.kind} onChange={set('kind')} options={[['xizmat', tr("Xizmat taklif qilaman")], ['buyurtma', tr("Ijodkor qidiryapman")]]} />
 
         <View style={{ gap: 8 }}>
-          <Text style={{ fontSize: 13, fontWeight: '700', color: t.ink }}>Rasmlar <Text style={{ color: t.muted, fontWeight: '400' }}>· {MAX_PH} tagacha, birinchisi muqova</Text></Text>
+          <Text style={{ fontSize: 13, fontWeight: '700', color: t.ink }}>{tr("Rasmlar")}{' '}<Text style={{ color: t.muted, fontWeight: '400' }}>· {MAX_PH} {tr("tagacha, birinchisi muqova")}</Text></Text>
           <View style={{ flexDirection: 'row', flexWrap: 'wrap', gap: 8 }}>
             {photos.map((p, i) => (
               <View key={(p.path || p.uri) + i} style={{ width: 100, height: 100, borderRadius: 12, overflow: 'hidden', backgroundColor: t.chip }}>
@@ -118,51 +119,51 @@ export default function PostAd() {
                   <Ionicons name="close" size={16} color="#fff" />
                 </Pressable>
                 <Pressable onPress={() => makeCover(i)} style={{ position: 'absolute', left: 4, bottom: 4, borderRadius: 6, backgroundColor: i === 0 ? t.accent : 'rgba(0,0,0,.6)', paddingHorizontal: 6, paddingVertical: 2 }}>
-                  <Text style={{ color: i === 0 ? t.accentInk : '#fff', fontSize: 10, fontWeight: '800' }}>{i === 0 ? 'MUQOVA' : 'MUQOVA QILISH'}</Text>
+                  <Text style={{ color: i === 0 ? t.accentInk : '#fff', fontSize: 10, fontWeight: '800' }}>{i === 0 ? tr("MUQOVA") : tr("MUQOVA QILISH")}</Text>
                 </Pressable>
               </View>
             ))}
             {photos.length < MAX_PH ? (
               <Pressable onPress={addPhotos} style={{ width: 100, height: 100, borderRadius: 12, borderWidth: 1.5, borderStyle: 'dashed', borderColor: t.line, backgroundColor: t.surface, alignItems: 'center', justifyContent: 'center', gap: 4 }}>
                 <Ionicons name="camera-outline" size={24} color={t.muted} />
-                <Text style={{ fontSize: 12, color: t.muted, fontWeight: '600' }}>Rasm qo'shish</Text>
+                <Text style={{ fontSize: 12, color: t.muted, fontWeight: '600' }}>{tr("Rasm qo'shish")}</Text>
               </Pressable>
             ) : null}
           </View>
         </View>
 
-        <Field label="Sarlavha" value={f.title} onChangeText={set('title')} maxLength={80} placeholder="Masalan: Instagram uchun Reels montaj" error={errs.title} hint={`${f.title.length} / 80`} />
-        <Select label="Kategoriya" value={catOf(f.cat).n} onPress={() => setPicker('cat')} />
+        <Field label={tr("Sarlavha")} value={f.title} onChangeText={set('title')} maxLength={80} placeholder={tr("Masalan: Instagram uchun Reels montaj")} error={errs.title} hint={`${f.title.length} / 80`} />
+        <Select label={tr("Kategoriya")} value={catOf(f.cat).n} onPress={() => setPicker('cat')} />
 
         <View style={{ gap: 8 }}>
           <View style={{ flexDirection: 'row', gap: 8 }}>
-            <Field style={{ flex: 1.4 }} label="Narx" value={String(f.price)} onChangeText={(v) => set('price')(fmtNum(v.replace(/\D/g, '')) === '0' ? '' : fmtNum(v.replace(/\D/g, '')))} keyboardType="number-pad" placeholder="Narx" error={errs.price} />
-            <View style={{ flex: 0.9 }}><Select label="Valyuta" value={f.cur === 'usd' ? '$' : "so'm"} onPress={() => setPicker('cur')} /></View>
-            <View style={{ flex: 1 }}><Select label="Birlik" value={UNITS[f.unit]} onPress={() => setPicker('unit')} /></View>
+            <Field style={{ flex: 1.4 }} label={tr("Narx")} value={String(f.price)} onChangeText={(v) => set('price')(fmtNum(v.replace(/\D/g, '')) === '0' ? '' : fmtNum(v.replace(/\D/g, '')))} keyboardType="number-pad" placeholder={tr("Narx")} error={errs.price} />
+            <View style={{ flex: 0.9 }}><Select label={tr("Valyuta")} value={f.cur === 'usd' ? '$' : "so'm"} onPress={() => setPicker('cur')} /></View>
+            <View style={{ flex: 1 }}><Select label={tr("Birlik")} value={UNITS[f.unit]} onPress={() => setPicker('unit')} /></View>
           </View>
           <View style={{ flexDirection: 'row', gap: 16, flexWrap: 'wrap' }}>
-            <Check label='"...dan" narx' value={f.price_from} onChange={set('price_from')} />
-            <Check label="Kelishiladi" value={f.negotiable} onChange={set('negotiable')} />
+            <Check label={tr("\"...dan\" narx")} value={f.price_from} onChange={set('price_from')} />
+            <Check label={tr("Kelishiladi")} value={f.negotiable} onChange={set('negotiable')} />
           </View>
         </View>
 
-        <Select label="Hudud" value={f.region ? (f.region === ONLINE ? "Onlayn (butun O'zbekiston)" : (f.district ? f.district + ', ' : '') + shortReg(f.region)) : ''} placeholder="Viloyat va tumanni tanlang" onPress={() => setPicker('region')} error={errs.region} />
-        <Field label="Tajriba (yil)" value={String(f.exp_years || '')} onChangeText={set('exp_years')} keyboardType="decimal-pad" maxLength={4} placeholder="Masalan: 2" />
-        <Field label="Tavsif" value={f.description} onChangeText={set('description')} multiline maxLength={3000}
-          placeholder="Nima qilasiz, paketga nima kiradi, muddatlar…" error={errs.description} hint={`${f.description.length} / 3000`} />
-        <Field label="Ism yoki studiya nomi" value={f.seller_name} onChangeText={set('seller_name')} maxLength={60} error={errs.seller_name} />
-        <Field label="Telefon raqami" value={f.phone} onChangeText={set('phone')} keyboardType="phone-pad" maxLength={20} placeholder="+998 90 123 45 67" error={errs.phone} hint="Mijozlar asosan ilova ichidagi chat orqali yozadi." />
+        <Select label={tr("Hudud")} value={f.region ? (f.region === ONLINE ? "Onlayn (butun O'zbekiston)" : (f.district ? f.district + ', ' : '') + shortReg(f.region)) : ''} placeholder={tr("Viloyat va tumanni tanlang")} onPress={() => setPicker('region')} error={errs.region} />
+        <Field label={tr("Tajriba (yil)")} value={String(f.exp_years || '')} onChangeText={set('exp_years')} keyboardType="decimal-pad" maxLength={4} placeholder={tr("Masalan: 2")} />
+        <Field label={tr("Tavsif")} value={f.description} onChangeText={set('description')} multiline maxLength={3000}
+          placeholder={tr("Nima qilasiz, paketga nima kiradi, muddatlar…")} error={errs.description} hint={`${f.description.length} / 3000`} />
+        <Field label={tr("Ism yoki studiya nomi")} value={f.seller_name} onChangeText={set('seller_name')} maxLength={60} error={errs.seller_name} />
+        <Field label={tr("Telefon raqami")} value={f.phone} onChangeText={set('phone')} keyboardType="phone-pad" maxLength={20} placeholder="+998 90 123 45 67" error={errs.phone} hint={tr("Mijozlar asosan ilova ichidagi chat orqali yozadi.")} />
 
-        <Note>E'lonlar avtomatik tekshiriladi: faqat SMM, montaj, dizayn, marketing va boshqa ijodiy xizmatlar qabul qilinadi. Telegram, Instagram yoki WhatsApp manzillarini yozib bo'lmaydi.</Note>
+        <Note>{tr("E'lonlar avtomatik tekshiriladi: faqat SMM, montaj, dizayn, marketing va boshqa ijodiy xizmatlar qabul qilinadi. Telegram, Instagram yoki WhatsApp manzillarini yozib bo'lmaydi.")}</Note>
         {errs.form ? <Note kind="bad">{errs.form}</Note> : null}
       </ScrollView>
       <View style={{ padding: 16, paddingBottom: ins.bottom + 12, borderTopWidth: 1, borderColor: t.line, backgroundColor: t.bg }}>
-        <Btn title={saving || (id ? 'Saqlash' : 'Joylash')} loading={!!saving} onPress={save} style={{ maxWidth: 608, width: '100%', alignSelf: 'center' }} />
+        <Btn title={saving || (id ? tr("Saqlash") : tr("Joylash"))} loading={!!saving} onPress={save} style={{ maxWidth: 608, width: '100%', alignSelf: 'center' }} />
       </View>
 
-      <ListPicker visible={picker === 'cat'} onClose={() => setPicker(null)} title="Kategoriya" value={f.cat} onPick={set('cat')} items={CATS.map((c) => [c.id, c.n])} />
-      <ListPicker visible={picker === 'cur'} onClose={() => setPicker(null)} title="Valyuta" value={f.cur} onPick={set('cur')} items={[['uzs', "so'm"], ['usd', 'AQSH dollari ($)']]} />
-      <ListPicker visible={picker === 'unit'} onClose={() => setPicker(null)} title="Narx birligi" value={f.unit} onPick={set('unit')} items={Object.entries(UNITS)} />
+      <ListPicker visible={picker === 'cat'} onClose={() => setPicker(null)} title={tr("Kategoriya")} value={f.cat} onPick={set('cat')} items={CATS.map((c) => [c.id, c.n])} />
+      <ListPicker visible={picker === 'cur'} onClose={() => setPicker(null)} title={tr("Valyuta")} value={f.cur} onPick={set('cur')} items={[['uzs', tr("so'm")], ['usd', tr("AQSH dollari ($)")]]} />
+      <ListPicker visible={picker === 'unit'} onClose={() => setPicker(null)} title={tr("Narx birligi")} value={f.unit} onPick={set('unit')} items={Object.entries(UNITS)} />
       <RegionPicker visible={picker === 'region'} onClose={() => setPicker(null)} current={f}
         onPick={(r, d) => { setF((x) => ({ ...x, region: r, district: d })); setPicker(null); }} />
     </KeyboardAvoidingView>

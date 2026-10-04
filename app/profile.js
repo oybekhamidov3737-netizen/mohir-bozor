@@ -15,6 +15,7 @@ import { Avatar, Btn, Field, Loading, Note, Select } from '../src/ui';
 import { PAYMENTS_IN_APP } from '../src/pay';
 import { getStoredRef, clearStoredRef, cleanRef } from '../src/referral';
 import { fmtNum } from '../src/format';
+import { tr } from '../src/i18n';
 
 // Kabinet ochish va profilni tahrirlash
 export default function ProfileScreen() {
@@ -70,34 +71,34 @@ export default function ProfileScreen() {
         clearStoredRef();
       }
       await loadProfile();
-      toast(isNew ? 'Kabinet ochildi 🎉' + bonusMsg : 'Profil saqlandi');
+      toast(isNew ? tr("Kabinet ochildi 🎉") + bonusMsg : tr("Profil saqlandi"));
       if (next) router.replace(next); else router.back();
     } catch (err) { toast(errText(err)); } finally { setBusy(false); }
   };
 
   return (
     <KeyboardAvoidingView style={{ flex: 1, backgroundColor: t.bg }} behavior={Platform.OS === 'ios' ? 'padding' : undefined}>
-      <Stack.Screen options={{ title: isNew ? 'Kabinet ochish' : 'Profilni tahrirlash' }} />
+      <Stack.Screen options={{ title: isNew ? tr("Kabinet ochish") : tr("Profilni tahrirlash") }} />
       <ScrollView contentContainerStyle={{ padding: 16, gap: 16, paddingBottom: 30, maxWidth: 560, width: '100%', alignSelf: 'center' }} keyboardShouldPersistTaps="handled">
         {isNew ? (
           <View style={{ gap: 8 }}>
-            <Text style={{ fontFamily: FONT.display, fontSize: 24, color: t.ink }}>Kabinetingizni oching</Text>
-            <Text style={{ color: t.muted, lineHeight: 20 }}>Bir daqiqada profil yarating: rasmli e'lonlar joylaysiz, mijozlar bilan ilova ichida yozishasiz.</Text>
+            <Text style={{ fontFamily: FONT.display, fontSize: 24, color: t.ink }}>{tr("Kabinetingizni oching")}</Text>
+            <Text style={{ color: t.muted, lineHeight: 20 }}>{tr("Bir daqiqada profil yarating: rasmli e'lonlar joylaysiz, mijozlar bilan ilova ichida yozishasiz.")}</Text>
           </View>
         ) : null}
         <View style={{ flexDirection: 'row', alignItems: 'center', gap: 14 }}>
           {avatar ? <Image source={{ uri: avatar.uri }} style={{ width: 72, height: 72, borderRadius: 20 }} /> : <Avatar profile={profile} name={f.name} size={72} />}
-          <Btn kind="sec" small icon="camera-outline" title="Rasm tanlash" onPress={pickAvatar} />
+          <Btn kind="sec" small icon="camera-outline" title={tr("Rasm tanlash")} onPress={pickAvatar} />
         </View>
-        <Field label="Ism yoki studiya nomi" value={f.name} onChangeText={set('name')} maxLength={60} placeholder="Masalan: Xamidov SMM" error={errs.name} />
-        <Field label="Telefon raqami" value={f.phone} onChangeText={set('phone')} keyboardType="phone-pad" maxLength={20} placeholder="+998 90 123 45 67" error={errs.phone} hint="Faqat sizga ko'rinadi. E'lon joylashda avtomatik to'ldiriladi." />
-        <Select label="Asosiy yo'nalishingiz" value={f.cat ? catOf(f.cat).n : 'Men xizmat buyurtma qilaman'} onPress={() => setPicker('cat')} />
-        <Select label="Hudud" value={f.region ? (f.region === ONLINE ? 'Onlayn (masofadan)' : (f.district ? f.district + ', ' : '') + shortReg(f.region)) : ''} placeholder="Viloyat va tuman" onPress={() => setPicker('region')} error={errs.region} />
-        <Field label="O'zingiz haqingizda" value={f.bio} onChangeText={set('bio')} multiline maxLength={300} placeholder="Tajribangiz, qanday loyihalar qilgansiz…" error={errs.bio} />
-        {isNew && PAYMENTS_IN_APP ? <Field label="Taklif kodi (ixtiyoriy)" value={ref} onChangeText={(v) => setRef(cleanRef(v))} autoCapitalize="characters" placeholder="Masalan: K7M2QX" hint="Do'stingiz bergan kod bo'lsa, bonus olasiz." /> : null}
-        <Btn title={isNew ? 'Kabinetni ochish' : 'Saqlash'} onPress={save} loading={busy} />
+        <Field label={tr("Ism yoki studiya nomi")} value={f.name} onChangeText={set('name')} maxLength={60} placeholder={tr("Masalan: Xamidov SMM")} error={errs.name} />
+        <Field label={tr("Telefon raqami")} value={f.phone} onChangeText={set('phone')} keyboardType="phone-pad" maxLength={20} placeholder="+998 90 123 45 67" error={errs.phone} hint={tr("Faqat sizga ko'rinadi. E'lon joylashda avtomatik to'ldiriladi.")} />
+        <Select label={tr("Asosiy yo'nalishingiz")} value={f.cat ? catOf(f.cat).n : 'Men xizmat buyurtma qilaman'} onPress={() => setPicker('cat')} />
+        <Select label={tr("Hudud")} value={f.region ? (f.region === ONLINE ? 'Onlayn (masofadan)' : (f.district ? f.district + ', ' : '') + shortReg(f.region)) : ''} placeholder={tr("Viloyat va tuman")} onPress={() => setPicker('region')} error={errs.region} />
+        <Field label={tr("O'zingiz haqingizda")} value={f.bio} onChangeText={set('bio')} multiline maxLength={300} placeholder={tr("Tajribangiz, qanday loyihalar qilgansiz…")} error={errs.bio} />
+        {isNew && PAYMENTS_IN_APP ? <Field label={tr("Taklif kodi (ixtiyoriy)")} value={ref} onChangeText={(v) => setRef(cleanRef(v))} autoCapitalize="characters" placeholder={tr("Masalan: K7M2QX")} hint={tr("Do'stingiz bergan kod bo'lsa, bonus olasiz.")} /> : null}
+        <Btn title={isNew ? tr("Kabinetni ochish") : tr("Saqlash")} onPress={save} loading={busy} />
       </ScrollView>
-      <ListPicker visible={picker === 'cat'} onClose={() => setPicker(null)} title="Yo'nalish" value={f.cat} onPick={set('cat')} items={[['', 'Men xizmat buyurtma qilaman'], ...CATS.map((c) => [c.id, c.n])]} />
+      <ListPicker visible={picker === 'cat'} onClose={() => setPicker(null)} title={tr("Yo'nalish")} value={f.cat} onPick={set('cat')} items={[['', tr("Men xizmat buyurtma qilaman")], ...CATS.map((c) => [c.id, c.n])]} />
       <RegionPicker visible={picker === 'region'} onClose={() => setPicker(null)} current={f} onPick={(r, d) => { setF((x) => ({ ...x, region: r, district: d })); setPicker(null); }} />
     </KeyboardAvoidingView>
   );

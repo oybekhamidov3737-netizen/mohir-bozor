@@ -18,6 +18,7 @@ import { PAYMENTS_IN_APP } from '../../src/pay';
 import { BUILD_ID } from '../../src/updater';
 import { copyText } from '../../src/copy';
 import { MfaChallenge, MfaSetup, useMfaNeeded } from '../../src/mfa';
+import { tr } from '../../src/i18n';
 
 const EV = { top: 'TOP', vip: 'VIP', bump: "ko'tarildi", extend: 'uzaytirildi', restore: 'tiklandi', moderator: "moderator o'chirdi" };
 
@@ -32,13 +33,13 @@ function Onboard({ onOpen }) {
   return (
     <View style={{ backgroundColor: t.surface, borderWidth: 1, borderColor: t.line, borderRadius: 22, padding: 22, gap: 14, marginTop: 16 }}>
       <View style={{ width: 84, height: 84, borderRadius: 26, backgroundColor: t.accentSoft, alignItems: 'center', justifyContent: 'center' }}><Ionicons name="person-add-outline" size={38} color={t.accent} /></View>
-      <Text style={{ fontFamily: FONT.display, fontSize: 24, color: t.ink }}>Kabinetingizni oching</Text>
-      <Text style={{ color: t.muted, lineHeight: 20 }}>Bir daqiqada profil yarating va ijodkorlar bozoriga qo'shiling.</Text>
-      {item('images-outline', "Rasmli e'lonlar joylash")}
-      {item('chatbubbles-outline', 'Mijozlar bilan ilova ichida yozishish')}
-      {item('rocket-outline', "TOP va VIP bilan ko'proq mijoz topish")}
-      {item('shield-checkmark-outline', 'Email orqali tasdiqlangan ishonchli profil')}
-      <Btn title="Kabinet ochish" onPress={onOpen} />
+      <Text style={{ fontFamily: FONT.display, fontSize: 24, color: t.ink }}>{tr("Kabinetingizni oching")}</Text>
+      <Text style={{ color: t.muted, lineHeight: 20 }}>{tr("Bir daqiqada profil yarating va ijodkorlar bozoriga qo'shiling.")}</Text>
+      {item('images-outline', tr("Rasmli e'lonlar joylash"))}
+      {item('chatbubbles-outline', tr("Mijozlar bilan ilova ichida yozishish"))}
+      {item('rocket-outline', tr("TOP va VIP bilan ko'proq mijoz topish"))}
+      {item('shield-checkmark-outline', tr("Email orqali tasdiqlangan ishonchli profil"))}
+      <Btn title={tr("Kabinet ochish")} onPress={onOpen} />
     </View>
   );
 }
@@ -80,21 +81,21 @@ export default function Cabinet() {
   const confirm = (key, fn) => { if (sure !== key) { setSure(key); setTimeout(() => setSure((s) => (s === key ? '' : s)), 3500); return; } setSure(''); fn(); };
   const del = (a) => confirm('del' + a.id, async () => {
     const { error } = await supabase.from('ads').update({ status: 'deleted' }).eq('id', a.id);
-    if (error) toast(errText(error)); else { toast("E'lon arxivga o'tkazildi"); load(); }
+    if (error) toast(errText(error)); else { toast(tr("E'lon arxivga o'tkazildi")); load(); }
   });
   const purge = (a) => confirm('purge' + a.id, async () => {
     if (a.photos?.length) await supabase.storage.from('ads').remove(a.photos);
     const { error } = await supabase.from('ads').delete().eq('id', a.id);
-    if (error) toast(errText(error)); else { toast("E'lon butunlay o'chirildi"); load(); }
+    if (error) toast(errText(error)); else { toast(tr("E'lon butunlay o'chirildi")); load(); }
   });
   const claim = async () => {
     const { data, error } = await supabase.rpc('claim_first_admin');
-    if (error || !data) toast('Admin allaqachon mavjud'); else { toast("Siz endi bozor egasisiz (admin)"); await loadProfile(); load(); }
+    if (error || !data) toast(tr("Admin allaqachon mavjud")); else { toast(tr("Siz endi bozor egasisiz (admin)")); await loadProfile(); load(); }
   };
   const deleteAccount = () => confirm('acc', async () => {
     const { error } = await supabase.rpc('delete_my_account');
     if (error) { toast(errText(error)); return; }
-    await signOut(); toast("Hisobingiz o'chirildi");
+    await signOut(); toast(tr("Hisobingiz o'chirildi"));
   });
 
   const wrap = (children) => (
@@ -106,14 +107,14 @@ export default function Cabinet() {
 
   if (!session) return wrap(
     <>
-      <Text style={{ fontFamily: FONT.displayM, fontSize: 20, color: t.ink }}>Kabinet</Text>
+      <Text style={{ fontFamily: FONT.displayM, fontSize: 20, color: t.ink }}>{tr("Kabinet")}</Text>
       <Onboard onOpen={() => router.push('/login')} />
-      <H>Ko'rinish</H>
+      <H>{tr("Ko'rinish")}</H>
       <AppearanceCard />
       <View style={{ marginTop: 14, gap: 8 }}>
-        <Btn kind="sec" icon="headset-outline" title="Qo'llab-quvvatlash" onPress={() => router.push('/support')} />
-        <Pressable onPress={() => router.push('/privacy')}><Text style={{ color: t.muted, textAlign: 'center' }}>Maxfiylik siyosati</Text></Pressable>
-        {PAYMENTS_IN_APP ? <Pressable onPress={() => router.push('/offer')}><Text style={{ color: t.muted, textAlign: 'center' }}>Ommaviy oferta</Text></Pressable> : null}
+        <Btn kind="sec" icon="headset-outline" title={tr("Qo'llab-quvvatlash")} onPress={() => router.push('/support')} />
+        <Pressable onPress={() => router.push('/privacy')}><Text style={{ color: t.muted, textAlign: 'center' }}>{tr("Maxfiylik siyosati")}</Text></Pressable>
+        {PAYMENTS_IN_APP ? <Pressable onPress={() => router.push('/offer')}><Text style={{ color: t.muted, textAlign: 'center' }}>{tr("Ommaviy oferta")}</Text></Pressable> : null}
       </View>
     </>
   );
@@ -128,7 +129,7 @@ export default function Cabinet() {
 
   const hist = (a) => {
     const p = [`Joylangan ${shortDate(a.created_at)}`];
-    (events[a.id] || []).slice(-3).forEach((e) => p.push(`${EV[e.kind] || e.kind} ${shortDate(e.created_at)}`));
+    (events[a.id] || []).slice(-3).forEach((e) => p.push(`${tr(EV[e.kind] || e.kind)} ${shortDate(e.created_at)}`));
     const s = adState(a);
     if (s === 'deleted') p.push(`${a.mod_deleted ? "moderator o'chirgan" : "o'chirilgan"} ${shortDate(a.deleted_at)}`);
     else p.push(s === 'expired' ? `tugagan ${shortDate(a.expires_at)}` : `faol ${shortDate(a.expires_at)} gacha`);
@@ -146,14 +147,14 @@ export default function Cabinet() {
             <Text style={{ fontSize: 13, color: 'rgba(255,255,255,0.85)' }} numberOfLines={1}>{[profile.cat ? catOf(profile.cat).n : 'Buyurtmachi', loc].filter(Boolean).join(' · ')}</Text>
             <Text style={{ fontSize: 12, color: 'rgba(255,255,255,0.7)' }} numberOfLines={1}>✓ {session.user.email}</Text>
             {profile.public_id ? (
-              <Pressable onPress={() => { copyText(String(profile.public_id)); toast('ID nusxalandi: ' + profile.public_id); }} accessibilityLabel="ID ni nusxalash"
+              <Pressable onPress={() => { copyText(String(profile.public_id)); toast(tr("ID nusxalandi: ") + profile.public_id); }} accessibilityLabel={tr("ID ni nusxalash")}
                 style={{ flexDirection: 'row', alignItems: 'center', gap: 5, alignSelf: 'flex-start', backgroundColor: 'rgba(255,255,255,0.2)', borderRadius: 999, paddingHorizontal: 9, paddingVertical: 3, marginTop: 4 }}>
-                <Text style={{ color: '#fff', fontSize: 12, fontWeight: '800', letterSpacing: 0.5 }}>ID {profile.public_id}</Text>
+                <Text style={{ color: '#fff', fontSize: 12, fontWeight: '800', letterSpacing: 0.5 }}>{tr("ID")}{' '}{profile.public_id}</Text>
                 <Ionicons name="copy-outline" size={12} color="#fff" />
               </Pressable>
             ) : null}
           </View>
-          <Press onPress={() => router.push('/profile')} accessibilityLabel="Profilni tahrirlash" style={{ width: 40, height: 40, borderRadius: 14, backgroundColor: 'rgba(255,255,255,0.2)', alignItems: 'center', justifyContent: 'center' }}>
+          <Press onPress={() => router.push('/profile')} accessibilityLabel={tr("Profilni tahrirlash")} style={{ width: 40, height: 40, borderRadius: 14, backgroundColor: 'rgba(255,255,255,0.2)', alignItems: 'center', justifyContent: 'center' }}>
             <Ionicons name="create-outline" size={20} color="#fff" />
           </Press>
         </View>
@@ -171,26 +172,26 @@ export default function Cabinet() {
       {isAdmin ? <MfaSetup /> : null}
       {PAYMENTS_IN_APP ? <BalanceCard /> : null}
       {PAYMENTS_IN_APP ? <InviteCard /> : null}
-      {isAdmin ? <Btn style={{ marginTop: 12 }} kind="gold" icon="speedometer-outline" title="Boshqaruv paneli (to'lovlar, e'lonlar, suhbatlar)" onPress={() => router.push('/admin')} /> : null}
+      {isAdmin ? <Btn style={{ marginTop: 12 }} kind="gold" icon="speedometer-outline" title={tr("Boshqaruv paneli (to'lovlar, e'lonlar, suhbatlar)")} onPress={() => router.push('/admin')} /> : null}
       {canClaim ? (
         <View style={{ marginTop: 12 }}>
-          <Note kind="gold">Bozorda hali admin yo'q. Agar siz bozor egasi bo'lsangiz, tugmani bosing. Bu faqat bir marta ishlaydi.</Note>
-          <Btn kind="gold" title="Men bozor egasiman (admin bo'lish)" onPress={claim} />
+          <Note kind="gold">{tr("Bozorda hali admin yo'q. Agar siz bozor egasi bo'lsangiz, tugmani bosing. Bu faqat bir marta ishlaydi.")}</Note>
+          <Btn kind="gold" title={tr("Men bozor egasiman (admin bo'lish)")} onPress={claim} />
         </View>
       ) : null}
 
-      <H right={`${live.length} / ${lim === Infinity ? '∞' : lim} faol`}>Mening e'lonlarim</H>
+      <H right={tr("{0} / {1} faol", live.length, lim === Infinity ? '∞' : lim)}>{tr("Mening e'lonlarim")}</H>
       {lim !== Infinity ? (
         <View style={{ backgroundColor: t.chip, borderRadius: 12, padding: 12, gap: 8, marginBottom: 10 }}>
-          <Text style={{ color: t.ink, fontSize: 13 }}>Bepul limit: {config.free_ads} ta faol e'lon{slots ? ` + ${slots} ta sotib olingan` : ''}. Har bir e'lon {config.ad_days} kun faol turadi.</Text>
+          <Text style={{ color: t.ink, fontSize: 13 }}>{tr("Bepul limit:")}{' '}{config.free_ads} {tr("ta faol e'lon")}{slots ? tr(" + {0} ta sotib olingan", slots) : ''}{tr(". Har bir e'lon")}{' '}{config.ad_days} {tr("kun faol turadi.")}</Text>
           <View style={{ height: 6, borderRadius: 3, backgroundColor: t.line, overflow: 'hidden' }}>
             <View style={{ width: `${Math.min(100, (live.length / lim) * 100)}%`, height: 6, backgroundColor: t.accent }} />
           </View>
-          {(PAYMENTS_IN_APP || isAdmin) && live.length >= lim - 1 ? <View style={{ alignSelf: 'flex-start' }}><Btn small kind="sec" title="Limitni oshirish" onPress={() => router.push('/promo/slots')} /></View> : null}
+          {(PAYMENTS_IN_APP || isAdmin) && live.length >= lim - 1 ? <View style={{ alignSelf: 'flex-start' }}><Btn small kind="sec" title={tr("Limitni oshirish")} onPress={() => router.push('/promo/slots')} /></View> : null}
         </View>
       ) : null}
 
-      <Seg value={tab} onChange={setTab} options={[['live', `Faol (${grp.live.length})`], ['expired', `Tugagan (${grp.expired.length})`], ['deleted', `Arxiv (${grp.deleted.length})`]]} />
+      <Seg value={tab} onChange={setTab} options={[['live', tr("Faol ({0})", grp.live.length)], ['expired', tr("Tugagan ({0})", grp.expired.length)], ['deleted', tr("Arxiv ({0})", grp.deleted.length)]]} />
       <View style={{ gap: 10, marginTop: 12 }}>
         {ads === null ? <Loading /> : list.length ? list.map((a) => {
           const img = adPhoto(a);
@@ -205,10 +206,10 @@ export default function Cabinet() {
                   <Text style={{ fontWeight: '700', color: t.ink }} numberOfLines={1}>{a.title}</Text>
                   <Text style={{ color: t.price, fontWeight: '800' }}>{priceText(a)}</Text>
                   <View style={{ flexDirection: 'row', gap: 4, flexWrap: 'wrap' }}>
-                    {s === 'deleted' ? <Badge kind="no">{a.mod_deleted ? "MODERATOR O'CHIRGAN" : 'ARXIVDA'}</Badge>
-                      : s === 'expired' ? <Badge kind="wait">MUDDATI TUGAGAN</Badge>
-                        : isVip(a) ? <Badge kind="vip">VIP {shortDate(a.vip_until)} GACHA</Badge>
-                          : isTop(a) ? <Badge kind="top">TOP {shortDate(a.top_until)} GACHA</Badge> : <Badge kind="ok">FAOL</Badge>}
+                    {s === 'deleted' ? <Badge kind="no">{a.mod_deleted ? tr("MODERATOR O'CHIRGAN") : tr("ARXIVDA")}</Badge>
+                      : s === 'expired' ? <Badge kind="wait">{tr("MUDDATI TUGAGAN")}</Badge>
+                        : isVip(a) ? <Badge kind="vip">{tr("VIP")}{' '}{shortDate(a.vip_until)} {tr("GACHA")}</Badge>
+                          : isTop(a) ? <Badge kind="top">{tr("TOP")}{' '}{shortDate(a.top_until)} {tr("GACHA")}</Badge> : <Badge kind="ok">{tr("FAOL")}</Badge>}
                   </View>
                   <Text style={{ color: t.muted, fontSize: 11 }}>{hist(a)}</Text>
                 </View>
@@ -216,65 +217,65 @@ export default function Cabinet() {
               <View style={{ flexDirection: 'row', gap: 6, flexWrap: 'wrap' }}>
                 {s === 'live' ? (
                   <>
-                    {PAYMENTS_IN_APP || isAdmin ? <Btn small title="Reklama" icon="rocket-outline" onPress={() => router.push(`/promo/${a.id}`)} /> : null}
-                    <Btn small kind="sec" title="Tahrirlash" onPress={() => router.push({ pathname: '/post', params: { id: a.id } })} />
-                    <Btn small kind="dng" title={sure === 'del' + a.id ? "Ha, o'chirish" : "O'chirish"} onPress={() => del(a)} />
+                    {PAYMENTS_IN_APP || isAdmin ? <Btn small title={tr("Reklama")} icon="rocket-outline" onPress={() => router.push(`/promo/${a.id}`)} /> : null}
+                    <Btn small kind="sec" title={tr("Tahrirlash")} onPress={() => router.push({ pathname: '/post', params: { id: a.id } })} />
+                    <Btn small kind="dng" title={sure === 'del' + a.id ? tr("Ha, o'chirish") : tr("O'chirish")} onPress={() => del(a)} />
                   </>
                 ) : s === 'expired' ? (
                   <>
-                    {PAYMENTS_IN_APP || isAdmin ? <Btn small title={`Uzaytirish · ${fmtNum(config.prices.extend)} so'm`} onPress={() => router.push({ pathname: `/promo/${a.id}`, params: { svc: 'extend' } })} /> : null}
-                    <Btn small kind="dng" title={sure === 'del' + a.id ? "Ha, o'chirish" : "O'chirish"} onPress={() => del(a)} />
+                    {PAYMENTS_IN_APP || isAdmin ? <Btn small title={tr("Uzaytirish · {0} so'm", fmtNum(config.prices.extend))} onPress={() => router.push({ pathname: `/promo/${a.id}`, params: { svc: 'extend' } })} /> : null}
+                    <Btn small kind="dng" title={sure === 'del' + a.id ? tr("Ha, o'chirish") : tr("O'chirish")} onPress={() => del(a)} />
                   </>
                 ) : (
                   <>
-                    {!a.mod_deleted && (PAYMENTS_IN_APP || isAdmin) ? <Btn small title={`Tiklash · ${fmtNum(config.prices.restore)} so'm`} onPress={() => router.push({ pathname: `/promo/${a.id}`, params: { svc: 'restore' } })} /> : null}
-                    <Btn small kind="dng" title={sure === 'purge' + a.id ? 'Butunlay o\'chirilsinmi?' : "Butunlay o'chirish"} onPress={() => purge(a)} />
+                    {!a.mod_deleted && (PAYMENTS_IN_APP || isAdmin) ? <Btn small title={tr("Tiklash · {0} so'm", fmtNum(config.prices.restore))} onPress={() => router.push({ pathname: `/promo/${a.id}`, params: { svc: 'restore' } })} /> : null}
+                    <Btn small kind="dng" title={sure === 'purge' + a.id ? tr("Butunlay o'chirilsinmi?") : tr("Butunlay o'chirish")} onPress={() => purge(a)} />
                   </>
                 )}
               </View>
             </View>
           );
         }) : (
-          <Empty title={tab === 'live' ? "Faol e'lonlar yo'q" : tab === 'expired' ? "Muddati tugagan e'lonlar yo'q" : "Arxiv bo'sh"}
-            text={tab === 'live' ? "Xizmatingizni rasmlar bilan joylang yoki buyurtma e'lonini bering." : undefined}
-            action={tab === 'live' ? "E'lon joylash" : undefined} onAction={() => router.push('/post')} />
+          <Empty title={tab === 'live' ? tr("Faol e'lonlar yo'q") : tab === 'expired' ? tr("Muddati tugagan e'lonlar yo'q") : tr("Arxiv bo'sh")}
+            text={tab === 'live' ? tr("Xizmatingizni rasmlar bilan joylang yoki buyurtma e'lonini bering.") : undefined}
+            action={tab === 'live' ? tr("E'lon joylash") : undefined} onAction={() => router.push('/post')} />
         )}
       </View>
 
       {orders.length ? (
         <>
-          <H right={`${orders.length} ta`}>To'lovlarim</H>
+          <H right={tr("{0} ta", orders.length)}>{tr("To'lovlarim")}</H>
           <View style={{ gap: 8 }}>
             {orders.map((o) => (
               <View key={o.id} style={{ backgroundColor: t.surface, borderWidth: 1, borderColor: t.line, borderRadius: 12, padding: 12, gap: 4 }}>
                 <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' }}>
                   <Text style={{ fontWeight: '800', color: t.ink }}>{o.code}</Text>
-                  <Badge kind={o.status === 'ok' ? 'ok' : o.status === 'no' ? 'no' : 'wait'}>{o.status === 'ok' ? 'FAOLLASHTIRILDI' : o.status === 'no' ? 'RAD ETILDI' : 'TEKSHIRILMOQDA'}</Badge>
+                  <Badge kind={o.status === 'ok' ? 'ok' : o.status === 'no' ? 'no' : 'wait'}>{o.status === 'ok' ? tr("FAOLLASHTIRILDI") : o.status === 'no' ? tr("RAD ETILDI") : tr("TEKSHIRILMOQDA")}</Badge>
                 </View>
-                <Text style={{ color: t.muted, fontSize: 13 }}>{SVC[o.svc]} · {fmtNum(o.price)} so'm · {ago(o.created_at)}</Text>
+                <Text style={{ color: t.muted, fontSize: 13 }}>{SVC[o.svc]} · {fmtNum(o.price)} {tr("so'm ·")}{' '}{ago(o.created_at)}</Text>
               </View>
             ))}
           </View>
         </>
       ) : null}
 
-      <H>Ko'rinish</H>
+      <H>{tr("Ko'rinish")}</H>
       <AppearanceCard />
 
-      <H>Hisob</H>
+      <H>{tr("Hisob")}</H>
       <MenuGroup items={[
-        { icon: 'headset', title: "Qo'llab-quvvatlash", sub: config.support_phone || '+998 91 001 88 18', color: '#0C9A6A', onPress: () => router.push('/support') },
-        { icon: 'reader', title: 'Foydalanish shartlari', color: '#6A3FE0', onPress: () => router.push('/terms') },
-        { icon: 'lock-closed', title: 'Maxfiylik siyosati', color: '#2747D6', onPress: () => router.push('/privacy') },
-        PAYMENTS_IN_APP ? { icon: 'receipt', title: 'Ommaviy oferta', sub: 'Pullik xizmatlar shartnomasi', color: '#F08A00', onPress: () => router.push('/offer') } : null,
+        { icon: 'headset', title: tr("Qo'llab-quvvatlash"), sub: config.support_phone || '+998 91 001 88 18', color: '#0C9A6A', onPress: () => router.push('/support') },
+        { icon: 'reader', title: tr("Foydalanish shartlari"), color: '#6A3FE0', onPress: () => router.push('/terms') },
+        { icon: 'lock-closed', title: tr("Maxfiylik siyosati"), color: '#2747D6', onPress: () => router.push('/privacy') },
+        PAYMENTS_IN_APP ? { icon: 'receipt', title: tr("Ommaviy oferta"), sub: tr("Pullik xizmatlar shartnomasi"), color: '#F08A00', onPress: () => router.push('/offer') } : null,
       ]} />
       <View style={{ height: 10 }} />
       <MenuGroup items={[
-        { icon: 'log-out', title: 'Chiqish', color: '#5C6862', onPress: signOut },
-        { icon: 'trash', title: sure === 'acc' ? "Ha, hisobim va e'lonlarim o'chirilsin" : "Hisobni o'chirish", color: '#E5484D', danger: true, onPress: deleteAccount },
+        { icon: 'log-out', title: tr("Chiqish"), color: '#5C6862', onPress: signOut },
+        { icon: 'trash', title: sure === 'acc' ? tr("Ha, hisobim va e'lonlarim o'chirilsin") : tr("Hisobni o'chirish"), color: '#E5484D', danger: true, onPress: deleteAccount },
       ]} />
       <Text style={{ color: t.muted, fontSize: 12, textAlign: 'center', marginTop: 14 }}>{since(profile.created_at)}</Text>
-      <Text style={{ color: t.muted, fontSize: 11, textAlign: 'center', marginTop: 4, opacity: 0.7 }}>Versiya {BUILD_ID || '—'}</Text>
+      <Text style={{ color: t.muted, fontSize: 11, textAlign: 'center', marginTop: 4, opacity: 0.7 }}>{tr("Versiya")}{' '}{BUILD_ID || '—'}</Text>
     </>
   );
 }

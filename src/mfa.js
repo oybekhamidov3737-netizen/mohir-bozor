@@ -8,6 +8,7 @@ import { useApp } from './app-context';
 import { supabase, errText } from './supabase';
 import { copyText } from './copy';
 import { Btn, Field, Note } from './ui';
+import { tr } from './i18n';
 
 // Kirgandan keyin kod so'ralishi kerakmi?
 export function useMfaNeeded() {
@@ -38,11 +39,11 @@ export function MfaChallenge({ onDone }) {
     try {
       const { data: f } = await supabase.auth.mfa.listFactors();
       const factor = (f?.totp || [])[0];
-      if (!factor) { setErr('Himoya topilmadi'); setBusy(false); return; }
+      if (!factor) { setErr(tr("Himoya topilmadi")); setBusy(false); return; }
       const { error } = await supabase.auth.mfa.challengeAndVerify({ factorId: factor.id, code: code.replace(/\D/g, '') });
-      if (error) { setErr("Kod noto'g'ri yoki eskirgan. Yangi kodni kiriting."); setBusy(false); return; }
+      if (error) { setErr(tr("Kod noto'g'ri yoki eskirgan. Yangi kodni kiriting.")); setBusy(false); return; }
       await loadProfile();
-      toast('Tasdiqlandi');
+      toast(tr("Tasdiqlandi"));
       onDone && onDone();
     } catch (e) { setErr(errText(e)); }
     setBusy(false);
@@ -51,13 +52,13 @@ export function MfaChallenge({ onDone }) {
     <View style={[card(t), { borderWidth: 2, borderColor: t.accent }]}>
       <View style={{ flexDirection: 'row', gap: 10, alignItems: 'center' }}>
         <Ionicons name="shield-checkmark" size={22} color={t.accent} />
-        <Text style={{ fontFamily: FONT.displayM, fontSize: 16, color: t.ink, flex: 1 }}>Ikki bosqichli tasdiq</Text>
+        <Text style={{ fontFamily: FONT.displayM, fontSize: 16, color: t.ink, flex: 1 }}>{tr("Ikki bosqichli tasdiq")}</Text>
       </View>
-      <Text style={{ color: t.muted, lineHeight: 20 }}>Telefoningizdagi "Parollar" ilovasida Mohir bozor uchun 6 xonali kodni oching va shu yerga yozing.</Text>
+      <Text style={{ color: t.muted, lineHeight: 20 }}>{tr("Telefoningizdagi \"Parollar\" ilovasida Mohir bozor uchun 6 xonali kodni oching va shu yerga yozing.")}</Text>
       <Field value={code} onChangeText={(v) => setCode(v.replace(/\D/g, '').slice(0, 6))} placeholder="123456" keyboardType="number-pad"
         autoComplete="one-time-code" textContentType="oneTimeCode" maxLength={6} onSubmitEditing={verify} />
       {err ? <Note kind="bad">{err}</Note> : null}
-      <Btn title="Tasdiqlash" onPress={verify} loading={busy} disabled={code.length < 6} />
+      <Btn title={tr("Tasdiqlash")} onPress={verify} loading={busy} disabled={code.length < 6} />
     </View>
   );
 }
@@ -94,8 +95,8 @@ export function MfaSetup() {
     setBusy(true); setErr('');
     const { error } = await supabase.auth.mfa.challengeAndVerify({ factorId: state.id, code: code.replace(/\D/g, '') });
     setBusy(false);
-    if (error) { setErr("Kod noto'g'ri. Parollar ilovasidagi yangi kodni yozing."); return; }
-    toast('Ikki bosqichli himoya yoqildi');
+    if (error) { setErr(tr("Kod noto'g'ri. Parollar ilovasidagi yangi kodni yozing.")); return; }
+    toast(tr("Ikki bosqichli himoya yoqildi"));
     setCode(''); await loadProfile(); load();
   };
 
@@ -105,8 +106,8 @@ export function MfaSetup() {
       <View style={[card(t), { flexDirection: 'row', alignItems: 'center', gap: 10 }]}>
         <Ionicons name="shield-checkmark" size={24} color={t.price} />
         <View style={{ flex: 1 }}>
-          <Text style={{ color: t.ink, fontWeight: '800' }}>Ikki bosqichli himoya yoqilgan</Text>
-          <Text style={{ color: t.muted, fontSize: 12.5 }}>Admin panelga faqat telefoningizdagi kod bilan kiriladi.</Text>
+          <Text style={{ color: t.ink, fontWeight: '800' }}>{tr("Ikki bosqichli himoya yoqilgan")}</Text>
+          <Text style={{ color: t.muted, fontSize: 12.5 }}>{tr("Admin panelga faqat telefoningizdagi kod bilan kiriladi.")}</Text>
         </View>
       </View>
     );
@@ -116,26 +117,26 @@ export function MfaSetup() {
       <View style={[card(t), { borderWidth: 1.5, borderColor: t.gold }]}>
         <View style={{ flexDirection: 'row', gap: 10, alignItems: 'center' }}>
           <Ionicons name="warning" size={22} color={t.gold} />
-          <Text style={{ fontFamily: FONT.displayM, fontSize: 16, color: t.ink, flex: 1 }}>Admin hisobini himoyalang</Text>
+          <Text style={{ fontFamily: FONT.displayM, fontSize: 16, color: t.ink, flex: 1 }}>{tr("Admin hisobini himoyalang")}</Text>
         </View>
-        <Text style={{ color: t.muted, lineHeight: 20 }}>Hozir admin panelga faqat pochta kodi bilan kiriladi. Ikki bosqichli himoyani yoqing: kimdir pochtangizga kirib olsa ham, telefoningizdagi koddan boshqa yo'l bilan to'lovlar va pullarni boshqara olmaydi.</Text>
+        <Text style={{ color: t.muted, lineHeight: 20 }}>{tr("Hozir admin panelga faqat pochta kodi bilan kiriladi. Ikki bosqichli himoyani yoqing: kimdir pochtangizga kirib olsa ham, telefoningizdagi koddan boshqa yo'l bilan to'lovlar va pullarni boshqara olmaydi.")}</Text>
         {err ? <Note kind="bad">{err}</Note> : null}
-        <Btn title="Himoyani yoqish" icon="shield-checkmark-outline" onPress={start} loading={busy} />
+        <Btn title={tr("Himoyani yoqish")} icon="shield-checkmark-outline" onPress={start} loading={busy} />
       </View>
     );
   }
   return (
     <View style={[card(t), { borderWidth: 1.5, borderColor: t.accent }]}>
-      <Text style={{ fontFamily: FONT.displayM, fontSize: 16, color: t.ink }}>Himoyani sozlash</Text>
-      <Text style={{ color: t.ink, lineHeight: 21 }}>1. Pastdagi tugmani bosing — iPhone "Parollar" ilovasi ochilib, kod qo'shishni taklif qiladi. "Saqlash"ni bosing.</Text>
-      <Btn kind="sec" icon="key-outline" title="Parollar ilovasiga qo'shish" onPress={() => Linking.openURL(state.uri).catch(() => toast("Ochilmadi — pastdagi kalitni qo'lda kiriting"))} />
-      <Text style={{ color: t.muted, fontSize: 12.5, lineHeight: 18 }}>Agar ochilmasa: Parollar → Mohir bozor (yoki yangi yozuv) → "Tasdiqlash kodini sozlash" → "Sozlash kalitini kiritish" va shu kalitni joylang:</Text>
-      <Btn kind="ghost" small icon="copy-outline" title={state.secret} onPress={() => { copyText(state.secret); toast('Kalit nusxalandi'); }} />
-      <Text style={{ color: t.ink, lineHeight: 21 }}>2. Parollar ilovasida chiqqan 6 xonali kodni yozing:</Text>
+      <Text style={{ fontFamily: FONT.displayM, fontSize: 16, color: t.ink }}>{tr("Himoyani sozlash")}</Text>
+      <Text style={{ color: t.ink, lineHeight: 21 }}>{tr("1. Pastdagi tugmani bosing — iPhone \"Parollar\" ilovasi ochilib, kod qo'shishni taklif qiladi. \"Saqlash\"ni bosing.")}</Text>
+      <Btn kind="sec" icon="key-outline" title={tr("Parollar ilovasiga qo'shish")} onPress={() => Linking.openURL(state.uri).catch(() => toast(tr("Ochilmadi — pastdagi kalitni qo'lda kiriting")))} />
+      <Text style={{ color: t.muted, fontSize: 12.5, lineHeight: 18 }}>{tr("Agar ochilmasa: Parollar → Mohir bozor (yoki yangi yozuv) → \"Tasdiqlash kodini sozlash\" → \"Sozlash kalitini kiritish\" va shu kalitni joylang:")}</Text>
+      <Btn kind="ghost" small icon="copy-outline" title={state.secret} onPress={() => { copyText(state.secret); toast(tr("Kalit nusxalandi")); }} />
+      <Text style={{ color: t.ink, lineHeight: 21 }}>{tr("2. Parollar ilovasida chiqqan 6 xonali kodni yozing:")}</Text>
       <Field value={code} onChangeText={(v) => setCode(v.replace(/\D/g, '').slice(0, 6))} placeholder="123456" keyboardType="number-pad"
         autoComplete="one-time-code" textContentType="oneTimeCode" maxLength={6} onSubmitEditing={confirm} />
       {err ? <Note kind="bad">{err}</Note> : null}
-      <Btn title="Tasdiqlash va yoqish" onPress={confirm} loading={busy} disabled={code.length < 6} />
+      <Btn title={tr("Tasdiqlash va yoqish")} onPress={confirm} loading={busy} disabled={code.length < 6} />
     </View>
   );
 }

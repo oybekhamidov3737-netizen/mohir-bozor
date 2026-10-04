@@ -1,12 +1,13 @@
 import * as ImagePicker from 'expo-image-picker';
 import * as ImageManipulator from 'expo-image-manipulator';
 import { supabase } from './supabase';
+import { tr } from './i18n';
 
 // Rasm tanlash: kichraytirilgan JPEG (base64) qaytaradi
 export async function pickImages({ max = 1, width = 1280 } = {}) {
   const perm = await ImagePicker.requestMediaLibraryPermissionsAsync();
   if (perm.status !== 'granted' && perm.accessPrivileges !== 'limited') {
-    throw new Error("Galereyaga ruxsat berilmadi. Telefon sozlamalaridan ruxsat bering.");
+    throw new Error(tr("Galereyaga ruxsat berilmadi. Telefon sozlamalaridan ruxsat bering."));
   }
   const res = await ImagePicker.launchImageLibraryAsync({
     mediaTypes: ['images'],

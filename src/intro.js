@@ -8,6 +8,7 @@ import { Animated, Easing, Image, Platform, Pressable, StyleSheet, Text, View, u
 import * as Haptics from 'expo-haptics';
 import { createAudioPlayer, setAudioModeAsync } from 'expo-audio';
 import { FONT } from './theme';
+import { tr } from './i18n';
 
 const ND = Platform.OS !== 'web';
 const SOUNDS = {
@@ -268,7 +269,7 @@ export function Intro({ onDone }) {
           <Animated.Text style={{
             color: 'rgba(255,255,255,0.78)', fontSize: 12, fontWeight: '700', letterSpacing: 3, marginTop: 8,
             opacity: A.sub, transform: [{ translateY: A.sub.interpolate({ inputRange: [0, 1], outputRange: [10, 0] }) }],
-          }}>IJODKORLAR BOZORI</Animated.Text>
+          }}>{tr('IJODKORLAR BOZORI')}</Animated.Text>
         </Animated.View>
       </Pressable>
     </Animated.View>

@@ -4,6 +4,7 @@
 import React, { useEffect, useMemo, useRef } from 'react';
 import { useWindowDimensions } from 'react-native';
 import { createAudioPlayer } from 'expo-audio';
+import { tr } from './i18n';
 
 const SOUNDS = {
   hop1: require('../assets/sounds/hop1.wav'),
@@ -209,7 +210,7 @@ export function Intro({ onDone }) {
             <span key={i} className="mb-a" style={{ display: 'inline-block', ...A('mbLetter', 520, FINAL + i * 45, BOUNCE) }}>{ch === ' ' ? ' ' : ch}</span>
           ))}
         </div>
-        <div className="mb-a" style={{ color: '#fff', fontFamily: 'system-ui, sans-serif', fontSize: 12, fontWeight: 700, letterSpacing: 3, marginTop: 8, ...A('mbSub', 420, FINAL + 420, 'ease-out') }}>IJODKORLAR BOZORI</div>
+        <div className="mb-a" style={{ color: '#fff', fontFamily: 'system-ui, sans-serif', fontSize: 12, fontWeight: 700, letterSpacing: 3, marginTop: 8, ...A('mbSub', 420, FINAL + 420, 'ease-out') }}>{tr('IJODKORLAR BOZORI')}</div>
       </div>
     </div>
   );

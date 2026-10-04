@@ -6,6 +6,7 @@ import { useT, FONT } from '../../src/theme';
 import { useApp } from '../../src/app-context';
 import { supabase } from '../../src/supabase';
 import { AdCard, Empty, Loading } from '../../src/ui';
+import { tr } from '../../src/i18n';
 
 export default function Favorites() {
   const t = useT();
@@ -38,10 +39,10 @@ export default function Favorites() {
         keyExtractor={(a) => a.id}
         columnWrapperStyle={{ gap: 10 }}
         contentContainerStyle={{ padding: 16, gap: 10, maxWidth: 1100, width: '100%', alignSelf: 'center' }}
-        ListHeaderComponent={<Text style={{ fontFamily: FONT.displayM, fontSize: 20, color: t.ink, paddingBottom: 6 }}>Saralangan e'lonlar</Text>}
+        ListHeaderComponent={<Text style={{ fontFamily: FONT.displayM, fontSize: 20, color: t.ink, paddingBottom: 6 }}>{tr("Saralangan e'lonlar")}</Text>}
         renderItem={({ item }) => <AdCard ad={item} width={cardW} onPress={() => router.push(`/ad/${item.id}`)} fav onFav={() => toggleFav(item.id)} />}
         ListEmptyComponent={items === null ? <Loading /> : (
-          <Empty title="Saralanganlar bo'sh" text="Yoqqan e'londagi yurakcha belgisini bosing, u shu yerda saqlanadi." action="E'lonlarga o'tish" onAction={() => router.push('/')} />
+          <Empty title={tr("Saralanganlar bo'sh")} text={tr("Yoqqan e'londagi yurakcha belgisini bosing, u shu yerda saqlanadi.")} action={tr("E'lonlarga o'tish")} onAction={() => router.push('/')} />
         )}
       />
     </View>

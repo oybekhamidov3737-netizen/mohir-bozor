@@ -14,6 +14,7 @@ import { ThemeProvider, useT } from '../src/theme';
 import { isConfigured } from '../src/config';
 import { Intro, shouldShowIntro } from '../src/intro';
 import { ScreenEnter } from '../src/enter';
+import { tr, loadLang, useLang } from '../src/i18n';
 
 SplashScreen.preventAutoHideAsync().catch(() => {});
 
@@ -23,7 +24,7 @@ function BackBtn() {
   const router = useRouter();
   const go = () => { if (router.canGoBack()) router.back(); else router.replace('/'); };
   return (
-    <Pressable onPress={go} hitSlop={10} accessibilityRole="button" accessibilityLabel="Orqaga"
+    <Pressable onPress={go} hitSlop={10} accessibilityRole="button" accessibilityLabel={tr("Orqaga")}
       style={({ pressed }) => ({ width: 38, height: 38, borderRadius: 19, backgroundColor: t.surface, alignItems: 'center', justifyContent: 'center',
         marginLeft: Platform.OS === 'web' ? 12 : 0, marginRight: 8, transform: [{ scale: pressed ? 0.9 : 1 }],
         ...(Platform.OS === 'web' ? { boxShadow: '0 2px 8px rgba(0,0,0,0.08)' } : { shadowColor: '#000', shadowOpacity: 0.08, shadowRadius: 6, shadowOffset: { width: 0, height: 2 }, elevation: 2 }) })}>
@@ -33,9 +34,14 @@ function BackBtn() {
 }
 
 export default function Root() {
+  const lang = useLang();
+  const [langReady, setLangReady] = useState(false);
+  useEffect(() => { loadLang().finally(() => setLangReady(true)); }, []);
+  if (!langReady) return null;
+  // Til almashganda butun ilova yangi tilda qayta chiziladi
   return (
     <ThemeProvider>
-      <RootInner />
+      <RootInner key={lang} />
     </ThemeProvider>
   );
 }
@@ -57,7 +63,7 @@ function RootInner() {
     return (
       <View style={{ flex: 1, backgroundColor: t.bg, alignItems: 'center', justifyContent: 'center', padding: 24 }}>
         <Text style={{ color: t.ink, fontSize: 16, textAlign: 'center', lineHeight: 24 }}>
-          Ilova hali serverga ulanmagan.{'\n'}src/config.js fayliga Supabase manzili va kalitini yozing.
+          {tr("Ilova hali serverga ulanmagan.")}{'\n'}{tr("src/config.js fayliga Supabase manzili va kalitini yozing.")}
         </Text>
       </View>
     );
@@ -67,7 +73,7 @@ function RootInner() {
     headerStyle: { backgroundColor: t.bg },
     headerTintColor: t.ink,
     headerShadowVisible: false,
-    headerBackTitle: 'Orqaga',
+    headerBackTitle: tr("Orqaga"),
     headerBackVisible: false,
     headerLeft: () => <BackBtn />,
     contentStyle: { backgroundColor: t.bg },
@@ -80,17 +86,17 @@ function RootInner() {
         <Stack screenOptions={header} screenLayout={({ children }) => <ScreenEnter>{children}</ScreenEnter>}>
           <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
           <Stack.Screen name="ad/[id]" options={{ title: '' }} />
-          <Stack.Screen name="chat/[id]" options={{ title: 'Suhbat' }} />
-          <Stack.Screen name="post" options={{ title: "E'lon", presentation: 'modal' }} />
-          <Stack.Screen name="login" options={{ title: 'Kirish', presentation: 'modal' }} />
-          <Stack.Screen name="profile" options={{ title: 'Kabinet', presentation: 'modal' }} />
-          <Stack.Screen name="promo/[id]" options={{ title: 'Reklama va xizmatlar', presentation: 'modal' }} />
-          <Stack.Screen name="admin" options={{ title: 'Boshqaruv paneli' }} />
-          <Stack.Screen name="privacy" options={{ title: 'Maxfiylik siyosati' }} />
-          <Stack.Screen name="terms" options={{ title: 'Foydalanish shartlari' }} />
-          <Stack.Screen name="offer" options={{ title: 'Ommaviy oferta' }} />
-          <Stack.Screen name="support" options={{ title: "Qo'llab-quvvatlash" }} />
-          <Stack.Screen name="topup" options={{ title: "Hisobni to'ldirish", presentation: 'modal' }} />
+          <Stack.Screen name="chat/[id]" options={{ title: tr("Suhbat") }} />
+          <Stack.Screen name="post" options={{ title: tr("E'lon"), presentation: 'modal' }} />
+          <Stack.Screen name="login" options={{ title: tr("Kirish"), presentation: 'modal' }} />
+          <Stack.Screen name="profile" options={{ title: tr("Kabinet"), presentation: 'modal' }} />
+          <Stack.Screen name="promo/[id]" options={{ title: tr("Reklama va xizmatlar"), presentation: 'modal' }} />
+          <Stack.Screen name="admin" options={{ title: tr("Boshqaruv paneli") }} />
+          <Stack.Screen name="privacy" options={{ title: tr("Maxfiylik siyosati") }} />
+          <Stack.Screen name="terms" options={{ title: tr("Foydalanish shartlari") }} />
+          <Stack.Screen name="offer" options={{ title: tr("Ommaviy oferta") }} />
+          <Stack.Screen name="support" options={{ title: tr("Qo'llab-quvvatlash") }} />
+          <Stack.Screen name="topup" options={{ title: tr("Hisobni to'ldirish"), presentation: 'modal' }} />
         </Stack>
         {intro ? <Intro onDone={() => setIntro(false)} /> : null}
       </AppProvider>

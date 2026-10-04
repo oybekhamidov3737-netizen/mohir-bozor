@@ -6,6 +6,7 @@ import { supabase } from './supabase';
 import { DEF_CFG } from './data';
 import { isConfigured } from './config';
 import { useT } from './theme';
+import { tr } from './i18n';
 
 const Ctx = createContext(null);
 export const useApp = () => useContext(Ctx);
@@ -98,7 +99,7 @@ export function AppProvider({ children }) {
   }, [uid, !!profile]);
 
   const toast = useCallback((msg) => {
-    setToastMsg(msg);
+    setToastMsg(tr(msg));
     clearTimeout(toastTimer.current);
     Animated.spring(toastAnim, { toValue: 1, useNativeDriver: Platform.OS !== 'web' }).start();
     toastTimer.current = setTimeout(() => {

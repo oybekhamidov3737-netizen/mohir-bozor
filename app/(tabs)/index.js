@@ -14,6 +14,7 @@ import { fetchFeed, fetchVip, fetchProfiles, PAGE } from '../../src/api';
 import { CatRow, HowItWorks, TopCreators, useStats, Stories, PromoCarousel, StatStrip } from '../../src/home';
 import { RegionPicker, ListPicker } from '../../src/pickers';
 import { AdCard, Empty, FadeIn, H, Pill, Skeleton } from '../../src/ui';
+import { tr, LANGS, setLang, useLang } from '../../src/i18n';
 
 export default function Home() {
   const t = useT();
@@ -40,6 +41,8 @@ export default function Home() {
   const [err, setErr] = useState('');
   const [regOpen, setRegOpen] = useState(false);
   const [sortOpen, setSortOpen] = useState(false);
+  const [langOpen, setLangOpen] = useState(false);
+  const lang = useLang();
   const [refreshing, setRefreshing] = useState(false);
   const reqId = useRef(0);
   const stats = useStats();
@@ -67,7 +70,7 @@ export default function Home() {
       setItems(reset ? rows : [...items, ...rows]);
       setMore(rows.length === PAGE);
     } catch (e) {
-      if (id === reqId.current) setErr("E'lonlarni yuklab bo'lmadi. Internetni tekshiring.");
+      if (id === reqId.current) setErr(tr("E'lonlarni yuklab bo'lmadi. Internetni tekshiring."));
     } finally {
       if (id === reqId.current) { setLoading(false); setRefreshing(false); }
     }
@@ -97,32 +100,32 @@ export default function Home() {
         <>
           <Stories onPick={setCat} />
           <PromoCarousel width={W - 32} slides={[
-            { colors: ['#4A6CFF', '#1631B8'], icon: 'sparkles', tag: 'Ijodkorlar bozori', title: 'Kerakli ijodkor shu yerda', text: "Barcha viloyat va tumanlardagi mutaxassislar", cta: "Xizmatlarni ko'rish", onPress: () => setKind('xizmat') },
-            { colors: ['#FFA155', '#F0532E'], icon: 'film', tag: 'Video montaj', title: 'Reels montaj — tez va sifatli', text: 'Montajchilarning narxi va ishlarini solishtiring', cta: "Ko'rish", onPress: () => setCat('montaj') },
-            { colors: ['#34DBA5', '#0C9A6A'], icon: 'phone-portrait', tag: 'SMM', title: 'Biznesingizga SMM mutaxassisi', text: 'Instagram, Telegram va TikTok sahifalarini yuritish', cta: 'Tanlash', onPress: () => setCat('smm') },
-            { colors: ['#AE8CFF', '#6A3FE0'], icon: 'add-circle', tag: 'Bepul', title: 'Xizmatingizni joylang', text: "Mijozlar sizni o'zi topib, chatga yozadi", cta: "E'lon joylash", onPress: () => { if (need('/post')) router.push('/post'); } },
-            { colors: ['#FF77AE', '#D8246C'], icon: 'color-palette', tag: 'Dizayn', title: 'Logotip, banner va brendbuk', text: 'Grafik dizaynerlar bir joyda', cta: "Ko'rish", onPress: () => setCat('dizayn') },
+            { colors: ['#4A6CFF', '#1631B8'], icon: 'sparkles', tag: tr("Ijodkorlar bozori"), title: tr("Kerakli ijodkor shu yerda"), text: tr("Barcha viloyat va tumanlardagi mutaxassislar"), cta: tr("Xizmatlarni ko'rish"), onPress: () => setKind('xizmat') },
+            { colors: ['#FFA155', '#F0532E'], icon: 'film', tag: tr("Video montaj"), title: tr("Reels montaj — tez va sifatli"), text: tr("Montajchilarning narxi va ishlarini solishtiring"), cta: tr("Ko'rish"), onPress: () => setCat('montaj') },
+            { colors: ['#34DBA5', '#0C9A6A'], icon: 'phone-portrait', tag: tr("SMM"), title: tr("Biznesingizga SMM mutaxassisi"), text: tr("Instagram, Telegram va TikTok sahifalarini yuritish"), cta: tr("Tanlash"), onPress: () => setCat('smm') },
+            { colors: ['#AE8CFF', '#6A3FE0'], icon: 'add-circle', tag: tr("Bepul"), title: tr("Xizmatingizni joylang"), text: tr("Mijozlar sizni o'zi topib, chatga yozadi"), cta: tr("E'lon joylash"), onPress: () => { if (need('/post')) router.push('/post'); } },
+            { colors: ['#FF77AE', '#D8246C'], icon: 'color-palette', tag: tr("Dizayn"), title: tr("Logotip, banner va brendbuk"), text: tr("Grafik dizaynerlar bir joyda"), cta: tr("Ko'rish"), onPress: () => setCat('dizayn') },
           ]} />
           <StatStrip stats={stats} />
-          <H right="12 yo'nalish">Kategoriyalar</H>
+          <H right={tr("12 yo'nalish")}>{tr("Kategoriyalar")}</H>
           <CatRow counts={stats.cats} onPick={setCat} />
           {vip.length ? (
             <View style={{ backgroundColor: t.goldSoft, borderRadius: 22, padding: 14, paddingTop: 0, marginTop: 18 }}>
-              <H right={`${vip.length} ta`}>★ VIP e'lonlar</H>
+              <H right={tr("{0} ta", vip.length)}>{tr("★ VIP e'lonlar")}</H>
               <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={{ gap: 10 }}>
                 {vip.map((a) => <AdCard key={a.id} ad={a} width={160} onPress={() => open(a)} fav={fav.includes(a.id)} onFav={() => toggleFav(a.id)} />)}
               </ScrollView>
             </View>
           ) : null}
-          {people.length ? (<><H right="eng faollar">Top ijodkorlar</H><TopCreators people={people} onOpen={(p) => router.push(`/ad/${p.ad}`)} /></>) : null}
-          <H>Qanday ishlaydi</H>
+          {people.length ? (<><H right={tr("eng faollar")}>{tr("Top ijodkorlar")}</H><TopCreators people={people} onOpen={(p) => router.push(`/ad/${p.ad}`)} /></>) : null}
+          <H>{tr("Qanday ishlaydi")}</H>
           <HowItWorks />
         </>
       ) : (
         <View style={{ paddingTop: 14, gap: 4 }}>
-          <Pressable onPress={() => { setCat(null); setKind(null); setSearch(''); }}><Text style={{ color: t.accent, fontWeight: '700' }}>‹ Asosiy</Text></Pressable>
+          <Pressable onPress={() => { setCat(null); setKind(null); setSearch(''); }}><Text style={{ color: t.accent, fontWeight: '700' }}>{tr("‹ Asosiy")}</Text></Pressable>
           <Text style={{ fontFamily: FONT.displayM, fontSize: 20, color: t.ink }}>
-            {sq ? `«${sq}» bo'yicha` : cat ? CATS.find((c) => c.id === cat)?.n : kind === 'buyurtma' ? 'Buyurtmalar' : 'Xizmatlar'}
+            {sq ? tr("«{0}» bo'yicha", sq) : cat ? CATS.find((c) => c.id === cat)?.n : kind === 'buyurtma' ? tr("Buyurtmalar") : tr("Xizmatlar")}
           </Text>
         </View>
       )}
@@ -130,12 +133,12 @@ export default function Home() {
       <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={{ gap: 8, paddingVertical: 12 }}>
         <Pill title={locText} icon="location-outline" on={!!loc.region} onPress={() => setRegOpen(true)} />
         {cat ? <Pill title={CATS.find((c) => c.id === cat)?.n + '  ✕'} on onPress={() => setCat(null)} /> : null}
-        <Pill title="Xizmatlar" on={kind === 'xizmat'} onPress={() => setKind(kind === 'xizmat' ? null : 'xizmat')} />
-        <Pill title="Buyurtmalar" on={kind === 'buyurtma'} onPress={() => setKind(kind === 'buyurtma' ? null : 'buyurtma')} />
+        <Pill title={tr("Xizmatlar")} on={kind === 'xizmat'} onPress={() => setKind(kind === 'xizmat' ? null : 'xizmat')} />
+        <Pill title={tr("Buyurtmalar")} on={kind === 'buyurtma'} onPress={() => setKind(kind === 'buyurtma' ? null : 'buyurtma')} />
         <Pill title={{ new: 'Avval yangilari', cheap: 'Avval arzonlari', exp: 'Avval qimmatlari' }[sort]} icon="swap-vertical" onPress={() => setSortOpen(true)} />
       </ScrollView>
-      {!active ? <H style={{ paddingTop: 4 }} right={loc.region ? locText + ' + onlayn' : "Butun O'zbekiston"}>Yangi e'lonlar</H> : null}
-      {err ? <Empty title="Xatolik" text={err} action="Qayta urinish" onAction={() => { setLoading(true); load(true); }} /> : null}
+      {!active ? <H style={{ paddingTop: 4 }} right={loc.region ? locText + tr(" + onlayn") : tr("Butun O'zbekiston")}>{tr("Yangi e'lonlar")}</H> : null}
+      {err ? <Empty title={tr("Xatolik")} text={err} action={tr("Qayta urinish")} onAction={() => { setLoading(true); load(true); }} /> : null}
     </View>
   );
 
@@ -152,14 +155,18 @@ export default function Home() {
               <Ionicons name="location-outline" size={16} color={t.accent} />
               <Text style={{ fontSize: 13, fontWeight: '600', color: t.ink }} numberOfLines={1}>{locText}</Text>
             </Pressable>
-            <Pressable onPress={() => router.push('/support')} accessibilityLabel="Qo'llab-quvvatlash" style={{ width: 34, height: 34, borderRadius: 17, borderWidth: 1, borderColor: t.line, backgroundColor: t.surface, alignItems: 'center', justifyContent: 'center' }}>
+            <Pressable onPress={() => setLangOpen(true)} accessibilityLabel="Til / Язык / Language" style={{ height: 34, minWidth: 34, paddingHorizontal: 8, borderRadius: 17, borderWidth: 1, borderColor: t.line, backgroundColor: t.surface, alignItems: 'center', justifyContent: 'center', flexDirection: 'row', gap: 3 }}>
+              <Ionicons name="globe-outline" size={16} color={t.ink} />
+              <Text style={{ fontSize: 11, fontWeight: '800', color: t.ink }}>{lang.toUpperCase()}</Text>
+            </Pressable>
+            <Pressable onPress={() => router.push('/support')} accessibilityLabel={tr("Qo'llab-quvvatlash")} style={{ width: 34, height: 34, borderRadius: 17, borderWidth: 1, borderColor: t.line, backgroundColor: t.surface, alignItems: 'center', justifyContent: 'center' }}>
               <Ionicons name="headset-outline" size={17} color={t.ink} />
             </Pressable>
           </View>
         </View>
         <View style={{ flexDirection: 'row', alignItems: 'center', gap: 8, backgroundColor: t.surface, borderWidth: 1, borderColor: t.line, borderRadius: 12, paddingHorizontal: 12, height: 46, maxWidth: 1068, width: '100%', alignSelf: 'center' }}>
           <Ionicons name="search" size={19} color={t.muted} />
-          <TextInput value={search} onChangeText={setSearch} placeholder="Xizmat, tuman yoki foydalanuvchi ID…" placeholderTextColor={t.muted}
+          <TextInput value={search} onChangeText={setSearch} placeholder={tr("Xizmat, tuman yoki foydalanuvchi ID…")} placeholderTextColor={t.muted}
             style={{ flex: 1, fontSize: 16, color: t.ink, height: '100%' }} returnKeyType="search" autoCorrect={false} />
           {search ? <Pressable onPress={() => setSearch('')} hitSlop={10}><Ionicons name="close-circle" size={19} color={t.muted} /></Pressable> : null}
         </View>
@@ -179,9 +186,9 @@ export default function Home() {
           </FadeIn>
         )}
         ListEmptyComponent={loading || err ? null : (
-          <Empty title={active || loc.region ? 'Hech narsa topilmadi' : "Hozircha e'lonlar yo'q"}
-            text={active || loc.region ? "Boshqa so'z bilan qidiring yoki hududni kengaytiring." : "Birinchi bo'lib xizmatingizni joylang: mijozlar sizni shu yerdan topadi."}
-            action={active ? 'Filtrlarni tozalash' : "E'lon joylash"}
+          <Empty title={active || loc.region ? tr("Hech narsa topilmadi") : tr("Hozircha e'lonlar yo'q")}
+            text={active || loc.region ? tr("Boshqa so'z bilan qidiring yoki hududni kengaytiring.") : tr("Birinchi bo'lib xizmatingizni joylang: mijozlar sizni shu yerdan topadi.")}
+            action={active ? tr("Filtrlarni tozalash") : tr("E'lon joylash")}
             onAction={() => { if (active) { setCat(null); setKind(null); setSearch(''); } else if (need('/post')) router.push('/post'); }} />
         )}
         onEndReachedThreshold={0.5}
@@ -190,8 +197,10 @@ export default function Home() {
       />
 
       <RegionPicker visible={regOpen} onClose={() => setRegOpen(false)} onPick={pickLoc} allowAll current={loc} />
-      <ListPicker visible={sortOpen} onClose={() => setSortOpen(false)} title="Saralash" value={sort} onPick={setSort}
-        items={[['new', 'Avval yangilari'], ['cheap', 'Avval arzonlari'], ['exp', 'Avval qimmatlari']]} />
+      <ListPicker visible={langOpen} onClose={() => setLangOpen(false)} title="Til · Язык · Language" value={lang} onPick={(l) => { setLangOpen(false); setLang(l); }}
+        items={LANGS.map(([k, n, f]) => [k, f + '  ' + n])} />
+      <ListPicker visible={sortOpen} onClose={() => setSortOpen(false)} title={tr("Saralash")} value={sort} onPick={setSort}
+        items={[['new', tr("Avval yangilari")], ['cheap', tr("Avval arzonlari")], ['exp', tr("Avval qimmatlari")]]} />
     </View>
   );
 }

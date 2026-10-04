@@ -1,4 +1,5 @@
-export const CATS = [
+import { tr } from './i18n';
+const RAW_CATS = [
   { id: 'smm', n: 'SMM', big: 'SMM', c: 0, icon: 'phone-portrait-outline' },
   { id: 'montaj', n: 'Video montaj', big: 'MONTAJ', c: 1, icon: 'film-outline' },
   { id: 'mobilo', n: 'Mobilografiya', big: 'MOBILOGRAFIYA', c: 2, icon: 'videocam-outline' },
@@ -18,6 +19,9 @@ export const GRAD = [
   ['#FF77AE', '#D8246C'], ['#AE8CFF', '#6A3FE0'], ['#FFCF55', '#F08A00'],
 ];
 export const gradOf = (id) => GRAD[(CATS.find((c) => c.id === id) || CATS[0]).c];
+// Kategoriya nomlari tanlangan tilda (getter orqali)
+export const CATS = RAW_CATS.map((c) => ({ ...c, get n() { return tr(c.n); }, get big() { return tr(c.big); } }));
+const trProxy = (o) => new Proxy(o, { get: (x, k) => (typeof x[k] === 'string' ? tr(x[k]) : x[k]) });
 export const catOf = (id) => CATS.find((c) => c.id === id) || CATS[0];
 
 export const ONLINE = 'Onlayn';
@@ -39,9 +43,9 @@ export const REGIONS = {
 };
 export const REG_NAMES = Object.keys(REGIONS);
 
-export const UNITS = { '': 'Jami', oy: '/ oy', video: '/ video', post: '/ post', loyiha: '/ loyiha', kun: '/ kun', soat: '/ soat' };
+const RAW_UNITS = { '': 'Jami', oy: '/ oy', video: '/ video', post: '/ post', loyiha: '/ loyiha', kun: '/ kun', soat: '/ soat' };
 
-export const SVC = {
+const RAW_SVC = {
   vip: "VIP e'lon",
   top: "TOP e'lon",
   bump: "Ko'tarish",
@@ -50,15 +54,17 @@ export const SVC = {
   slots: "Qo'shimcha e'lon joylari",
   topup: "Hisobni to'ldirish",
 };
+export const UNITS = trProxy(RAW_UNITS);
+export const SVC = trProxy(RAW_SVC);
 export function svcDesc(k, cfg) {
   const d = cfg?.promo_days ?? 7, a = cfg?.ad_days ?? 30, p = cfg?.slot_pack ?? 5;
   return {
-    vip: `${d} kun bosh sahifadagi VIP blokda, oltin ramka bilan. TOP imtiyozlari ham kiradi.`,
-    top: `${d} kun qidiruv va kategoriya natijalarining eng tepasida.`,
-    bump: "E'lon yangi e'lonlar ro'yxatining eng tepasiga qaytadi.",
-    extend: `E'lon yana ${a} kun faol bo'ladi.`,
-    restore: `Arxivdagi e'lon qayta faollashadi va ${a} kun ko'rinadi.`,
-    slots: `Bepul limitdan tashqari yana ${p} ta e'lon joylash imkoniyati.`,
+    vip: tr('{0} kun bosh sahifadagi VIP blokda, oltin ramka bilan. TOP imtiyozlari ham kiradi.', d),
+    top: tr('{0} kun qidiruv va kategoriya natijalarining eng tepasida.', d),
+    bump: tr("E'lon yangi e'lonlar ro'yxatining eng tepasiga qaytadi."),
+    extend: tr("E'lon yana {0} kun faol bo'ladi.", a),
+    restore: tr("Arxivdagi e'lon qayta faollashadi va {0} kun ko'rinadi.", a),
+    slots: tr("Bepul limitdan tashqari yana {0} ta e'lon joylash imkoniyati.", p),
   }[k];
 }
 

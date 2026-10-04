@@ -9,6 +9,7 @@ import { supabase, errText } from './supabase';
 import { fmtNum } from './format';
 import { refLink, cleanRef } from './referral';
 import { Btn } from './ui';
+import { tr } from './i18n';
 
 // Kabinetdagi "Do'stlarni taklif qiling" kartasi
 export function InviteCard() {
@@ -35,19 +36,19 @@ export function InviteCard() {
   const share = async () => {
     const msg = `Mohir bozor — SMM, montaj, dizayn va marketing ustalari bozori. Shu havola orqali ro'yxatdan o'tsang, ${fmtNum(new_)} so'm bonus olasan:\n${link}`;
     try {
-      if (Platform.OS === 'web' && !navigator.share) { copyText(msg).then((ok) => ok && toast('Taklif matni nusxalandi')); return; }
+      if (Platform.OS === 'web' && !navigator.share) { copyText(msg).then((ok) => ok && toast(tr("Taklif matni nusxalandi"))); return; }
       await Share.share(Platform.OS === 'ios' ? { message: msg, url: link } : { message: msg });
     } catch (e) {}
   };
-  const copy = (v, m) => { copyText(v).then((ok) => toast(ok ? m : "Nusxalab bo'lmadi")); };
+  const copy = (v, m) => { copyText(v).then((ok) => toast(ok ? m : tr("Nusxalab bo'lmadi"))); };
   const apply = async () => {
     const c = cleanRef(code);
-    if (c.length < 4) { toast('Taklif kodini kiriting'); return; }
+    if (c.length < 4) { toast(tr("Taklif kodini kiriting")); return; }
     setBusy(true);
     const { data, error } = await supabase.rpc('claim_referral', { p_code: c });
     setBusy(false);
     if (error) { toast(errText(error)); return; }
-    toast(`Kod qo'llandi: +${fmtNum(data?.bonus || 0)} so'm bonus`); setCode(''); load();
+    toast(tr("Kod qo'llandi: +{0} so'm bonus", fmtNum(data?.bonus || 0))); setCode(''); load();
   };
 
   const stat = (n, l) => (
@@ -61,31 +62,31 @@ export function InviteCard() {
     <View style={{ marginTop: 14, backgroundColor: t.goldSoft, borderRadius: 18, padding: 16, gap: 12 }}>
       <View style={{ flexDirection: 'row', gap: 10, alignItems: 'center' }}>
         <Ionicons name="gift" size={26} color={t.gold} />
-        <Text style={{ flex: 1, fontFamily: FONT.displayM, fontSize: 17, color: t.ink }}>Do'stlarni taklif qiling</Text>
+        <Text style={{ flex: 1, fontFamily: FONT.displayM, fontSize: 17, color: t.ink }}>{tr("Do'stlarni taklif qiling")}</Text>
       </View>
       <Text style={{ color: t.ink, lineHeight: 20 }}>
-        Do'stingiz havolangiz orqali ro'yxatdan o'tsa, unga <Text style={{ fontWeight: '800' }}>{fmtNum(new_)} so'm</Text>, birinchi e'lonini joylaganda sizga <Text style={{ fontWeight: '800' }}>{fmtNum(inv)} so'm</Text> bonus beriladi. Bonus TOP, VIP va boshqa xizmatlarga sarflanadi.
+        {tr("Do'stingiz havolangiz orqali ro'yxatdan o'tsa, unga")}{' '}<Text style={{ fontWeight: '800' }}>{fmtNum(new_)} {tr("so'm")}</Text>{tr(", birinchi e'lonini joylaganda sizga")}{' '}<Text style={{ fontWeight: '800' }}>{fmtNum(inv)} {tr("so'm")}</Text> {tr("bonus beriladi. Bonus TOP, VIP va boshqa xizmatlarga sarflanadi.")}
       </Text>
       <View style={{ flexDirection: 'row', gap: 8 }}>
-        {stat(fmtNum(st.earned || 0) + " so'm", 'Taklifdan topilgan')}
-        {stat(st.invited, 'Taklif qilinganlar')}
-        {stat(st.active, 'Faol do\'stlar')}
+        {stat(fmtNum(st.earned || 0) + tr(" so'm"), tr("Taklifdan topilgan"))}
+        {stat(st.invited, tr("Taklif qilinganlar"))}
+        {stat(st.active, tr("Faol do'stlar"))}
       </View>
       <View style={{ flexDirection: 'row', alignItems: 'center', gap: 8, backgroundColor: t.surface, borderRadius: 12, padding: 10 }}>
         <View style={{ flex: 1 }}>
-          <Text style={{ fontSize: 11, color: t.muted }}>Taklif kodingiz</Text>
+          <Text style={{ fontSize: 11, color: t.muted }}>{tr("Taklif kodingiz")}</Text>
           <Text selectable style={{ fontSize: 22, fontWeight: '800', letterSpacing: 3, color: t.ink }}>{st.code}</Text>
         </View>
-        <Btn small kind="sec" icon="copy-outline" title="Havola" onPress={() => copy(link, 'Havola nusxalandi')} />
+        <Btn small kind="sec" icon="copy-outline" title={tr("Havola")} onPress={() => copy(link, tr("Havola nusxalandi"))} />
       </View>
-      <Btn kind="gold" icon="share-social-outline" title="Taklif yuborish" onPress={share} />
+      <Btn kind="gold" icon="share-social-outline" title={tr("Taklif yuborish")} onPress={share} />
       {!st.referred ? (
         <View style={{ gap: 6 }}>
-          <Text style={{ fontSize: 12, color: t.muted }}>Sizni kimdir taklif qilganmi? Kodini kiriting (ro'yxatdan o'tgandan keyin 7 kun ichida):</Text>
+          <Text style={{ fontSize: 12, color: t.muted }}>{tr("Sizni kimdir taklif qilganmi? Kodini kiriting (ro'yxatdan o'tgandan keyin 7 kun ichida):")}</Text>
           <View style={{ flexDirection: 'row', gap: 8 }}>
-            <TextInput value={code} onChangeText={(v) => setCode(cleanRef(v))} placeholder="KOD" placeholderTextColor={t.muted} autoCapitalize="characters"
+            <TextInput value={code} onChangeText={(v) => setCode(cleanRef(v))} placeholder={tr("KOD")} placeholderTextColor={t.muted} autoCapitalize="characters"
               style={{ flex: 1, height: 40, borderRadius: 10, borderWidth: 1, borderColor: t.line, backgroundColor: t.surface, color: t.ink, paddingHorizontal: 12, fontSize: 16, letterSpacing: 2 }} />
-            <Btn small title="Qo'llash" onPress={apply} loading={busy} />
+            <Btn small title={tr("Qo'llash")} onPress={apply} loading={busy} />
           </View>
         </View>
       ) : null}

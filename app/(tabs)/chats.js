@@ -10,6 +10,7 @@ import { supabase, adPhoto } from '../../src/supabase';
 import { fetchProfiles } from '../../src/api';
 import { ago, isOnline } from '../../src/format';
 import { Avatar, Btn, Cover, Empty, Loading } from '../../src/ui';
+import { tr } from '../../src/i18n';
 
 export default function Chats() {
   const t = useT();
@@ -44,8 +45,8 @@ export default function Chats() {
   if (!uid) {
     return (
       <View style={{ flex: 1, backgroundColor: t.bg, paddingTop: ins.top + 16, paddingHorizontal: 16 }}>
-        <Text style={{ fontFamily: FONT.displayM, fontSize: 20, color: t.ink, marginBottom: 12 }}>Xabarlar</Text>
-        <Empty title="Hisobingizga kiring" text="Sotuvchi va xaridorlar bilan yozishish uchun kiring." action="Kirish" onAction={() => router.push('/login')} />
+        <Text style={{ fontFamily: FONT.displayM, fontSize: 20, color: t.ink, marginBottom: 12 }}>{tr("Xabarlar")}</Text>
+        <Empty title={tr("Hisobingizga kiring")} text={tr("Sotuvchi va xaridorlar bilan yozishish uchun kiring.")} action={tr("Kirish")} onAction={() => router.push('/login')} />
       </View>
     );
   }
@@ -56,7 +57,7 @@ export default function Chats() {
         data={rows || []}
         keyExtractor={(x) => x.id}
         contentContainerStyle={{ padding: 16, gap: 10, maxWidth: 760, width: '100%', alignSelf: 'center' }}
-        ListHeaderComponent={<Text style={{ fontFamily: FONT.display, fontSize: 24, color: t.ink, paddingBottom: 8 }}>Xabarlar</Text>}
+        ListHeaderComponent={<Text style={{ fontFamily: FONT.display, fontSize: 24, color: t.ink, paddingBottom: 8 }}>{tr("Xabarlar")}</Text>}
         renderItem={({ item }) => {
           const img = adPhoto(item.ads);
           return (
@@ -71,9 +72,9 @@ export default function Chats() {
                     <Avatar profile={item.other} size={18} />
                     {isOnline(item.other?.last_seen) ? <View style={{ position: 'absolute', right: -2, bottom: -2, width: 8, height: 8, borderRadius: 4, backgroundColor: t.price, borderWidth: 1.5, borderColor: t.surface }} /> : null}
                   </View>
-                  <Text style={{ fontWeight: '700', color: t.ink, flex: 1 }} numberOfLines={1}>{!item.ad_id && item.buyer_id === uid ? 'Mohir bozor jamoasi' : item.other?.name || 'Foydalanuvchi'}</Text>
+                  <Text style={{ fontWeight: '700', color: t.ink, flex: 1 }} numberOfLines={1}>{!item.ad_id && item.buyer_id === uid ? tr("Mohir bozor jamoasi") : item.other?.name || tr("Foydalanuvchi")}</Text>
                 </View>
-                <Text style={{ fontSize: 12, color: t.muted }} numberOfLines={1}>{!item.ad_id ? (item.buyer_id === uid ? "Qo'llab-quvvatlash" : 'Murojaat') : item.ads?.title || "E'lon o'chirilgan"}</Text>
+                <Text style={{ fontSize: 12, color: t.muted }} numberOfLines={1}>{!item.ad_id ? (item.buyer_id === uid ? tr("Qo'llab-quvvatlash") : tr("Murojaat")) : item.ads?.title || tr("E'lon o'chirilgan")}</Text>
                 <Text style={{ fontSize: 13, color: item.unread ? t.ink : t.muted, fontWeight: item.unread ? '700' : '400' }} numberOfLines={1}>
                   {item.last_sender === uid ? (Date.parse(item.buyer_id === uid ? item.seller_read_at : item.buyer_read_at) >= Date.parse(item.last_at) ? '✓✓ ' : '✓ ') : ''}{item.last_text}
                 </Text>
@@ -86,12 +87,12 @@ export default function Chats() {
           );
         }}
         ListEmptyComponent={rows === null ? <Loading /> : (
-          <Empty title="Hozircha xabarlar yo'q" text={'Yoqqan e\'lonni ochib "Yozish" tugmasini bosing. Suhbatlar shu yerda saqlanadi.'} action="E'lonlarga o'tish" onAction={() => router.push('/')} />
+          <Empty title={tr("Hozircha xabarlar yo'q")} text={tr("Yoqqan e'lonni ochib \"Yozish\" tugmasini bosing. Suhbatlar shu yerda saqlanadi.")} action={tr("E'lonlarga o'tish")} onAction={() => router.push('/')} />
         )}
         ListFooterComponent={rows && rows.length ? (
           <View style={{ flexDirection: 'row', gap: 6, justifyContent: 'center', paddingTop: 10 }}>
             <Ionicons name="shield-checkmark-outline" size={14} color={t.muted} />
-            <Text style={{ fontSize: 11, color: t.muted, textAlign: 'center' }}>Firibgarlik va shikoyatlarni tekshirish uchun suhbatlarni ma'muriyat ko'rishi mumkin.</Text>
+            <Text style={{ fontSize: 11, color: t.muted, textAlign: 'center' }}>{tr("Firibgarlik va shikoyatlarni tekshirish uchun suhbatlarni ma'muriyat ko'rishi mumkin.")}</Text>
           </View>
         ) : null}
       />

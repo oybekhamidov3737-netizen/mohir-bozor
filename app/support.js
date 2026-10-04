@@ -7,14 +7,15 @@ import { useT, FONT } from '../src/theme';
 import { useApp, useRequire } from '../src/app-context';
 import { supabase, errText } from '../src/supabase';
 import { Btn, H } from '../src/ui';
+import { tr } from '../src/i18n';
 
 const FAQ = [
-  ["Qanday e'lon joylayman?", "Pastdagi \"Joylash\" tugmasini bosing. Avval kabinet ochasiz, keyin rasmlar, narx va tavsifni kiritasiz. E'lon darhol ko'rinadi."],
-  ["E'lonim nega qabul qilinmadi?", "Bozor faqat SMM, montaj, dizayn, marketing va boshqa ijodiy xizmatlar uchun. Telegram, Instagram yoki WhatsApp manzillarini yozib bo'lmaydi: mijozlar ilova ichidagi chat orqali yozadi."],
-  ["TOP va VIP nima?", "TOP e'lonni qidiruvning tepasiga chiqaradi. VIP bundan tashqari bosh sahifadagi alohida oltin blokda ko'rsatadi. E'loningizda \"Reklama\" tugmasini bosing."],
-  ["To'lov qildim, xizmat yoqilmadi", "Kartaga o'tkazma bilan to'lasangiz, bozor egasi tekshirib tasdiqlaydi (odatda bir necha soat ichida). Payme yoki Click orqali to'lov darhol yoqiladi. Kechiksa, quyidagi chat orqali yozing."],
-  ["Firibgarga duch keldim", "E'lon sahifasidagi \"Shikoyat qilish\" tugmasini bosing va bizga yozing. Oldindan to'liq pul o'tkazmang, ishni bosqichma-bosqich to'lang."],
-  ["Hisobimni qanday o'chiraman?", "Kabinet → Hisob → \"Hisobni o'chirish\". Profil, e'lonlar va yozishmalar o'chiriladi."],
+  [tr("Qanday e'lon joylayman?"), tr("Pastdagi \"Joylash\" tugmasini bosing. Avval kabinet ochasiz, keyin rasmlar, narx va tavsifni kiritasiz. E'lon darhol ko'rinadi.")],
+  [tr("E'lonim nega qabul qilinmadi?"), tr("Bozor faqat SMM, montaj, dizayn, marketing va boshqa ijodiy xizmatlar uchun. Telegram, Instagram yoki WhatsApp manzillarini yozib bo'lmaydi: mijozlar ilova ichidagi chat orqali yozadi.")],
+  [tr("TOP va VIP nima?"), tr("TOP e'lonni qidiruvning tepasiga chiqaradi. VIP bundan tashqari bosh sahifadagi alohida oltin blokda ko'rsatadi. E'loningizda \"Reklama\" tugmasini bosing.")],
+  [tr("To'lov qildim, xizmat yoqilmadi"), tr("Kartaga o'tkazma bilan to'lasangiz, bozor egasi tekshirib tasdiqlaydi (odatda bir necha soat ichida). Payme yoki Click orqali to'lov darhol yoqiladi. Kechiksa, quyidagi chat orqali yozing.")],
+  [tr("Firibgarga duch keldim"), tr("E'lon sahifasidagi \"Shikoyat qilish\" tugmasini bosing va bizga yozing. Oldindan to'liq pul o'tkazmang, ishni bosqichma-bosqich to'lang.")],
+  [tr("Hisobimni qanday o'chiraman?"), tr("Kabinet → Hisob → \"Hisobni o'chirish\". Profil, e'lonlar va yozishmalar o'chiriladi.")],
 ];
 
 export default function Support() {
@@ -37,29 +38,29 @@ export default function Support() {
     router.push(`/chat/${data}`);
   };
   const call = () => Linking.openURL(tel).catch(() => {
-    copyText(phone).then((ok) => ok && toast('Raqam nusxalandi'));
+    copyText(phone).then((ok) => ok && toast(tr("Raqam nusxalandi")));
   });
 
   return (
     <ScrollView style={{ flex: 1, backgroundColor: t.bg }} contentContainerStyle={{ padding: 16, gap: 12, paddingBottom: 40, maxWidth: 640, width: '100%', alignSelf: 'center' }}>
       <View style={{ backgroundColor: t.accent, borderRadius: 20, padding: 20, gap: 8 }}>
         <Ionicons name="headset-outline" size={34} color={t.accentInk} />
-        <Text style={{ fontFamily: FONT.display, fontSize: 22, color: t.accentInk }}>Sizga qanday yordam beraylik?</Text>
-        <Text style={{ color: t.accentInk, opacity: 0.85, lineHeight: 20 }}>Har kuni 9:00 dan 21:00 gacha javob beramiz.</Text>
+        <Text style={{ fontFamily: FONT.display, fontSize: 22, color: t.accentInk }}>{tr("Sizga qanday yordam beraylik?")}</Text>
+        <Text style={{ color: t.accentInk, opacity: 0.85, lineHeight: 20 }}>{tr("Har kuni 9:00 dan 21:00 gacha javob beramiz.")}</Text>
       </View>
 
       <Pressable onPress={call} style={{ flexDirection: 'row', gap: 12, alignItems: 'center', backgroundColor: t.surface, borderWidth: 1, borderColor: t.line, borderRadius: 16, padding: 14 }}>
         <View style={{ width: 44, height: 44, borderRadius: 14, backgroundColor: t.accentSoft, alignItems: 'center', justifyContent: 'center' }}><Ionicons name="call" size={22} color={t.accent} /></View>
         <View style={{ flex: 1 }}>
-          <Text style={{ color: t.muted, fontSize: 12 }}>Qo'ng'iroq qilish</Text>
+          <Text style={{ color: t.muted, fontSize: 12 }}>{tr("Qo'ng'iroq qilish")}</Text>
           <Text selectable style={{ color: t.ink, fontSize: 18, fontWeight: '800' }}>{phone}</Text>
         </View>
         <Ionicons name="chevron-forward" size={18} color={t.muted} />
       </Pressable>
 
-      <Btn title="Ilovada yozish" icon="chatbubble-ellipses-outline" onPress={chat} loading={busy} />
+      <Btn title={tr("Ilovada yozish")} icon="chatbubble-ellipses-outline" onPress={chat} loading={busy} />
 
-      <H>Ko'p beriladigan savollar</H>
+      <H>{tr("Ko'p beriladigan savollar")}</H>
       {FAQ.map(([q, a], i) => (
         <Pressable key={q} onPress={() => setOpen(open === i ? null : i)} style={{ backgroundColor: t.surface, borderWidth: 1, borderColor: t.line, borderRadius: 14, padding: 14, gap: 8 }}>
           <View style={{ flexDirection: 'row', gap: 8, alignItems: 'center' }}>
@@ -71,8 +72,8 @@ export default function Support() {
       ))}
 
       <View style={{ flexDirection: 'row', gap: 8, marginTop: 8 }}>
-        <Btn style={{ flex: 1 }} small kind="sec" title="Foydalanish shartlari" onPress={() => router.push('/terms')} />
-        <Btn style={{ flex: 1 }} small kind="sec" title="Maxfiylik siyosati" onPress={() => router.push('/privacy')} />
+        <Btn style={{ flex: 1 }} small kind="sec" title={tr("Foydalanish shartlari")} onPress={() => router.push('/terms')} />
+        <Btn style={{ flex: 1 }} small kind="sec" title={tr("Maxfiylik siyosati")} onPress={() => router.push('/privacy')} />
       </View>
     </ScrollView>
   );

@@ -11,9 +11,10 @@ import { fetchProfiles } from '../../src/api';
 import { dayLabel, priceText, timeOnly, seenText, isOnline } from '../../src/format';
 import { Cover, FadeIn, Loading, Note } from '../../src/ui';
 import { LinearGradient } from 'expo-linear-gradient';
+import { tr } from '../../src/i18n';
 
 const Bubble = ({ colors, start, end, style, children }) => (colors ? <LinearGradient colors={colors} start={start} end={end} style={style}>{children}</LinearGradient> : <View style={style}>{children}</View>);
-const QUICK = ["Assalomu alaykum! E'loningiz hali dolzarbmi?", 'Narxi kelishiladimi?', 'Portfolio yubora olasizmi?', 'Qachon boshlay olasiz?'];
+const QUICK = [tr("Assalomu alaykum! E'loningiz hali dolzarbmi?"), tr("Narxi kelishiladimi?"), tr("Portfolio yubora olasizmi?"), tr("Qachon boshlay olasiz?")];
 
 export default function ChatScreen() {
   const { id } = useLocalSearchParams();
@@ -37,7 +38,7 @@ export default function ChatScreen() {
     (async () => {
       const { data: tr } = await supabase.from('threads').select('*, ads(id,title,photos,cat,price,cur,unit,price_from,negotiable,user_id)').eq('id', id).maybeSingle();
       if (!alive) return;
-      if (!tr) { toast('Suhbat topilmadi'); router.back(); return; }
+      if (!tr) { toast(tr("Suhbat topilmadi")); router.back(); return; }
       setTh(tr);
       setProfs(await fetchProfiles([tr.buyer_id, tr.seller_id]));
       const oth = uid === tr.buyer_id ? tr.seller_id : tr.buyer_id;
@@ -103,14 +104,14 @@ export default function ChatScreen() {
       : await supabase.from('blocks').insert({ blocked: otherId });
     if (error) { toast(errText(error)); return; }
     setBlocked(!blocked);
-    toast(blocked ? 'Blokdan chiqarildi' : 'Foydalanuvchi bloklandi. U sizga yoza olmaydi.');
+    toast(blocked ? tr("Blokdan chiqarildi") : tr("Foydalanuvchi bloklandi. U sizga yoza olmaydi."));
   };
   const reportUser = async () => {
     setMenu(false);
     const { error } = await supabase.from('reports').insert({ ad_id: th.ad_id, reason: 'offensive', note: 'Chatdagi xatti-harakat: ' + (profs[otherId]?.name || otherId) });
-    if (error && /duplicate|unique/i.test(error.message)) { toast('Siz allaqachon shikoyat qilgansiz'); return; }
+    if (error && /duplicate|unique/i.test(error.message)) { toast(tr("Siz allaqachon shikoyat qilgansiz")); return; }
     if (error) { toast(errText(error)); return; }
-    toast('Shikoyat yuborildi. 24 soat ichida tekshiramiz.');
+    toast(tr("Shikoyat yuborildi. 24 soat ichida tekshiramiz."));
   };
 
   const rows = [];
@@ -136,7 +137,7 @@ export default function ChatScreen() {
           </View>
         ),
         headerRight: member && !support ? () => (
-          <Pressable onPress={() => setMenu((v) => !v)} hitSlop={10} accessibilityLabel="Boshqa amallar" style={{ paddingHorizontal: 8 }}>
+          <Pressable onPress={() => setMenu((v) => !v)} hitSlop={10} accessibilityLabel={tr("Boshqa amallar")} style={{ paddingHorizontal: 8 }}>
             <Ionicons name="ellipsis-horizontal-circle-outline" size={24} color={t.ink} />
           </Pressable>
         ) : undefined,
@@ -144,10 +145,10 @@ export default function ChatScreen() {
       {menu ? (
         <View style={{ margin: 12, marginBottom: 0, backgroundColor: t.surface, borderWidth: 1, borderColor: t.line, borderRadius: 12, overflow: 'hidden' }}>
           <Pressable onPress={reportUser} style={{ flexDirection: 'row', gap: 10, alignItems: 'center', padding: 14, borderBottomWidth: 1, borderColor: t.line }}>
-            <Ionicons name="flag-outline" size={18} color={t.ink} /><Text style={{ color: t.ink, fontSize: 15 }}>Shikoyat qilish</Text>
+            <Ionicons name="flag-outline" size={18} color={t.ink} /><Text style={{ color: t.ink, fontSize: 15 }}>{tr("Shikoyat qilish")}</Text>
           </Pressable>
           <Pressable onPress={toggleBlock} style={{ flexDirection: 'row', gap: 10, alignItems: 'center', padding: 14 }}>
-            <Ionicons name={blocked ? 'lock-open-outline' : 'ban-outline'} size={18} color={t.danger} /><Text style={{ color: t.danger, fontSize: 15 }}>{blocked ? 'Blokdan chiqarish' : 'Foydalanuvchini bloklash'}</Text>
+            <Ionicons name={blocked ? 'lock-open-outline' : 'ban-outline'} size={18} color={t.danger} /><Text style={{ color: t.danger, fontSize: 15 }}>{blocked ? tr("Blokdan chiqarish") : tr("Foydalanuvchini bloklash")}</Text>
           </Pressable>
         </View>
       ) : null}
@@ -164,9 +165,9 @@ export default function ChatScreen() {
         </Pressable>
       ) : null}
       {support && uid === th.buyer_id ? (
-        <View style={{ paddingHorizontal: 12, paddingTop: 12 }}><Note>Mohir bozor jamoasi. Savolingizni yozing, odatda bir necha soat ichida javob beramiz.</Note></View>
+        <View style={{ paddingHorizontal: 12, paddingTop: 12 }}><Note>{tr("Mohir bozor jamoasi. Savolingizni yozing, odatda bir necha soat ichida javob beramiz.")}</Note></View>
       ) : null}
-      {!member && isAdmin ? <View style={{ paddingHorizontal: 12 }}><Note kind="gold">Siz bu suhbatni moderator sifatida faqat o'qiyapsiz.</Note></View> : null}
+      {!member && isAdmin ? <View style={{ paddingHorizontal: 12 }}><Note kind="gold">{tr("Siz bu suhbatni moderator sifatida faqat o'qiyapsiz.")}</Note></View> : null}
       <FlatList
         ref={list}
         data={rows}
@@ -188,18 +189,18 @@ export default function ChatScreen() {
                 {me && member ? (
                   m._tmp ? <Ionicons name="time-outline" size={12} color="#fff" style={{ opacity: 0.75 }} />
                     : otherReadAt && Date.parse(m.created_at) <= Date.parse(otherReadAt)
-                      ? <Ionicons name="checkmark-done" size={15} color="#fff" accessibilityLabel="O'qildi" />
-                      : <Ionicons name="checkmark" size={14} color="#fff" style={{ opacity: 0.75 }} accessibilityLabel="Yetkazildi" />
+                      ? <Ionicons name="checkmark-done" size={15} color="#fff" accessibilityLabel={tr("O'qildi")} />
+                      : <Ionicons name="checkmark" size={14} color="#fff" style={{ opacity: 0.75 }} accessibilityLabel={tr("Yetkazildi")} />
                 ) : null}
               </View>
             </Bubble>
             </FadeIn>
           );
         }}
-        ListEmptyComponent={<Text style={{ textAlign: 'center', color: t.muted, marginTop: 40 }}>{support ? 'Savolingizni yozing.' : 'Savolingizni yozing, sotuvchi javob beradi.'}</Text>}
+        ListEmptyComponent={<Text style={{ textAlign: 'center', color: t.muted, marginTop: 40 }}>{support ? tr("Savolingizni yozing.") : tr("Savolingizni yozing, sotuvchi javob beradi.")}</Text>}
       />
       {member && blocked && !support ? (
-        <View style={{ padding: 12, paddingBottom: ins.bottom + 12 }}><Note kind="bad">Siz bu foydalanuvchini bloklagansiz. Yozish uchun "…" menyusidan blokdan chiqaring.</Note></View>
+        <View style={{ padding: 12, paddingBottom: ins.bottom + 12 }}><Note kind="bad">{tr("Siz bu foydalanuvchini bloklagansiz. Yozish uchun \"…\" menyusidan blokdan chiqaring.")}</Note></View>
       ) : member ? (
         <View style={{ borderTopWidth: 1, borderColor: t.line, backgroundColor: t.surface, paddingHorizontal: 12, paddingTop: 8, paddingBottom: ins.bottom + 8 }}>
           {!msgs.length && !support ? (
@@ -212,16 +213,16 @@ export default function ChatScreen() {
             </View>
           ) : null}
           <View style={{ flexDirection: 'row', alignItems: 'flex-end', gap: 8, maxWidth: 736, width: '100%', alignSelf: 'center' }}>
-            <TextInput value={text} onChangeText={setText} placeholder="Xabar yozing…" placeholderTextColor={t.muted} multiline maxLength={2000}
+            <TextInput value={text} onChangeText={setText} placeholder={tr("Xabar yozing…")} placeholderTextColor={t.muted} multiline maxLength={2000}
               style={{ flex: 1, minHeight: 44, maxHeight: 120, borderRadius: 22, borderWidth: 0, borderColor: t.line, backgroundColor: t.chip, color: t.ink, paddingHorizontal: 14, paddingTop: 10, paddingBottom: 10, fontSize: 16 }} />
-            <Pressable onPress={() => send()} disabled={!text.trim() || sending} accessibilityLabel="Yuborish"
+            <Pressable onPress={() => send()} disabled={!text.trim() || sending} accessibilityLabel={tr("Yuborish")}
               style={({ pressed }) => ({ opacity: text.trim() ? 1 : 0.5, transform: [{ scale: pressed ? 0.9 : 1 }] })}>
               <LinearGradient colors={['#5A7BFF', '#2747D6']} style={{ width: 44, height: 44, borderRadius: 22, alignItems: 'center', justifyContent: 'center' }}>
                 <Ionicons name="send" size={19} color="#fff" style={{ marginLeft: 2 }} />
               </LinearGradient>
             </Pressable>
           </View>
-          <Text style={{ fontSize: 10, color: t.muted, textAlign: 'center', marginTop: 6 }}>Xavfsizlik uchun suhbatni ma'muriyat ko'rishi mumkin.</Text>
+          <Text style={{ fontSize: 10, color: t.muted, textAlign: 'center', marginTop: 6 }}>{tr("Xavfsizlik uchun suhbatni ma'muriyat ko'rishi mumkin.")}</Text>
         </View>
       ) : null}
     </KeyboardAvoidingView>

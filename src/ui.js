@@ -8,6 +8,7 @@ import { catOf, gradOf } from './data';
 import { LinearGradient } from 'expo-linear-gradient';
 import { adPhoto, publicUrl } from './supabase';
 import { initials, isTop, isVip, locLabel, priceText, ago } from './format';
+import { tr } from './i18n';
 
 const ND = Platform.OS !== 'web';
 
@@ -48,7 +49,7 @@ export function HeartBtn({ on, onPress, style }) {
     onPress && onPress();
   };
   return (
-    <Pressable onPress={tap} hitSlop={8} accessibilityLabel="Saralanganga qo'shish" style={[{ position: 'absolute', right: 8, top: 8, width: 34, height: 34, alignItems: 'center', justifyContent: 'center' }, style]}>
+    <Pressable onPress={tap} hitSlop={8} accessibilityLabel={tr("Saralanganga qo'shish")} style={[{ position: 'absolute', right: 8, top: 8, width: 34, height: 34, alignItems: 'center', justifyContent: 'center' }, style]}>
       {[0, 1, 2, 3, 4, 5].map((i) => {
         const ang = (i / 6) * Math.PI * 2;
         return (
@@ -173,7 +174,7 @@ export function H({ children, right, style }) {
 export function Note({ children, kind }) {
   const t = useT();
   const bg = kind === 'gold' ? t.goldSoft : kind === 'bad' ? t.dangerSoft : t.chip;
-  return <View style={{ backgroundColor: bg, borderRadius: 12, padding: 12, marginVertical: 8 }}><Text style={{ color: kind === 'bad' ? t.danger : t.ink, fontSize: 13, lineHeight: 19 }}>{children}</Text></View>;
+  return <View style={{ backgroundColor: bg, borderRadius: 12, padding: 12, marginVertical: 8 }}><Text style={{ color: kind === 'bad' ? t.danger : t.ink, fontSize: 13, lineHeight: 19 }}>{typeof children === 'string' ? tr(children) : children}</Text></View>;
 }
 
 export function Empty({ title, text, action, onAction }) {
@@ -242,8 +243,8 @@ export function AdCard({ ad, onPress, fav, onFav, width, row }) {
         {img ? <Image source={{ uri: img }} style={StyleSheet.absoluteFill} contentFit="cover" transition={300} /> : <Cover cat={ad.cat} />}
         {img ? <LinearGradient colors={['transparent', 'rgba(0,0,0,0.45)']} style={{ position: 'absolute', left: 0, right: 0, bottom: 0, height: '45%' }} /> : null}
         <View style={{ position: 'absolute', left: 8, top: 8, flexDirection: 'row', gap: 4 }}>
-          {vip ? <Badge kind="vip">★ VIP</Badge> : top ? <Badge kind="top">TOP</Badge> : null}
-          {ad.kind === 'buyurtma' ? <Badge kind="req">BUYURTMA</Badge> : null}
+          {vip ? <Badge kind="vip">{tr("★ VIP")}</Badge> : top ? <Badge kind="top">{tr("TOP")}</Badge> : null}
+          {ad.kind === 'buyurtma' ? <Badge kind="req">{tr("BUYURTMA")}</Badge> : null}
         </View>
         {ad.photos?.length > 1 ? (
           <View style={{ position: 'absolute', right: 8, bottom: 8, backgroundColor: 'rgba(0,0,0,.5)', borderRadius: 999, paddingHorizontal: 7, paddingVertical: 2, flexDirection: 'row', alignItems: 'center', gap: 3 }}>

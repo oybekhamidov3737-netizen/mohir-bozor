@@ -9,6 +9,7 @@ import { CATS, GRAD, REG_NAMES } from './data';
 import { supabase } from './supabase';
 import { fmtNum } from './format';
 import { Avatar, Press } from './ui';
+import { tr } from './i18n';
 
 const ND = Platform.OS !== 'web';
 const WORDS = ['SMMchi', 'montajchi', 'mobilograf', 'targetolog', 'dizayner', 'kopirayter', 'fotograf', 'bloger'];
@@ -28,7 +29,7 @@ function Rotator() {
   return (
     <View style={{ alignSelf: 'flex-start', backgroundColor: '#FFC43D', borderRadius: 12, paddingHorizontal: 10, paddingVertical: 2, marginVertical: 4, transform: [{ rotate: '-2deg' }] }}>
       <Animated.Text style={{ fontFamily: FONT.display, fontSize: 26, color: '#1A1405', opacity: a, transform: [{ translateY: a.interpolate({ inputRange: [0, 1], outputRange: [12, 0] }) }, { scale: a.interpolate({ inputRange: [0, 1], outputRange: [0.85, 1] }) }] }}>
-        {WORDS[i]}
+        {tr(WORDS[i])}
       </Animated.Text>
     </View>
   );
@@ -109,22 +110,22 @@ export function Hero({ stats, onPost, onRegion }) {
 
       <View style={{ flexDirection: 'row', alignItems: 'center', gap: 6, alignSelf: 'flex-start', backgroundColor: 'rgba(255,255,255,0.16)', borderRadius: 999, paddingHorizontal: 10, paddingVertical: 4, marginBottom: 10 }}>
         <View style={{ width: 7, height: 7, borderRadius: 4, backgroundColor: '#34DBA5' }} />
-        <Text style={{ color: '#fff', fontSize: 12, fontWeight: '700' }}>Ijodkorlar bozori · O'zbekiston</Text>
+        <Text style={{ color: '#fff', fontSize: 12, fontWeight: '700' }}>{tr("Ijodkorlar bozori · O'zbekiston")}</Text>
       </View>
-      <Text style={{ fontFamily: FONT.display, fontSize: 26, color: '#fff', lineHeight: 32 }}>Kerakli</Text>
+      <Text style={{ fontFamily: FONT.display, fontSize: 26, color: '#fff', lineHeight: 32 }}>{tr("Kerakli")}</Text>
       <Rotator />
-      <Text style={{ fontFamily: FONT.display, fontSize: 26, color: '#fff', lineHeight: 32 }}>shu yerda</Text>
+      <Text style={{ fontFamily: FONT.display, fontSize: 26, color: '#fff', lineHeight: 32 }}>{tr("shu yerda")}</Text>
       <Text style={{ color: 'rgba(255,255,255,0.85)', marginTop: 8, marginBottom: 16, lineHeight: 20, maxWidth: 300 }}>
-        Barcha viloyat va tumanlardagi ijodkorlar. Narxni ko'ring, ilova ichida yozing.
+        {tr("Barcha viloyat va tumanlardagi ijodkorlar. Narxni ko'ring, ilova ichida yozing.")}
       </Text>
       <View style={{ flexDirection: 'row', gap: 8, flexWrap: 'wrap' }}>
         <Press onPress={onPost} style={{ backgroundColor: '#fff', borderRadius: 14, paddingHorizontal: 16, height: 44, flexDirection: 'row', alignItems: 'center', gap: 6 }}>
           <Ionicons name="add-circle" size={18} color="#2747D6" />
-          <Text style={{ color: '#2747D6', fontWeight: '800' }}>E'lon joylash</Text>
+          <Text style={{ color: '#2747D6', fontWeight: '800' }}>{tr("E'lon joylash")}</Text>
         </Press>
         <Press onPress={onRegion} style={{ backgroundColor: 'rgba(255,255,255,0.16)', borderRadius: 14, paddingHorizontal: 16, height: 44, flexDirection: 'row', alignItems: 'center', gap: 6 }}>
           <Ionicons name="location" size={16} color="#fff" />
-          <Text style={{ color: '#fff', fontWeight: '700' }}>Hudud</Text>
+          <Text style={{ color: '#fff', fontWeight: '700' }}>{tr("Hudud")}</Text>
         </Press>
       </View>
 
@@ -154,7 +155,7 @@ export function CatRow({ counts, onPick }) {
             </View>
             <View>
               <Text style={{ color: '#fff', fontWeight: '800', fontSize: 12.5 }} numberOfLines={2}>{c.n}</Text>
-              <Text style={{ color: 'rgba(255,255,255,0.8)', fontSize: 11, fontWeight: '600' }}>{counts[c.id] ? `${counts[c.id]} ta e'lon` : 'Yangi'}</Text>
+              <Text style={{ color: 'rgba(255,255,255,0.8)', fontSize: 11, fontWeight: '600' }}>{counts[c.id] ? tr("{0} ta e'lon", counts[c.id]) : tr("Yangi")}</Text>
             </View>
           </LinearGradient>
         </Press>
@@ -166,9 +167,9 @@ export function CatRow({ counts, onPick }) {
 export function HowItWorks() {
   const t = useT();
   const steps = [
-    ['search', 'Toping', "Kategoriya va hudud bo'yicha ijodkorni tanlang"],
-    ['chatbubbles', 'Yozing', 'Ilova ichidagi chatda narx va muddatni kelishing'],
-    ['rocket', 'Natija', "Ishni oling, keyingi safar yana shu yerdan toping"],
+    ['search', tr("Toping"), tr("Kategoriya va hudud bo'yicha ijodkorni tanlang")],
+    ['chatbubbles', tr("Yozing"), tr("Ilova ichidagi chatda narx va muddatni kelishing")],
+    ['rocket', tr("Natija"), tr("Ishni oling, keyingi safar yana shu yerdan toping")],
   ];
   return (
     <View style={{ flexDirection: 'row', gap: 8 }}>
@@ -201,7 +202,7 @@ export function TopCreators({ people, onOpen }) {
             </View>
           </LinearGradient>
           <Text style={{ color: t.ink, fontSize: 12, fontWeight: '700', textAlign: 'center' }} numberOfLines={1}>{(p.name || '').split(' ')[0]}</Text>
-          <Text style={{ color: t.muted, fontSize: 10.5, marginTop: -4 }} numberOfLines={1}>{p.n} ta e'lon</Text>
+          <Text style={{ color: t.muted, fontSize: 10.5, marginTop: -4 }} numberOfLines={1}>{p.n} {tr("ta e'lon")}</Text>
         </Pressable>
       ))}
     </ScrollView>
@@ -285,7 +286,7 @@ export function StatStrip({ stats }) {
   const t = useT();
   return (
     <View style={{ flexDirection: 'row', backgroundColor: t.surface, borderRadius: 18, paddingVertical: 12, marginTop: 12 }}>
-      {[[stats.ads, "faol e'lon", 'megaphone', '#2747D6'], [stats.users, 'ijodkor', 'people', '#0C9A6A'], [12, 'viloyat', 'map', '#F0532E']].map(([v, l, ic, c], k) => (
+      {[[stats.ads, tr("faol e'lon"), 'megaphone', '#2747D6'], [stats.users, 'ijodkor', 'people', '#0C9A6A'], [12, 'viloyat', 'map', '#F0532E']].map(([v, l, ic, c], k) => (
         <View key={l} style={{ flex: 1, flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: 8, borderLeftWidth: k ? 1 : 0, borderColor: t.line }}>
           <Ionicons name={ic} size={18} color={c} />
           <View>

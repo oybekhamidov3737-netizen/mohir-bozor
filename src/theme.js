@@ -28,7 +28,7 @@ export const ACCENTS = {
   pink:   { name: 'Pushti',     light: ['#C2185B', '#FFFFFF', '#FCE1EC'], dark: ['#FF7EB2', '#0E1311', '#4A1A2E'] },
   teal:   { name: 'Feruza',     light: ['#00838F', '#FFFFFF', '#D8F3F5'], dark: ['#4DD6E0', '#0E1311', '#0F3A3E'] },
 };
-export const MODES = [['system', 'Tizim'], ['light', 'Kunduzgi'], ['dark', 'Tungi']];
+export const MODES = [['system', 'Tizim'], ['light', 'Kunduzgi'], ['dark', 'Tungi']]; // nomlari tr() orqali ko'rsatiladi
 
 function build(isDark, accent) {
   const b = isDark ? base.dark : base.light;

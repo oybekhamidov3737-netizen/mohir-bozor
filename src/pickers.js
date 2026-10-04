@@ -5,6 +5,7 @@ import { Ionicons } from '@expo/vector-icons';
 import { useT, FONT } from './theme';
 import { ONLINE, REGIONS, REG_NAMES } from './data';
 import { shortReg } from './format';
+import { tr } from './i18n';
 
 function Sheet({ visible, onClose, title, onBack, children }) {
   const t = useT();
@@ -16,7 +17,7 @@ function Sheet({ visible, onClose, title, onBack, children }) {
           <View style={{ flexDirection: 'row', alignItems: 'center', padding: 14, gap: 10 }}>
             {onBack ? <Pressable onPress={onBack} hitSlop={10}><Ionicons name="chevron-back" size={24} color={t.ink} /></Pressable> : null}
             <Text style={{ flex: 1, fontFamily: FONT.displayM, fontSize: 16, color: t.ink }} numberOfLines={1}>{title}</Text>
-            <Pressable onPress={onClose} hitSlop={10} accessibilityLabel="Yopish"><Ionicons name="close" size={24} color={t.ink} /></Pressable>
+            <Pressable onPress={onClose} hitSlop={10} accessibilityLabel={tr("Yopish")}><Ionicons name="close" size={24} color={t.ink} /></Pressable>
           </View>
           {children}
         </View>
@@ -43,12 +44,12 @@ export function RegionPicker({ visible, onClose, onPick, allowAll, allowOnline =
   const pick = (r, d) => { setReg(null); onPick(r, d); };
   if (!reg) {
     const items = [
-      ...(allowAll ? [{ k: '__all', title: "Butun O'zbekiston" }] : []),
-      ...(allowOnline ? [{ k: ONLINE, title: "Onlayn (masofadan)" }] : []),
-      ...REG_NAMES.map((r) => ({ k: r, title: r, chevron: true })),
+      ...(allowAll ? [{ k: '__all', title: tr("Butun O'zbekiston") }] : []),
+      ...(allowOnline ? [{ k: ONLINE, title: tr("Onlayn (masofadan)") }] : []),
+      ...REG_NAMES.map((r) => ({ k: r, title: tr(r), chevron: true })),
     ];
     return (
-      <Sheet visible={visible} onClose={close} title="Hududni tanlang">
+      <Sheet visible={visible} onClose={close} title={tr("Hududni tanlang")}>
         <FlatList data={items} keyExtractor={(i) => i.k} renderItem={({ item }) => (
           <Row title={item.title} chevron={item.chevron} selected={current?.region === item.k || (item.k === '__all' && !current?.region)}
             onPress={() => item.k === '__all' ? pick('', '') : item.k === ONLINE ? pick(ONLINE, '') : setReg(item.k)} />
@@ -57,9 +58,9 @@ export function RegionPicker({ visible, onClose, onPick, allowAll, allowOnline =
     );
   }
   return (
-    <Sheet visible={visible} onClose={close} title={reg} onBack={() => setReg(null)}>
+    <Sheet visible={visible} onClose={close} title={tr(reg)} onBack={() => setReg(null)}>
       <FlatList data={['', ...REGIONS[reg]]} keyExtractor={(i) => i || '__whole'} renderItem={({ item }) => (
-        <Row title={item || `Butun ${shortReg(reg)}`} selected={current?.region === reg && (current?.district || '') === item} onPress={() => pick(reg, item)} />
+        <Row title={item || tr("Butun {0}", shortReg(reg))} selected={current?.region === reg && (current?.district || '') === item} onPress={() => pick(reg, item)} />
       )} />
     </Sheet>
   );
