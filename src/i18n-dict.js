@@ -3367,5 +3367,81 @@ export default {
 "Baho qo'yish uchun avval suhbatlashing": [
 "Чтобы оценить, сначала пообщайтесь в чате",
 "Chat first before leaving a rating"
+],
+"Shartlar, maxfiylik, aloqa": [
+"Условия, конфиденциальность, контакты",
+"Terms, privacy, contacts"
+],
+"faol": [
+"активных",
+"active"
+],
+"tugagan": [
+"завершено",
+"finished"
+],
+"baho yo'q": [
+"нет оценок",
+"no ratings"
+],
+"Balans": [
+"Баланс",
+"Balance"
+],
+"shundan bonus: {0}": [
+"из них бонус: {0}",
+"incl. bonus: {0}"
+],
+"To'ldirish": [
+"Пополнить",
+"Top up"
+],
+"{0} ta xizmat to'lov kutmoqda": [
+"Услуг ожидают оплаты: {0}",
+"{0} services awaiting payment"
+],
+"E'lonlarim": [
+"Мои объявления",
+"My listings"
+],
+"Faol, tugagan va arxiv": [
+"Активные, завершённые и архив",
+"Active, finished and archive"
+],
+"Takliflar": [
+"Предложения",
+"Offers"
+],
+"Buyurtmalaringizga yozganlar": [
+"Откликнулись на ваши заказы",
+"Responses to your requests"
+],
+"Siz uchun": [
+"Для вас",
+"For you"
+],
+"Yo'nalishingizga mos buyurtmalar": [
+"Заказы по вашему направлению",
+"Requests in your field"
+],
+"Murojaatlarim": [
+"Мои отклики",
+"My applications"
+],
+"Ijodkor sifatida": [
+"Как специалист",
+"As a creator"
+],
+"Ochiq profilim": [
+"Мой публичный профиль",
+"My public profile"
+],
+"Mijozlar ko'radigan sahifa: e'lonlar va baholar": [
+"Страница для клиентов: объявления и оценки",
+"Page clients see: listings and ratings"
+],
+"TOP, VIP, ko'tarish va to'ldirishlar": [
+"TOP, VIP, поднятия и пополнения",
+"TOP, VIP, bumps and top-ups"
 ]
 };

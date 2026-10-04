@@ -8,6 +8,7 @@ import { BUILD_ID } from '../src/updater';
 import { MenuGroup } from '../src/ui';
 import { WEB_URL } from '../src/config';
 import { tr } from '../src/i18n';
+import { PAYMENTS_IN_APP } from '../src/pay';
 
 export default function About() {
   const t = useT();
@@ -28,6 +29,7 @@ export default function About() {
         { icon: 'globe', title: tr('Sayt'), sub: WEB_URL.replace('https://', ''), color: '#2747D6', onPress: () => Linking.openURL(WEB_URL).catch(() => {}) },
         { icon: 'reader', title: tr('Foydalanish shartlari'), color: '#6A3FE0', onPress: () => router.push('/terms') },
         { icon: 'lock-closed', title: tr('Maxfiylik siyosati'), color: '#F08A00', onPress: () => router.push('/privacy') },
+        PAYMENTS_IN_APP ? { icon: 'receipt', title: tr('Ommaviy oferta'), color: '#D8246C', onPress: () => router.push('/offer') } : null,
       ]} />
       <Text style={{ color: t.muted, fontSize: 12, textAlign: 'center' }}>© 2026 Mohir bozor · Buxoro</Text>
     </ScrollView>

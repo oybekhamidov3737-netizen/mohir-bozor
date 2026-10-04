@@ -92,15 +92,12 @@ export default function Cabinet() {
 
   const others = (
     <>
-      <H>{tr("Sozlamalar va boshqalar")}</H>
+      <H>{tr("Boshqa")}</H>
       <MenuGroup items={[
         { icon: 'settings', title: tr("Sozlamalar"), sub: tr("Til, ko'rinish, hisob"), color: '#5C6862', onPress: () => router.push('/settings') },
         { icon: 'help-buoy', title: tr("Yordam"), sub: config.support_phone || '+998 91 001 88 18', color: '#0C9A6A', onPress: () => router.push('/support') },
         { icon: 'chatbubble-ellipses', title: tr("Teskari aloqa"), color: '#F08A00', onPress: () => router.push('/feedback') },
-        { icon: 'reader', title: tr("Shartlar va qoidalar"), color: '#6A3FE0', onPress: () => router.push('/terms') },
-        { icon: 'lock-closed', title: tr("Maxfiylik siyosati"), color: '#2747D6', onPress: () => router.push('/privacy') },
-        PAYMENTS_IN_APP ? { icon: 'receipt', title: tr("Ommaviy oferta"), color: '#D8246C', onPress: () => router.push('/offer') } : null,
-        { icon: 'information-circle', title: tr("Ilova haqida"), color: '#0C6E9A', onPress: () => router.push('/about') },
+        { icon: 'information-circle', title: tr("Ilova haqida"), sub: tr("Shartlar, maxfiylik, aloqa"), color: '#2747D6', onPress: () => router.push('/about') },
       ]} />
       <Text style={{ color: t.muted, fontSize: 11, textAlign: 'center', marginTop: 14, opacity: 0.7 }}>{tr("Versiya")}{' '}{BUILD_ID || '—'}</Text>
     </>
@@ -108,7 +105,7 @@ export default function Cabinet() {
 
   if (!session) return wrap(
     <>
-      <Text style={{ fontFamily: FONT.display, fontSize: 24, color: t.ink }}>{tr("Profilim")}</Text>
+      <Text style={{ fontFamily: FONT.display, fontSize: 24, color: t.ink }}>{tr("Kabinet")}</Text>
       <Onboard onOpen={() => router.push('/login')} />
       {others}
     </>
@@ -116,53 +113,87 @@ export default function Cabinet() {
   if (profile === undefined) return wrap(<Loading />);
   if (profile === null) return wrap(<><Onboard onOpen={() => router.push('/profile')} />{others}</>);
 
-  const first = String(profile.name || '').split(' ')[0];
   const bal = c.bal ? Number(c.bal.balance || 0) : 0;
   const bon = c.bal ? Number(c.bal.bonus || 0) : 0;
-  const paid = PAYMENTS_IN_APP || isAdmin;
-  const cta = (colors, icon, title, onPress, tint) => (
-    <Press onPress={onPress} style={{ marginTop: 10 }}>
-      <LinearGradient colors={colors} start={{ x: 0, y: 0 }} end={{ x: 1, y: 1 }} style={{ height: 64, borderRadius: 18, flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: 10, overflow: 'hidden' }}>
-        <View pointerEvents="none" style={{ position: 'absolute', left: -18, top: -18, width: 70, height: 70, borderRadius: 35, backgroundColor: 'rgba(255,255,255,0.25)' }} />
-        <View pointerEvents="none" style={{ position: 'absolute', right: -14, bottom: -24, width: 80, height: 80, borderRadius: 40, backgroundColor: 'rgba(255,255,255,0.18)' }} />
-        <Ionicons name={icon} size={24} color={tint} />
-        <Text style={{ fontFamily: FONT.display, fontSize: 18, color: tint }}>{title}</Text>
-      </LinearGradient>
+  const loc = profile.region ? (profile.region === ONLINE ? tr('Onlayn') : profile.district || shortReg(profile.region)) : '';
+  const tile = (colors, icon, title, sub, onPress, badge) => (
+    <Press key={title} onPress={onPress} style={{ width: '48.5%' }}>
+      <View style={{ backgroundColor: t.surface, borderRadius: 22, padding: 14, gap: 10, minHeight: 118 }}>
+        <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'flex-start' }}>
+          <LinearGradient colors={colors} start={{ x: 0, y: 0 }} end={{ x: 1, y: 1 }} style={{ width: 44, height: 44, borderRadius: 15, alignItems: 'center', justifyContent: 'center' }}>
+            <Ionicons name={icon} size={22} color="#fff" />
+          </LinearGradient>
+          {badge ? <View style={{ minWidth: 26, height: 26, borderRadius: 13, paddingHorizontal: 7, backgroundColor: t.accentSoft, alignItems: 'center', justifyContent: 'center' }}><Text style={{ color: t.accent, fontWeight: '900', fontSize: 13 }}>{badge}</Text></View> : null}
+        </View>
+        <View>
+          <Text style={{ color: t.ink, fontWeight: '800', fontSize: 15 }} numberOfLines={1}>{title}</Text>
+          <Text style={{ color: t.muted, fontSize: 12, marginTop: 2 }} numberOfLines={2}>{sub}</Text>
+        </View>
+      </View>
     </Press>
   );
-  const count = (n) => (n ? String(n) : undefined);
 
   return wrap(
     <>
-      <LinearGradient colors={t.dark ? ['#1B2140', '#121733'] : ['#4A6CFF', '#2747D6', '#1631B8']} start={{ x: 0, y: 0 }} end={{ x: 1, y: 1 }} style={{ borderRadius: 26, padding: 18, overflow: 'hidden' }}>
-        <View pointerEvents="none" style={{ position: 'absolute', right: -60, top: -60, width: 200, height: 200, borderRadius: 100, backgroundColor: 'rgba(52,219,165,0.35)' }} />
-        <View style={{ flexDirection: 'row', alignItems: 'flex-start', justifyContent: 'space-between' }}>
-          <View style={{ padding: 3, borderRadius: 30, backgroundColor: 'rgba(255,255,255,0.35)' }}><Avatar profile={profile} size={80} /></View>
-          <Press onPress={() => router.push('/profile')} accessibilityLabel={tr("Profilni tahrirlash")} style={{ paddingHorizontal: 14, height: 38, borderRadius: 19, backgroundColor: 'rgba(0,0,0,0.25)', flexDirection: 'row', alignItems: 'center', gap: 6 }}>
-            <Ionicons name="create-outline" size={16} color="#fff" />
-            <Text style={{ color: '#fff', fontWeight: '800', fontSize: 12.5, letterSpacing: 0.5 }}>{tr("TAHRIRLASH")}</Text>
+      {/* Sarlavha: o'zimizning gradient karta */}
+      <LinearGradient colors={['#4A6CFF', '#2747D6', '#1631B8']} start={{ x: 0, y: 0 }} end={{ x: 1, y: 1 }} style={{ borderRadius: 28, padding: 18, overflow: 'hidden' }}>
+        <View pointerEvents="none" style={{ position: 'absolute', right: -50, top: -50, width: 180, height: 180, borderRadius: 90, backgroundColor: 'rgba(255,255,255,0.1)' }} />
+        <View pointerEvents="none" style={{ position: 'absolute', left: -30, bottom: -70, width: 160, height: 160, borderRadius: 80, backgroundColor: 'rgba(255,196,61,0.18)' }} />
+        <View style={{ flexDirection: 'row', gap: 14, alignItems: 'center' }}>
+          <Pressable onPress={() => router.push(`/u/${uid}`)} style={{ padding: 3, borderRadius: 24, backgroundColor: 'rgba(255,255,255,0.35)' }}><Avatar profile={profile} size={66} /></Pressable>
+          <View style={{ flex: 1, gap: 3 }}>
+            <Text style={{ fontFamily: FONT.display, fontSize: 19, color: '#fff' }} numberOfLines={1}>{profile.name}</Text>
+            <Text style={{ fontSize: 13, color: 'rgba(255,255,255,0.85)' }} numberOfLines={1}>{[profile.cat ? catOf(profile.cat).n : tr('Buyurtmachi'), loc].filter(Boolean).join(' · ')}</Text>
+            <Pressable onPress={() => { copyText(String(profile.public_id)); toast(tr("ID nusxalandi: ") + profile.public_id); }} accessibilityLabel={tr("ID ni nusxalash")}
+              style={{ flexDirection: 'row', alignItems: 'center', gap: 5, alignSelf: 'flex-start', backgroundColor: 'rgba(255,255,255,0.2)', borderRadius: 999, paddingHorizontal: 9, paddingVertical: 3, marginTop: 2 }}>
+              <Text style={{ color: '#fff', fontSize: 12, fontWeight: '800', letterSpacing: 0.5 }}>ID {profile.public_id}</Text>
+              <Ionicons name="copy-outline" size={12} color="#fff" />
+            </Pressable>
+          </View>
+          <Press onPress={() => router.push('/profile')} accessibilityLabel={tr("Profilni tahrirlash")} style={{ width: 40, height: 40, borderRadius: 14, backgroundColor: 'rgba(255,255,255,0.2)', alignItems: 'center', justifyContent: 'center' }}>
+            <Ionicons name="create-outline" size={20} color="#fff" />
           </Press>
         </View>
-        <Text style={{ fontFamily: FONT.display, fontSize: 26, color: '#fff', marginTop: 12 }} numberOfLines={1}>{tr("Salom, {0}!", first)}</Text>
-        <Pressable onPress={() => { copyText(String(profile.public_id)); toast(tr("ID nusxalandi: ") + profile.public_id); }} accessibilityLabel={tr("ID ni nusxalash")} style={{ flexDirection: 'row', alignItems: 'center', gap: 5, marginTop: 2 }}>
-          <Text style={{ color: 'rgba(255,255,255,0.75)', fontSize: 13, fontWeight: '600' }}>ID: {profile.public_id}</Text>
-          <Ionicons name="copy-outline" size={12} color="rgba(255,255,255,0.75)" />
-        </Pressable>
-        {profile.rating_count ? <Text style={{ color: '#FFC43D', fontWeight: '800', marginTop: 4 }}>★ {Number(profile.rating).toFixed(1)} <Text style={{ color: 'rgba(255,255,255,0.75)', fontWeight: '600' }}>· {tr('{0} ta baho', profile.rating_count)}</Text></Text> : null}
-        {PAYMENTS_IN_APP ? (
-          <Pressable onPress={() => router.push('/wallet')} style={{ marginTop: 12, backgroundColor: 'rgba(0,0,0,0.18)', borderRadius: 16, padding: 12, flexDirection: 'row', alignItems: 'center', gap: 10 }}>
-            <Ionicons name="wallet" size={22} color="#fff" />
-            <View style={{ flex: 1 }}>
-              <Text style={{ color: '#fff', fontSize: 13 }}>{tr("Hamyoningizda:")} <Text style={{ fontWeight: '900' }}>{fmtNum(bal)} {tr("so'm")}</Text></Text>
-              <Text style={{ color: 'rgba(255,255,255,0.75)', fontSize: 12.5 }}>{tr("Bonuslar:")} {fmtNum(bon)} {tr("so'm")}</Text>
-            </View>
-            <Ionicons name="chevron-forward" size={18} color="#fff" />
-          </Pressable>
-        ) : null}
+        <View style={{ flexDirection: 'row', marginTop: 16, backgroundColor: 'rgba(0,0,0,0.16)', borderRadius: 18, paddingVertical: 10 }}>
+          {[
+            [String(c.live), tr('faol'), () => router.push({ pathname: '/my-ads', params: { tab: 'live' } })],
+            [String(c.done), tr('tugagan'), () => router.push({ pathname: '/my-ads', params: { tab: 'done' } })],
+            [profile.rating_count ? '★ ' + Number(profile.rating).toFixed(1) : '—', profile.rating_count ? tr('{0} ta baho', profile.rating_count) : tr('baho yo\'q'), () => router.push({ pathname: `/u/${uid}`, params: { tab: 'reviews' } })],
+          ].map(([v, l, go], i) => (
+            <Pressable key={i} onPress={go} style={{ flex: 1, alignItems: 'center', borderLeftWidth: i ? 1 : 0, borderColor: 'rgba(255,255,255,0.15)' }}>
+              <Text style={{ fontFamily: FONT.display, fontSize: 18, color: i === 2 && profile.rating_count ? '#FFC43D' : '#fff' }}>{v}</Text>
+              <Text style={{ color: 'rgba(255,255,255,0.75)', fontSize: 11.5, fontWeight: '600' }}>{l}</Text>
+            </Pressable>
+          ))}
+        </View>
       </LinearGradient>
 
-      {cta(['#FFF59D', '#FFE066'], 'add-circle', tr("E'lon joylashtirish"), () => router.push('/post'), '#3A2E00')}
-      {paid ? cta(['#B9F6E4', '#7FE7CC'], 'albums', tr("To'plam sotib olish"), () => router.push('/promo/slots'), '#0B3B2E') : null}
+      {PAYMENTS_IN_APP ? (
+        <View style={{ marginTop: 12, backgroundColor: t.surface, borderRadius: 22, padding: 14, flexDirection: 'row', alignItems: 'center', gap: 12 }}>
+          <LinearGradient colors={['#34DBA5', '#0C9A6A']} style={{ width: 44, height: 44, borderRadius: 15, alignItems: 'center', justifyContent: 'center' }}><Ionicons name="wallet" size={22} color="#fff" /></LinearGradient>
+          <Pressable onPress={() => router.push('/wallet')} style={{ flex: 1 }}>
+            <Text style={{ color: t.muted, fontSize: 12, fontWeight: '700' }}>{tr('Balans')}</Text>
+            <Text style={{ color: t.ink, fontFamily: FONT.display, fontSize: 18 }}>{fmtNum(bal + bon)} {tr("so'm")}</Text>
+            {bon ? <Text style={{ color: t.muted, fontSize: 11.5 }}>{tr('shundan bonus: {0}', fmtNum(bon))}</Text> : null}
+          </Pressable>
+          <Btn small title={tr("To'ldirish")} icon="add" onPress={() => router.push('/topup')} />
+        </View>
+      ) : null}
+
+      {c.unpaid ? (
+        <Pressable onPress={() => router.push({ pathname: '/my-ads', params: { tab: 'unpaid' } })} style={{ marginTop: 12, backgroundColor: t.goldSoft, borderRadius: 18, padding: 12, flexDirection: 'row', alignItems: 'center', gap: 10 }}>
+          <Ionicons name="time" size={20} color={t.gold} />
+          <Text style={{ color: t.ink, flex: 1, fontWeight: '600' }}>{tr("{0} ta xizmat to'lov kutmoqda", c.unpaid)}</Text>
+          <Ionicons name="chevron-forward" size={18} color={t.gold} />
+        </Pressable>
+      ) : null}
+
+      <Press onPress={() => router.push('/post')} style={{ marginTop: 12 }}>
+        <LinearGradient colors={['#FFB347', '#FF5E8A', '#7B5CFF']} start={{ x: 0, y: 0 }} end={{ x: 1, y: 1 }} style={{ height: 60, borderRadius: 20, flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: 10 }}>
+          <Ionicons name="add-circle" size={24} color="#fff" />
+          <Text style={{ fontFamily: FONT.display, fontSize: 17, color: '#fff' }}>{tr("E'lon joylash")}</Text>
+        </LinearGradient>
+      </Press>
 
       {mfaNeed ? <MfaChallenge onDone={recheckMfa} /> : null}
       {isAdmin ? <Btn style={{ marginTop: 12 }} kind="gold" icon="speedometer-outline" title={tr("Boshqaruv paneli (to'lovlar, e'lonlar, suhbatlar)")} onPress={() => router.push('/admin')} /> : null}
@@ -174,54 +205,18 @@ export default function Cabinet() {
         </View>
       ) : null}
 
-      <H>{tr("Sizning e'lonlaringiz")}</H>
+      <View style={{ flexDirection: 'row', flexWrap: 'wrap', justifyContent: 'space-between', rowGap: 10, marginTop: 16 }}>
+        {tile(['#6A8BFF', '#2D46E0'], 'albums', tr("E'lonlarim"), tr('Faol, tugagan va arxiv'), () => router.push('/my-ads'), c.live || null)}
+        {tile(['#AE8CFF', '#6A3FE0'], 'mail-open', tr('Takliflar'), tr('Buyurtmalaringizga yozganlar'), () => router.push({ pathname: '/offers', params: { mode: 'offers' } }), c.offers || null)}
+        {tile(['#34DBA5', '#0C9A6A'], 'sparkles', tr('Siz uchun'), tr("Yo'nalishingizga mos buyurtmalar"), () => router.push('/jobs'))}
+        {tile(['#FFA155', '#F0532E'], 'paper-plane', tr('Murojaatlarim'), tr('Siz yozgan buyurtmalar'), () => router.push({ pathname: '/offers', params: { mode: 'applications' } }), c.apps || null)}
+      </View>
+
+      <H>{tr('Ijodkor sifatida')}</H>
       <MenuGroup items={[
-        { icon: 'megaphone', title: tr("Faol e'lonlar"), right: count(c.live), color: '#2747D6', onPress: () => router.push({ pathname: '/my-ads', params: { tab: 'live' } }) },
-        paid || c.unpaid ? { icon: 'card', title: tr("To'lanmagan"), sub: tr("Faollashtirish uchun xizmat narxini to'lang"), right: count(c.unpaid), color: '#F08A00', onPress: () => router.push({ pathname: '/my-ads', params: { tab: 'unpaid' } }) } : null,
-        { icon: 'archive', title: tr("Yakunlangan e'lonlar"), right: count(c.done), color: '#5C6862', onPress: () => router.push({ pathname: '/my-ads', params: { tab: 'done' } }) },
-      ]} />
-
-      <H>{tr("Buyurtmachi paneli")}</H>
-      <MenuGroup items={[
-        { icon: 'mail-open', title: tr("Takliflar ro'yxati"), sub: tr("Buyurtmalaringizga yozgan ijodkorlar"), right: count(c.offers), color: '#6A3FE0', onPress: () => router.push({ pathname: '/offers', params: { mode: 'offers' } }) },
-      ]} />
-
-      <H>{tr("Chat")}</H>
-      <MenuGroup items={[
-        { icon: 'chatbubbles', title: tr("Aktiv suhbatlar"), color: '#0C9A6A', onPress: () => router.push('/chats') },
-        { icon: 'file-tray-full', title: tr("Quti"), sub: tr("Mohir bozor jamoasidan xabarlar"), color: '#0C6E9A', onPress: openInbox },
-      ]} />
-
-      {paid ? (
-        <>
-          <H>{tr("To'lovlar")}</H>
-          <MenuGroup items={[
-            { icon: 'wallet', title: tr("Mohir hisob"), sub: tr("Balans, to'ldirish va bonuslar"), color: '#2747D6', onPress: () => router.push('/wallet') },
-            { icon: 'time', title: tr("To'lovlar tarixi"), color: '#5C6862', onPress: () => router.push('/orders') },
-          ]} />
-        </>
-      ) : null}
-
-      <H>{tr("Reyting")}</H>
-      <MenuGroup items={[
-        { icon: 'star', title: tr("Olingan baholar"), right: profile.rating_count ? '★ ' + Number(profile.rating).toFixed(1) + ' (' + profile.rating_count + ')' : undefined, color: '#F5A623', onPress: () => router.push({ pathname: `/u/${uid}`, params: { tab: 'reviews' } }) },
-      ]} />
-
-      {paid ? (
-        <>
-          <H>{tr("Mening biznesim")}</H>
-          <MenuGroup items={[
-            { icon: 'bag-check', title: tr("Sotib olingan to'plamlar"), sub: tr("TOP, VIP, ko'tarish va qo'shimcha joylar"), color: '#D8246C', onPress: () => router.push({ pathname: '/orders', params: { filter: 'packages' } }) },
-          ]} />
-        </>
-      ) : null}
-
-      <H>{tr("Ijodkor profili")}</H>
-      <MenuGroup items={[
-        { icon: 'sparkles', title: tr("Siz uchun buyurtmalar"), sub: tr("Yo'nalishingizga mos mijoz buyurtmalari"), color: '#0C9A6A', onPress: () => router.push('/jobs') },
-        { icon: 'person-circle', title: tr("Ijodkor profilim"), sub: tr("Mijozlar ko'radigan ochiq sahifa"), color: '#2747D6', onPress: () => router.push(`/u/${uid}`) },
+        { icon: 'person-circle', title: tr("Ochiq profilim"), sub: tr("Mijozlar ko'radigan sahifa: e'lonlar va baholar"), color: '#2747D6', onPress: () => router.push(`/u/${uid}`) },
         { icon: 'options', title: tr("Istagan ishim"), sub: profile.pref_cats?.length ? tr("{0} ta yo'nalish tanlangan", profile.pref_cats.length) : tr("Yo'nalish va hududni tanlang"), color: '#6A3FE0', onPress: () => router.push('/prefs') },
-        { icon: 'paper-plane', title: tr("Mening murojaatlarim"), sub: tr("Siz yozgan buyurtmalar"), right: count(c.apps), color: '#F08A00', onPress: () => router.push({ pathname: '/offers', params: { mode: 'applications' } }) },
+        PAYMENTS_IN_APP ? { icon: 'receipt', title: tr("To'lovlar tarixi"), sub: tr("TOP, VIP, ko'tarish va to'ldirishlar"), color: '#D8246C', onPress: () => router.push('/orders') } : null,
       ]} />
 
       {others}
