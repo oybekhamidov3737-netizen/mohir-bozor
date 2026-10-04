@@ -10,6 +10,7 @@ import { supabase, adPhoto, errText } from '../../src/supabase';
 import { fetchProfiles } from '../../src/api';
 import { dayLabel, priceText, timeOnly, seenText, isOnline } from '../../src/format';
 import { Cover, FadeIn, Loading, Note } from '../../src/ui';
+import { Stars } from '../../src/lists';
 import { LinearGradient } from 'expo-linear-gradient';
 import { tr } from '../../src/i18n';
 
@@ -30,6 +31,28 @@ export default function ChatScreen() {
   const [sending, setSending] = useState(false);
   const list = useRef(null);
   const [menu, setMenu] = useState(false);
+  const [rateOpen, setRateOpen] = useState(false);
+  const [myReview, setMyReview] = useState(null);
+  const [stars, setStars] = useState(0);
+  const [rText, setRText] = useState('');
+  const [rBusy, setRBusy] = useState(false);
+  useEffect(() => {
+    if (!uid) return;
+    supabase.from('reviews').select('*').eq('thread_id', id).eq('author_id', uid).maybeSingle().then(({ data }) => {
+      if (data) { setMyReview(data); setStars(data.stars); setRText(data.body || ''); }
+    });
+  }, [id, uid]);
+  const saveReview = async () => {
+    if (!stars) { toast(tr('Yulduzchani tanlang')); return; }
+    setRBusy(true);
+    const row = { thread_id: id, stars, body: rText.trim().slice(0, 500) };
+    const { data, error } = myReview
+      ? await supabase.from('reviews').update({ stars: row.stars, body: row.body }).eq('id', myReview.id).select().single()
+      : await supabase.from('reviews').insert(row).select().single();
+    setRBusy(false);
+    if (error) { toast(errText(error)); return; }
+    setMyReview(data); setRateOpen(false); toast(tr('Rahmat! Bahoyingiz saqlandi'));
+  };
   const [blocked, setBlocked] = useState(false);
 
   const markRead = useCallback(() => { supabase.rpc('mark_read', { p_thread: id }).then(() => loadUnread()); }, [id, loadUnread]);
@@ -145,12 +168,30 @@ export default function ChatScreen() {
       }} />
       {menu ? (
         <View style={{ margin: 12, marginBottom: 0, backgroundColor: t.surface, borderWidth: 1, borderColor: t.line, borderRadius: 12, overflow: 'hidden' }}>
+          <Pressable onPress={() => { setMenu(false); router.push(`/u/${otherId}`); }} style={{ flexDirection: 'row', gap: 10, alignItems: 'center', padding: 14, borderBottomWidth: 1, borderColor: t.line }}>
+            <Ionicons name="person-circle-outline" size={18} color={t.ink} /><Text style={{ color: t.ink, fontSize: 15 }}>{tr('Profilini ko\'rish')}</Text>
+          </Pressable>
+          <Pressable onPress={() => { setMenu(false); setRateOpen(true); }} style={{ flexDirection: 'row', gap: 10, alignItems: 'center', padding: 14, borderBottomWidth: 1, borderColor: t.line }}>
+            <Ionicons name="star-outline" size={18} color="#F5A623" /><Text style={{ color: t.ink, fontSize: 15 }}>{myReview ? tr('Bahoni o\'zgartirish') : tr('Baho qoldirish')}</Text>
+          </Pressable>
           <Pressable onPress={reportUser} style={{ flexDirection: 'row', gap: 10, alignItems: 'center', padding: 14, borderBottomWidth: 1, borderColor: t.line }}>
             <Ionicons name="flag-outline" size={18} color={t.ink} /><Text style={{ color: t.ink, fontSize: 15 }}>{tr("Shikoyat qilish")}</Text>
           </Pressable>
           <Pressable onPress={toggleBlock} style={{ flexDirection: 'row', gap: 10, alignItems: 'center', padding: 14 }}>
             <Ionicons name={blocked ? 'lock-open-outline' : 'ban-outline'} size={18} color={t.danger} /><Text style={{ color: t.danger, fontSize: 15 }}>{blocked ? tr("Blokdan chiqarish") : tr("Foydalanuvchini bloklash")}</Text>
           </Pressable>
+        </View>
+      ) : null}
+      {rateOpen ? (
+        <View style={{ margin: 12, marginBottom: 0, backgroundColor: t.surface, borderRadius: 18, padding: 16, gap: 12, alignItems: 'center', borderWidth: 1.5, borderColor: '#F5A623' }}>
+          <Text style={{ color: t.ink, fontWeight: '800', fontSize: 16 }}>{tr('{0}ga baho bering', profs[otherId]?.name || tr('Foydalanuvchi'))}</Text>
+          <Stars value={stars} size={36} onPick={setStars} />
+          <TextInput value={rText} onChangeText={setRText} placeholder={tr('Izoh (ixtiyoriy): ish sifati, muddat, muomala…')} placeholderTextColor={t.muted} multiline maxLength={500}
+            style={{ alignSelf: 'stretch', minHeight: 70, borderRadius: 14, backgroundColor: t.chip, color: t.ink, padding: 12, fontSize: 15, textAlignVertical: 'top' }} />
+          <View style={{ flexDirection: 'row', gap: 8, alignSelf: 'stretch' }}>
+            <Pressable onPress={() => setRateOpen(false)} style={{ flex: 1, height: 46, borderRadius: 14, borderWidth: 1, borderColor: t.line, alignItems: 'center', justifyContent: 'center' }}><Text style={{ color: t.ink, fontWeight: '700' }}>{tr('Bekor qilish')}</Text></Pressable>
+            <Pressable onPress={saveReview} disabled={rBusy} style={{ flex: 1, height: 46, borderRadius: 14, backgroundColor: '#F5A623', alignItems: 'center', justifyContent: 'center', opacity: rBusy ? 0.6 : 1 }}><Text style={{ color: '#1A1405', fontWeight: '800' }}>{tr('Saqlash')}</Text></Pressable>
+          </View>
         </View>
       ) : null}
       {th.ads ? (

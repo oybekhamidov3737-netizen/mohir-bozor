@@ -15,6 +15,7 @@ import { ago, adState, isTop, isVip, locLabel, priceText, since, seenText, isOnl
 import { fetchFeed } from '../../src/api';
 import { WEB_URL } from '../../src/config';
 import { AdCard, Avatar, Badge, Btn, Cover, Empty, H, Loading, Note, Press } from '../../src/ui';
+import { RatingLine } from '../../src/lists';
 import { tr } from '../../src/i18n';
 
 export default function AdPage() {
@@ -185,11 +186,13 @@ export default function AdPage() {
               <View style={{ flex: 1, gap: 2 }}>
                 <Text style={{ fontWeight: '800', color: t.ink, fontSize: 16 }} numberOfLines={1}>{seller?.name || ad.seller_name}</Text>
                 {seller?.public_id ? <Text style={{ color: t.muted, fontSize: 12, fontWeight: '700' }}>{tr("ID")}{' '}{seller.public_id}</Text> : null}
+                <RatingLine profile={seller} size={12} />
                 {seller?.last_seen ? <Text style={{ color: isOnline(seller.last_seen) ? t.price : t.muted, fontSize: 12.5, fontWeight: '600' }}>{seenText(seller.last_seen)}</Text> : null}
                 {seller ? <Text style={{ color: t.muted, fontSize: 12 }}>{since(seller.created_at)}</Text> : null}
               </View>
             </View>
             {seller?.bio ? <Text style={{ color: t.muted, fontSize: 13.5, lineHeight: 19 }} numberOfLines={4}>{seller.bio}</Text> : null}
+            {seller ? <Btn kind="sec" small icon="person-circle-outline" title={tr("Profil, baholar va barcha e'lonlari")} onPress={() => router.push(`/u/${seller.id}`)} /> : null}
           </View>
 
           <LinearGradient colors={t.dark ? ['#13261F', '#0F1E19'] : ['#E7F8EF', '#F3FBF7']} style={{ borderRadius: 22, padding: 16, gap: 8 }}>

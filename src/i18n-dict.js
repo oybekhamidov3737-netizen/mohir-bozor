@@ -2919,5 +2919,453 @@ export default {
 "Ma'lumotlarni saqlash": [
 "Хранение данных",
 "Data storage"
+],
+"E'lonlar": [
+"Объявления",
+"Listings"
+],
+"E'lon bering": [
+"Подать",
+"Post ad"
+],
+"Chat": [
+"Чат",
+"Chat"
+],
+"Profilim": [
+"Профиль",
+"Profile"
+],
+"Sozlamalar va boshqalar": [
+"Настройки и прочее",
+"Settings & more"
+],
+"Til, ko'rinish, hisob": [
+"Язык, оформление, аккаунт",
+"Language, appearance, account"
+],
+"Yordam": [
+"Помощь",
+"Help"
+],
+"Teskari aloqa": [
+"Обратная связь",
+"Feedback"
+],
+"Shartlar va qoidalar": [
+"Условия и правила",
+"Terms & rules"
+],
+"Ilova haqida": [
+"О приложении",
+"About the app"
+],
+"TAHRIRLASH": [
+"ИЗМЕНИТЬ",
+"EDIT"
+],
+"Salom, {0}!": [
+"Привет, {0}!",
+"Hi, {0}!"
+],
+"{0} ta baho": [
+"оценок: {0}",
+"{0} ratings"
+],
+"Hamyoningizda:": [
+"В кошельке:",
+"In your wallet:"
+],
+"Bonuslar:": [
+"Бонусы:",
+"Bonuses:"
+],
+"E'lon joylashtirish": [
+"Разместить объявление",
+"Post an ad"
+],
+"To'plam sotib olish": [
+"Купить пакет",
+"Buy a package"
+],
+"Sizning e'lonlaringiz": [
+"Ваши объявления",
+"Your listings"
+],
+"Faol e'lonlar": [
+"Активные объявления",
+"Active listings"
+],
+"To'lanmagan": [
+"Неоплаченные",
+"Unpaid"
+],
+"Faollashtirish uchun xizmat narxini to'lang": [
+"Оплатите услугу, чтобы активировать",
+"Pay for the service to activate it"
+],
+"Yakunlangan e'lonlar": [
+"Завершённые объявления",
+"Finished listings"
+],
+"Buyurtmachi paneli": [
+"Панель заказчика",
+"Client panel"
+],
+"Takliflar ro'yxati": [
+"Список предложений",
+"Offers"
+],
+"Buyurtmalaringizga yozgan ijodkorlar": [
+"Специалисты, откликнувшиеся на ваши заказы",
+"Creators who responded to your requests"
+],
+"Aktiv suhbatlar": [
+"Активные чаты",
+"Active chats"
+],
+"Quti": [
+"Входящие",
+"Inbox"
+],
+"Mohir bozor jamoasidan xabarlar": [
+"Сообщения от команды Mohir bozor",
+"Messages from the Mohir bozor team"
+],
+"Mohir hisob": [
+"Счёт Mohir",
+"Mohir account"
+],
+"Balans, to'ldirish va bonuslar": [
+"Баланс, пополнение и бонусы",
+"Balance, top-up and bonuses"
+],
+"To'lovlar tarixi": [
+"История платежей",
+"Payment history"
+],
+"Reyting": [
+"Рейтинг",
+"Rating"
+],
+"Olingan baholar": [
+"Полученные оценки",
+"Ratings received"
+],
+"Mening biznesim": [
+"Мой бизнес",
+"My business"
+],
+"Sotib olingan to'plamlar": [
+"Купленные пакеты",
+"Purchased packages"
+],
+"TOP, VIP, ko'tarish va qo'shimcha joylar": [
+"TOP, VIP, поднятия и доп. места",
+"TOP, VIP, bumps and extra slots"
+],
+"Ijodkor profili": [
+"Профиль специалиста",
+"Creator profile"
+],
+"Siz uchun buyurtmalar": [
+"Заказы для вас",
+"Jobs for you"
+],
+"Yo'nalishingizga mos mijoz buyurtmalari": [
+"Заказы клиентов по вашему направлению",
+"Client requests matching your field"
+],
+"Ijodkor profilim": [
+"Мой профиль специалиста",
+"My creator profile"
+],
+"Mijozlar ko'radigan ochiq sahifa": [
+"Публичная страница для клиентов",
+"Public page clients see"
+],
+"Istagan ishim": [
+"Желаемая работа",
+"Preferred work"
+],
+"{0} ta yo'nalish tanlangan": [
+"Выбрано направлений: {0}",
+"{0} fields selected"
+],
+"Yo'nalish va hududni tanlang": [
+"Выберите направление и регион",
+"Choose field and region"
+],
+"Mening murojaatlarim": [
+"Мои отклики",
+"My applications"
+],
+"Siz yozgan buyurtmalar": [
+"Заказы, на которые вы откликнулись",
+"Requests you responded to"
+],
+"Mohir bozor — O'zbekistondagi SMM mutaxassislari, montajchilar, mobilograflar, dizaynerlar va marketologlar uchun e'lonlar platformasi. Ijodkor xizmatini joylaydi, mijoz uni topib, ilova ichida yozadi.": [
+"Mohir bozor — площадка объявлений для SMM-специалистов, монтажёров, мобилографов, дизайнеров и маркетологов Узбекистана. Специалист размещает услугу, клиент находит её и пишет прямо в приложении.",
+"Mohir bozor is a listings platform for SMM specialists, video editors, mobile videographers, designers and marketers in Uzbekistan. Creators post their services, clients find them and message in the app."
+],
+"Sayt": [
+"Сайт",
+"Website"
+],
+"Profil, baholar va barcha e'lonlari": [
+"Профиль, оценки и все объявления",
+"Profile, ratings and all listings"
+],
+"Yulduzchani tanlang": [
+"Выберите звёзды",
+"Choose a star rating"
+],
+"Rahmat! Bahoyingiz saqlandi": [
+"Спасибо! Оценка сохранена",
+"Thanks! Your rating was saved"
+],
+"Profilini ko'rish": [
+"Открыть профиль",
+"View profile"
+],
+"Bahoni o'zgartirish": [
+"Изменить оценку",
+"Change rating"
+],
+"Baho qoldirish": [
+"Оставить оценку",
+"Leave a rating"
+],
+"{0}ga baho bering": [
+"Оцените: {0}",
+"Rate {0}"
+],
+"Izoh (ixtiyoriy): ish sifati, muddat, muomala…": [
+"Комментарий (необязательно): качество, сроки, общение…",
+"Comment (optional): quality, timing, communication…"
+],
+"Bekor qilish": [
+"Отмена",
+"Cancel"
+],
+"Fikringizni yozing": [
+"Напишите ваш отзыв",
+"Please write your feedback"
+],
+"Rahmat! Fikringiz yuborildi": [
+"Спасибо! Отзыв отправлен",
+"Thanks! Your feedback was sent"
+],
+"Ilovani birga yaxshilaymiz": [
+"Сделаем приложение лучше вместе",
+"Let's improve the app together"
+],
+"Nima yoqdi, nima yoqmadi, nimani qo'shishimiz kerak? Har bir fikrni o'qiymiz.": [
+"Что понравилось, что нет, что добавить? Мы читаем каждый отзыв.",
+"What did you like, what not, what should we add? We read every message."
+],
+"Ilovani baholang": [
+"Оцените приложение",
+"Rate the app"
+],
+"Fikringiz": [
+"Ваш отзыв",
+"Your feedback"
+],
+"Batafsil yozing…": [
+"Опишите подробнее…",
+"Tell us more…"
+],
+"Barcha yo'nalishlar": [
+"Все направления",
+"All fields"
+],
+"Istagan ishimni sozlash": [
+"Настроить желаемую работу",
+"Set preferred work"
+],
+"Hozircha mos buyurtma yo'q": [
+"Подходящих заказов пока нет",
+"No matching requests yet"
+],
+"Yo'nalish yoki hududni kengaytirib ko'ring. Yangi buyurtmalar har kuni qo'shiladi.": [
+"Попробуйте расширить направление или регион. Новые заказы появляются каждый день.",
+"Try widening the field or region. New requests are added every day."
+],
+"To'lanmagan ({0})": [
+"Неоплачено ({0})",
+"Unpaid ({0})"
+],
+"Yakunlangan ({0})": [
+"Завершено ({0})",
+"Finished ({0})"
+],
+"Faol e'lonlar: {0} / {1}. Har bir e'lon {2} kun faol turadi.": [
+"Активные объявления: {0} / {1}. Каждое объявление активно {2} дн.",
+"Active listings: {0} / {1}. Each listing stays active for {2} days."
+],
+"Yakunlangan e'lonlar yo'q": [
+"Завершённых объявлений нет",
+"No finished listings"
+],
+"Muddati tugagan va o'chirilgan e'lonlar shu yerda saqlanadi.": [
+"Здесь хранятся истёкшие и удалённые объявления.",
+"Expired and deleted listings are kept here."
+],
+"Bu xizmatlar to'lov kutmoqda. Faollashtirish uchun to'lovni yakunlang yoki chek yuborgan bo'lsangiz, tasdiqlanishini kuting.": [
+"Эти услуги ожидают оплаты. Завершите оплату или, если вы отправили чек, дождитесь подтверждения.",
+"These services are awaiting payment. Complete the payment or, if you sent a receipt, wait for approval."
+],
+"TO'LANMAGAN": [
+"НЕ ОПЛАЧЕНО",
+"UNPAID"
+],
+"To'lanmagan xizmatlar yo'q": [
+"Неоплаченных услуг нет",
+"No unpaid services"
+],
+"Buyurtma e'lonlaringizga ijodkorlar yuborgan takliflar. Narx va muddatni chatda kelishing.": [
+"Предложения специалистов на ваши заказы. Договоритесь о цене и сроках в чате.",
+"Offers from creators on your requests. Agree on price and timing in chat."
+],
+"Siz yozgan buyurtma e'lonlari. Buyurtmachi javob bersa, shu yerda ko'rinadi.": [
+"Заказы, на которые вы откликнулись. Ответ заказчика появится здесь.",
+"Requests you've responded to. The client's reply will appear here."
+],
+"Hozircha takliflar yo'q": [
+"Предложений пока нет",
+"No offers yet"
+],
+"Buyurtma e'lonini joylang: «Ijodkor qidiryapman» turini tanlang, ijodkorlar o'zi yozadi.": [
+"Разместите заказ: выберите тип «Ищу специалиста», и специалисты напишут сами.",
+"Post a request: choose “Looking for a creator” and creators will message you."
+],
+"Buyurtma joylash": [
+"Разместить заказ",
+"Post a request"
+],
+"Hozircha murojaatlar yo'q": [
+"Откликов пока нет",
+"No applications yet"
+],
+"«Siz uchun buyurtmalar» bo'limidan mos buyurtmani toping va yozing.": [
+"Найдите подходящий заказ в разделе «Заказы для вас» и напишите заказчику.",
+"Find a suitable request in “Jobs for you” and message the client."
+],
+"Jami xizmatlar: {0}": [
+"Всего услуг: {0}",
+"Total services: {0}"
+],
+"Jami to'langan": [
+"Всего оплачено",
+"Total paid"
+],
+"Hali xizmat sotib olmagansiz": [
+"Вы ещё не покупали услуги",
+"You haven't bought any services yet"
+],
+"TOP, VIP va qo'shimcha joylar e'loningizni ko'proq mijozga ko'rsatadi.": [
+"TOP, VIP и доп. места показывают ваше объявление большему числу клиентов.",
+"TOP, VIP and extra slots show your listing to more clients."
+],
+"Saqlandi": [
+"Сохранено",
+"Saved"
+],
+"Qaysi yo'nalishda va qayerda ishlashni xohlaysiz? Shunga mos buyurtmalar «Siz uchun buyurtmalar» bo'limida chiqadi.": [
+"В каком направлении и где вы хотите работать? Подходящие заказы появятся в разделе «Заказы для вас».",
+"Which field and where do you want to work? Matching requests will appear in “Jobs for you”."
+],
+"{0} ta tanlandi": [
+"выбрано: {0}",
+"{0} selected"
+],
+"hammasi": [
+"все",
+"all"
+],
+"Yo'nalishlar": [
+"Направления",
+"Fields"
+],
+"butun O'zbekiston": [
+"весь Узбекистан",
+"all of Uzbekistan"
+],
+"Hududlar": [
+"Регионы",
+"Regions"
+],
+"Hech narsa tanlanmasa — hammasi ko'rsatiladi. Onlayn buyurtmalar har doim chiqadi.": [
+"Если ничего не выбрано — показывается всё. Онлайн-заказы видны всегда.",
+"If nothing is selected, everything is shown. Online requests always appear."
+],
+"Til va ko'rinish": [
+"Язык и оформление",
+"Language & appearance"
+],
+"Profil, e'lonlar va yozishmalar butunlay o'chadi": [
+"Профиль, объявления и переписка удалятся навсегда",
+"Profile, listings and chats will be deleted permanently"
+],
+"Foydalanuvchi topilmadi": [
+"Пользователь не найден",
+"User not found"
+],
+"reyting": [
+"рейтинг",
+"rating"
+],
+"baho": [
+"оценок",
+"ratings"
+],
+"e'lon": [
+"объявл.",
+"listings"
+],
+"E'lonlar ({0})": [
+"Объявления ({0})",
+"Listings ({0})"
+],
+"Baholar ({0})": [
+"Оценки ({0})",
+"Ratings ({0})"
+],
+"Hali baho yo'q": [
+"Пока нет оценок",
+"No ratings yet"
+],
+"Baholarni faqat shu ijodkor bilan chatda yozishgan foydalanuvchilar qoldira oladi.": [
+"Оценки могут оставлять только пользователи, переписывавшиеся с этим специалистом.",
+"Only users who chatted with this creator can leave ratings."
+],
+"{0} yulduz": [
+"{0} звёзд",
+"{0} stars"
+],
+"Hali xabar yo'q": [
+"Сообщений пока нет",
+"No messages yet"
+],
+"Taklif": [
+"Предложение",
+"Idea"
+],
+"Maqtov": [
+"Похвала",
+"Praise"
+],
+"Faqat suhbat qatnashchisi baho qo'ya oladi": [
+"Оценить может только участник чата",
+"Only a chat participant can rate"
+],
+"O'zingizga baho qo'yib bo'lmaydi": [
+"Нельзя оценить самого себя",
+"You can't rate yourself"
+],
+"Baho qo'yish uchun avval suhbatlashing": [
+"Чтобы оценить, сначала пообщайтесь в чате",
+"Chat first before leaving a rating"
 ]
 };

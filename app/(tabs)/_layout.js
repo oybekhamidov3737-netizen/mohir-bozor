@@ -44,10 +44,10 @@ export default function TabsLayout() {
       tabBarLabelStyle: { fontSize: 11, fontWeight: '600' },
       sceneStyle: { backgroundColor: t.bg },
     }}>
-      <Tabs.Screen name="index" options={{ title: tr("Asosiy"), tabBarIcon: icon('home') }} />
+      <Tabs.Screen name="index" options={{ title: tr("E'lonlar"), tabBarIcon: icon('storefront') }} />
       <Tabs.Screen name="favorites" options={{ title: tr("Saralangan"), tabBarIcon: icon('heart'), tabBarBadge: fav.length || undefined }} />
       <Tabs.Screen name="new" options={{
-        title: tr("Joylash"),
+        title: tr("E'lon bering"),
         tabBarIcon: () => (
           <LinearGradient colors={['#5A7BFF', '#2747D6']} start={{ x: 0, y: 0 }} end={{ x: 1, y: 1 }} style={{
             width: 52, height: 52, borderRadius: 26, alignItems: 'center', justifyContent: 'center', marginTop: -22,
@@ -59,8 +59,8 @@ export default function TabsLayout() {
         ),
         tabBarActiveTintColor: t.ink, tabBarInactiveTintColor: t.ink,
       }} listeners={{ tabPress: (e) => { e.preventDefault(); if (need('/post')) router.push('/post'); } }} />
-      <Tabs.Screen name="chats" options={{ title: tr("Xabarlar"), tabBarIcon: icon('chatbubble'), tabBarBadge: unread || undefined }} />
-      <Tabs.Screen name="cabinet" options={{ title: tr("Kabinet"), tabBarIcon: icon('person') }} />
+      <Tabs.Screen name="chats" options={{ title: tr("Chat"), tabBarIcon: icon('chatbubble'), tabBarBadge: unread || undefined }} />
+      <Tabs.Screen name="cabinet" options={{ title: tr("Profilim"), tabBarIcon: icon('person') }} />
     </Tabs>
   );
 }
