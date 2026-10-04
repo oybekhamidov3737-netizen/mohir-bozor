@@ -1,6 +1,6 @@
 // Ijodkorning ochiq profili: ma'lumot, reyting, baholar va barcha e'lonlari
 import React, { useCallback, useState } from 'react';
-import { FlatList, Platform, Share, Text, useWindowDimensions, View } from 'react-native';
+import { FlatList, Platform, Pressable, Share, Text, useWindowDimensions, View } from 'react-native';
 import { Stack, useFocusEffect, useLocalSearchParams, useRouter } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
 import { LinearGradient } from 'expo-linear-gradient';
@@ -85,9 +85,9 @@ export default function PublicProfile() {
       {me ? <Btn kind="sec" icon="create-outline" title={tr('Profilni tahrirlash')} onPress={() => router.push('/profile')} /> : null}
       <View style={{ flexDirection: 'row', backgroundColor: t.chip, borderRadius: 14, padding: 3 }}>
         {[['ads', tr("E'lonlar ({0})", ads.length)], ['reviews', tr('Baholar ({0})', reviews.length)]].map(([k, l]) => (
-          <Press key={k} onPress={() => setView(k)} haptic={false} style={{ flex: 1, height: 38, borderRadius: 11, alignItems: 'center', justifyContent: 'center', backgroundColor: view === k ? t.surface : 'transparent' }}>
+          <Pressable key={k} onPress={() => setView(k)} style={{ flex: 1, height: 38, borderRadius: 11, alignItems: 'center', justifyContent: 'center', backgroundColor: view === k ? t.surface : 'transparent' }}>
             <Text style={{ fontWeight: '800', color: view === k ? t.ink : t.muted }}>{l}</Text>
-          </Press>
+          </Pressable>
         ))}
       </View>
       {view === 'reviews' && reviews.length ? (
