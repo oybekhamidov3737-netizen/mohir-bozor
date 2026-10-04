@@ -34,7 +34,7 @@ export function InviteCard() {
   const inv = config.ref_bonus_inviter ?? 10000, new_ = config.ref_bonus_invitee ?? 5000;
 
   const share = async () => {
-    const msg = `Mohir bozor — SMM, montaj, dizayn va marketing ustalari bozori. Shu havola orqali ro'yxatdan o'tsang, ${fmtNum(new_)} so'm bonus olasan:\n${link}`;
+    const msg = tr("Mohir bozor — SMM, montaj, dizayn va marketing ustalari bozori. Shu havola orqali ro'yxatdan o'tsang, {0} so'm bonus olasan:", fmtNum(new_)) + '\n' + link;
     try {
       if (Platform.OS === 'web' && !navigator.share) { copyText(msg).then((ok) => ok && toast(tr("Taklif matni nusxalandi"))); return; }
       await Share.share(Platform.OS === 'ios' ? { message: msg, url: link } : { message: msg });

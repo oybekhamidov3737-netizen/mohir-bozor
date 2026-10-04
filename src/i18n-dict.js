@@ -2791,5 +2791,133 @@ export default {
 "Hisob to'ldirildi": [
 "Счёт пополнен",
 "Balance topped up"
+],
+"Joylangan {0}": [
+"Размещено {0}",
+"Posted {0}"
+],
+"moderator o'chirgan": [
+"удалено модератором",
+"removed by moderator"
+],
+"o'chirilgan": [
+"удалено",
+"deleted"
+],
+"tugagan {0}": [
+"истекло {0}",
+"expired {0}"
+],
+"faol {0} gacha": [
+"активно до {0}",
+"active until {0}"
+],
+"Murojaat: {0}": [
+"Обращение: {0}",
+"Request: {0}"
+],
+"Onlayn (butun O'zbekiston)": [
+"Онлайн (весь Узбекистан)",
+"Online (all of Uzbekistan)"
+],
+" +{0} so'm bonus!": [
+" +{0} сум бонус!",
+" +{0} UZS bonus!"
+],
+"Mohir bozor — SMM, montaj, dizayn va marketing ustalari bozori. Shu havola orqali ro'yxatdan o'tsang, {0} so'm bonus olasan:": [
+"Mohir bozor — маркетплейс специалистов по SMM, монтажу, дизайну и маркетингу. Зарегистрируйся по этой ссылке и получи бонус {0} сум:",
+"Mohir bozor — a marketplace for SMM, video editing, design and marketing pros. Sign up with this link and get a {0} UZS bonus:"
+],
+"Olib tashlandi": [
+"Удалено",
+"Removed"
+],
+"Rad etildi": [
+"Отклонено",
+"Rejected"
+],
+"Tasdiqlandi, xizmat yoqildi": [
+"Подтверждено, услуга включена",
+"Approved, service activated"
+],
+"Tiklandi": [
+"Восстановлено",
+"Restored"
+],
+"Uzaytirildi": [
+"Продлено",
+"Extended"
+],
+"Bu yerga tashqi kontakt yozib bo'lmaydi.": [
+"Здесь нельзя указывать внешние контакты.",
+"External contacts aren't allowed here."
+],
+"Sarlavha kamida 5 ta belgidan iborat bo'lsin.": [
+"Заголовок — минимум 5 символов.",
+"Title must be at least 5 characters."
+],
+"Telefon raqamini to'liq kiriting.": [
+"Введите номер телефона полностью.",
+"Enter the full phone number."
+],
+"Hududni tanlang.": [
+"Выберите регион.",
+"Choose a region."
+],
+"Ism yoki studiya nomini kiriting.": [
+"Введите имя или название студии.",
+"Enter a name or studio name."
+],
+"Ismingizni kiriting.": [
+"Введите ваше имя.",
+"Enter your name."
+],
+"Narxni kiriting yoki \"Kelishiladi\"ni belgilang.": [
+"Укажите цену или отметьте «Договорная».",
+"Enter a price or tick “Negotiable”."
+],
+"Tavsifni batafsilroq yozing (kamida 20 ta belgi).": [
+"Опишите подробнее (минимум 20 символов).",
+"Write a more detailed description (at least 20 characters)."
+],
+"Internet bilan aloqa yo'q. Qayta urinib ko'ring.": [
+"Нет подключения к интернету. Попробуйте ещё раз.",
+"No internet connection. Please try again."
+],
+"Faqat Gmail yoki iCloud pochtasi bilan ro'yxatdan o'tish mumkin.": [
+"Регистрация только через Gmail или iCloud.",
+"Sign-up is only possible with Gmail or iCloud."
+],
+"Kod noto'g'ri yoki eskirgan. Yangi kod so'rang.": [
+"Код неверный или устарел. Запросите новый.",
+"The code is wrong or expired. Request a new one."
+],
+"Xatolik yuz berdi. Qayta urinib ko'ring.": [
+"Произошла ошибка. Попробуйте ещё раз.",
+"Something went wrong. Please try again."
+],
+"Umumiy": [
+"Общие положения",
+"General"
+],
+"Mas'uliyat": [
+"Ответственность",
+"Liability"
+],
+"Moderatsiya": [
+"Модерация",
+"Moderation"
+],
+"O'zgarishlar": [
+"Изменения",
+"Changes"
+],
+"Aloqa": [
+"Контакты",
+"Contact"
+],
+"Ma'lumotlarni saqlash": [
+"Хранение данных",
+"Data storage"
 ]
 };

@@ -66,7 +66,7 @@ export default function ProfileScreen() {
       let bonusMsg = '';
       if (isNew && cleanRef(ref).length >= 4) {
         const { data: rd, error: rErr } = await supabase.rpc('claim_referral', { p_code: cleanRef(ref) });
-        if (!rErr && rd?.bonus) bonusMsg = ` +${fmtNum(rd.bonus)} so'm bonus!`;
+        if (!rErr && rd?.bonus) bonusMsg = tr(" +{0} so'm bonus!", fmtNum(rd.bonus));
         else if (rErr) toast(errText(rErr));
         clearStoredRef();
       }
@@ -92,8 +92,8 @@ export default function ProfileScreen() {
         </View>
         <Field label={tr("Ism yoki studiya nomi")} value={f.name} onChangeText={set('name')} maxLength={60} placeholder={tr("Masalan: Xamidov SMM")} error={errs.name} />
         <Field label={tr("Telefon raqami")} value={f.phone} onChangeText={set('phone')} keyboardType="phone-pad" maxLength={20} placeholder="+998 90 123 45 67" error={errs.phone} hint={tr("Faqat sizga ko'rinadi. E'lon joylashda avtomatik to'ldiriladi.")} />
-        <Select label={tr("Asosiy yo'nalishingiz")} value={f.cat ? catOf(f.cat).n : 'Men xizmat buyurtma qilaman'} onPress={() => setPicker('cat')} />
-        <Select label={tr("Hudud")} value={f.region ? (f.region === ONLINE ? 'Onlayn (masofadan)' : (f.district ? f.district + ', ' : '') + shortReg(f.region)) : ''} placeholder={tr("Viloyat va tuman")} onPress={() => setPicker('region')} error={errs.region} />
+        <Select label={tr("Asosiy yo'nalishingiz")} value={f.cat ? catOf(f.cat).n : tr('Men xizmat buyurtma qilaman')} onPress={() => setPicker('cat')} />
+        <Select label={tr("Hudud")} value={f.region ? (f.region === ONLINE ? tr('Onlayn (masofadan)') : (f.district ? f.district + ', ' : '') + shortReg(f.region)) : ''} placeholder={tr("Viloyat va tuman")} onPress={() => setPicker('region')} error={errs.region} />
         <Field label={tr("O'zingiz haqingizda")} value={f.bio} onChangeText={set('bio')} multiline maxLength={300} placeholder={tr("Tajribangiz, qanday loyihalar qilgansiz…")} error={errs.bio} />
         {isNew && PAYMENTS_IN_APP ? <Field label={tr("Taklif kodi (ixtiyoriy)")} value={ref} onChangeText={(v) => setRef(cleanRef(v))} autoCapitalize="characters" placeholder={tr("Masalan: K7M2QX")} hint={tr("Do'stingiz bergan kod bo'lsa, bonus olasiz.")} /> : null}
         <Btn title={isNew ? tr("Kabinetni ochish") : tr("Saqlash")} onPress={save} loading={busy} />

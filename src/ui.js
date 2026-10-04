@@ -130,7 +130,7 @@ export function Field({ label, error, hint, style, multiline, ...props }) {
           fontSize: 16, textAlignVertical: multiline ? 'top' : 'center',
         }} />
       {hint ? <Text style={{ fontSize: 12, color: t.muted }}>{hint}</Text> : null}
-      {error ? <Text style={{ fontSize: 12, color: t.danger, fontWeight: '600' }}>{error}</Text> : null}
+      {error ? <Text style={{ fontSize: 12, color: t.danger, fontWeight: '600' }}>{tr(error)}</Text> : null}
     </View>
   );
 }
@@ -144,7 +144,7 @@ export function Select({ label, value, placeholder, onPress, error }) {
         <Text style={{ flex: 1, fontSize: 15, color: value ? t.ink : t.muted }} numberOfLines={1}>{value || placeholder}</Text>
         <Ionicons name="chevron-down" size={18} color={t.muted} />
       </Pressable>
-      {error ? <Text style={{ fontSize: 12, color: t.danger, fontWeight: '600' }}>{error}</Text> : null}
+      {error ? <Text style={{ fontSize: 12, color: t.danger, fontWeight: '600' }}>{tr(error)}</Text> : null}
     </View>
   );
 }

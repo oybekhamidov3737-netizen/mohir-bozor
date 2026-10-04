@@ -138,7 +138,7 @@ export default function PostAd() {
         <View style={{ gap: 8 }}>
           <View style={{ flexDirection: 'row', gap: 8 }}>
             <Field style={{ flex: 1.4 }} label={tr("Narx")} value={String(f.price)} onChangeText={(v) => set('price')(fmtNum(v.replace(/\D/g, '')) === '0' ? '' : fmtNum(v.replace(/\D/g, '')))} keyboardType="number-pad" placeholder={tr("Narx")} error={errs.price} />
-            <View style={{ flex: 0.9 }}><Select label={tr("Valyuta")} value={f.cur === 'usd' ? '$' : "so'm"} onPress={() => setPicker('cur')} /></View>
+            <View style={{ flex: 0.9 }}><Select label={tr("Valyuta")} value={f.cur === 'usd' ? '$' : tr("so'm")} onPress={() => setPicker('cur')} /></View>
             <View style={{ flex: 1 }}><Select label={tr("Birlik")} value={UNITS[f.unit]} onPress={() => setPicker('unit')} /></View>
           </View>
           <View style={{ flexDirection: 'row', gap: 16, flexWrap: 'wrap' }}>
@@ -147,7 +147,7 @@ export default function PostAd() {
           </View>
         </View>
 
-        <Select label={tr("Hudud")} value={f.region ? (f.region === ONLINE ? "Onlayn (butun O'zbekiston)" : (f.district ? f.district + ', ' : '') + shortReg(f.region)) : ''} placeholder={tr("Viloyat va tumanni tanlang")} onPress={() => setPicker('region')} error={errs.region} />
+        <Select label={tr("Hudud")} value={f.region ? (f.region === ONLINE ? tr("Onlayn (butun O'zbekiston)") : (f.district ? f.district + ', ' : '') + shortReg(f.region)) : ''} placeholder={tr("Viloyat va tumanni tanlang")} onPress={() => setPicker('region')} error={errs.region} />
         <Field label={tr("Tajriba (yil)")} value={String(f.exp_years || '')} onChangeText={set('exp_years')} keyboardType="decimal-pad" maxLength={4} placeholder={tr("Masalan: 2")} />
         <Field label={tr("Tavsif")} value={f.description} onChangeText={set('description')} multiline maxLength={3000}
           placeholder={tr("Nima qilasiz, paketga nima kiradi, muddatlar…")} error={errs.description} hint={`${f.description.length} / 3000`} />

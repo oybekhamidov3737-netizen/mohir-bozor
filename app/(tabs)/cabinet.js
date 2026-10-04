@@ -128,11 +128,11 @@ export default function Cabinet() {
   const loc = profile.region ? (profile.region === ONLINE ? 'Onlayn' : profile.district || shortReg(profile.region)) : '';
 
   const hist = (a) => {
-    const p = [`Joylangan ${shortDate(a.created_at)}`];
+    const p = [tr('Joylangan {0}', shortDate(a.created_at))];
     (events[a.id] || []).slice(-3).forEach((e) => p.push(`${tr(EV[e.kind] || e.kind)} ${shortDate(e.created_at)}`));
     const s = adState(a);
-    if (s === 'deleted') p.push(`${a.mod_deleted ? "moderator o'chirgan" : "o'chirilgan"} ${shortDate(a.deleted_at)}`);
-    else p.push(s === 'expired' ? `tugagan ${shortDate(a.expires_at)}` : `faol ${shortDate(a.expires_at)} gacha`);
+    if (s === 'deleted') p.push(`${a.mod_deleted ? tr("moderator o'chirgan") : tr("o'chirilgan")} ${shortDate(a.deleted_at)}`);
+    else p.push(s === 'expired' ? tr('tugagan {0}', shortDate(a.expires_at)) : tr('faol {0} gacha', shortDate(a.expires_at)));
     return p.join(' · ');
   };
 

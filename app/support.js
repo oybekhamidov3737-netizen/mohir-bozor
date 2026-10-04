@@ -9,7 +9,8 @@ import { supabase, errText } from '../src/supabase';
 import { Btn, H } from '../src/ui';
 import { tr } from '../src/i18n';
 
-const FAQ = [
+// Til almashganda qayta hisoblanishi uchun funksiya
+const FAQ = () => [
   [tr("Qanday e'lon joylayman?"), tr("Pastdagi \"Joylash\" tugmasini bosing. Avval kabinet ochasiz, keyin rasmlar, narx va tavsifni kiritasiz. E'lon darhol ko'rinadi.")],
   [tr("E'lonim nega qabul qilinmadi?"), tr("Bozor faqat SMM, montaj, dizayn, marketing va boshqa ijodiy xizmatlar uchun. Telegram, Instagram yoki WhatsApp manzillarini yozib bo'lmaydi: mijozlar ilova ichidagi chat orqali yozadi.")],
   [tr("TOP va VIP nima?"), tr("TOP e'lonni qidiruvning tepasiga chiqaradi. VIP bundan tashqari bosh sahifadagi alohida oltin blokda ko'rsatadi. E'loningizda \"Reklama\" tugmasini bosing.")],
@@ -61,7 +62,7 @@ export default function Support() {
       <Btn title={tr("Ilovada yozish")} icon="chatbubble-ellipses-outline" onPress={chat} loading={busy} />
 
       <H>{tr("Ko'p beriladigan savollar")}</H>
-      {FAQ.map(([q, a], i) => (
+      {FAQ().map(([q, a], i) => (
         <Pressable key={q} onPress={() => setOpen(open === i ? null : i)} style={{ backgroundColor: t.surface, borderWidth: 1, borderColor: t.line, borderRadius: 14, padding: 14, gap: 8 }}>
           <View style={{ flexDirection: 'row', gap: 8, alignItems: 'center' }}>
             <Text style={{ flex: 1, color: t.ink, fontWeight: '700', fontSize: 15 }}>{q}</Text>

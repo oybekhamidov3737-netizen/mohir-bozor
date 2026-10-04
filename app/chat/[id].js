@@ -14,7 +14,8 @@ import { LinearGradient } from 'expo-linear-gradient';
 import { tr } from '../../src/i18n';
 
 const Bubble = ({ colors, start, end, style, children }) => (colors ? <LinearGradient colors={colors} start={start} end={end} style={style}>{children}</LinearGradient> : <View style={style}>{children}</View>);
-const QUICK = [tr("Assalomu alaykum! E'loningiz hali dolzarbmi?"), tr("Narxi kelishiladimi?"), tr("Portfolio yubora olasizmi?"), tr("Qachon boshlay olasiz?")];
+// Til almashganda qayta hisoblanishi uchun funksiya
+const QUICK = () => [tr("Assalomu alaykum! E'loningiz hali dolzarbmi?"), tr("Narxi kelishiladimi?"), tr("Portfolio yubora olasizmi?"), tr("Qachon boshlay olasiz?")];
 
 export default function ChatScreen() {
   const { id } = useLocalSearchParams();
@@ -76,7 +77,7 @@ export default function ChatScreen() {
   const otherId = uid === th.buyer_id ? th.seller_id : th.buyer_id;
   const support = !th.ad_id;
   const otherReadAt = uid === th.buyer_id ? th.seller_read_at : th.buyer_read_at;
-  const title = support ? (uid === th.buyer_id ? "Qo'llab-quvvatlash" : `Murojaat: ${profs[th.buyer_id]?.name || 'Foydalanuvchi'}`) : member ? profs[otherId]?.name || 'Suhbat' : `${profs[th.seller_id]?.name || 'Sotuvchi'} ↔ ${profs[th.buyer_id]?.name || 'Xaridor'}`;
+  const title = support ? (uid === th.buyer_id ? tr("Qo'llab-quvvatlash") : tr('Murojaat: {0}', profs[th.buyer_id]?.name || tr('Foydalanuvchi'))) : member ? profs[otherId]?.name || tr('Suhbat') : `${profs[th.seller_id]?.name || tr('Sotuvchi')} ↔ ${profs[th.buyer_id]?.name || tr('Xaridor')}`;
   const img = adPhoto(th.ads);
 
   const send = async (body) => {
@@ -205,7 +206,7 @@ export default function ChatScreen() {
         <View style={{ borderTopWidth: 1, borderColor: t.line, backgroundColor: t.surface, paddingHorizontal: 12, paddingTop: 8, paddingBottom: ins.bottom + 8 }}>
           {!msgs.length && !support ? (
             <View style={{ flexDirection: 'row', flexWrap: 'wrap', gap: 6, marginBottom: 8 }}>
-              {QUICK.map((q) => (
+              {QUICK().map((q) => (
                 <Pressable key={q} onPress={() => send(q)} style={{ borderWidth: 1, borderColor: t.line, borderRadius: 999, paddingHorizontal: 11, paddingVertical: 6 }}>
                   <Text style={{ fontSize: 13, color: t.ink }}>{q}</Text>
                 </Pressable>
