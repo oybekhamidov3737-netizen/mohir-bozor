@@ -117,8 +117,9 @@ export default function Cabinet() {
   const bon = c.bal ? Number(c.bal.bonus || 0) : 0;
   const loc = profile.region ? (profile.region === ONLINE ? tr('Onlayn') : profile.district || shortReg(profile.region)) : '';
   const tile = (colors, icon, title, sub, onPress, badge) => (
-    <Press key={title} onPress={onPress} style={{ width: '48.5%' }}>
-      <View style={{ backgroundColor: t.surface, borderRadius: 22, padding: 14, gap: 10, minHeight: 118 }}>
+    <View key={title} style={{ width: '48.5%' }}>
+    <Press onPress={onPress} style={{ width: '100%' }}>
+      <View style={{ backgroundColor: t.surface, borderRadius: 22, padding: 14, gap: 10, minHeight: 118, width: '100%' }}>
         <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'flex-start' }}>
           <LinearGradient colors={colors} start={{ x: 0, y: 0 }} end={{ x: 1, y: 1 }} style={{ width: 44, height: 44, borderRadius: 15, alignItems: 'center', justifyContent: 'center' }}>
             <Ionicons name={icon} size={22} color="#fff" />
@@ -131,6 +132,7 @@ export default function Cabinet() {
         </View>
       </View>
     </Press>
+    </View>
   );
 
   return wrap(
@@ -173,7 +175,7 @@ export default function Cabinet() {
           <LinearGradient colors={['#34DBA5', '#0C9A6A']} style={{ width: 44, height: 44, borderRadius: 15, alignItems: 'center', justifyContent: 'center' }}><Ionicons name="wallet" size={22} color="#fff" /></LinearGradient>
           <Pressable onPress={() => router.push('/wallet')} style={{ flex: 1 }}>
             <Text style={{ color: t.muted, fontSize: 12, fontWeight: '700' }}>{tr('Balans')}</Text>
-            <Text style={{ color: t.ink, fontFamily: FONT.display, fontSize: 18 }}>{fmtNum(bal + bon)} {tr("so'm")}</Text>
+            <Text style={{ color: t.ink, fontFamily: FONT.display, fontSize: 16 }} numberOfLines={1}>{fmtNum(bal + bon)} {tr("so'm")}</Text>
             {bon ? <Text style={{ color: t.muted, fontSize: 11.5 }}>{tr('shundan bonus: {0}', fmtNum(bon))}</Text> : null}
           </Pressable>
           <Btn small title={tr("To'ldirish")} icon="add" onPress={() => router.push('/topup')} />
