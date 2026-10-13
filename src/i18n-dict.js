@@ -3443,5 +3443,9 @@ export default {
 "TOP, VIP, ko'tarish va to'ldirishlar": [
 "TOP, VIP, поднятия и пополнения",
 "TOP, VIP, bumps and top-ups"
+],
+"STIR / JSHSHIR:": [
+"ИНН / ПИНФЛ:",
+"TIN / PINFL:"
 ]
 };

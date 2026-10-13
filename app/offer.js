@@ -58,7 +58,7 @@ export default function Offer() {
       <Hh>{tr("8. Ijrochi rekvizitlari va aloqa")}</Hh>
       <View style={{ backgroundColor: t.surface, borderWidth: 1, borderColor: t.line, borderRadius: 12, padding: 12, gap: 4 }}>
         <P>{seller}</P>
-        {c.legal_inn ? <P>{tr("STIR (INN):")}{' '}{c.legal_inn}</P> : null}
+        {c.legal_inn ? <P>{tr("STIR / JSHSHIR:")}{' '}{c.legal_inn}</P> : null}
         {c.legal_address ? <P>{tr("Manzil:")}{' '}{c.legal_address}</P> : null}
         {c.legal_bank ? <P>{c.legal_bank}</P> : null}
         <P>{tr("Telefon:")}{' '}{c.support_phone || '+998 91 001 88 18'}</P>
