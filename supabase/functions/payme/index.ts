@@ -144,6 +144,14 @@ Deno.serve(async (req) => {
           },
         });
       }
+      case "ChangePassword": {
+        // Kassa egasi Payme kabinetida kalitni almashtirsa, Payme yangi kalitni shu yerga yuboradi
+        const np = String(p.password ?? "");
+        if (!np) return E.cantPerform(id);
+        const { error } = await sb.from("payment_secrets").update({ payme_key: np }).not("id", "is", null);
+        if (error) return E.cantPerform(id);
+        return reply(id, { result: { success: true } });
+      }
       default:
         return E.method(id);
     }
