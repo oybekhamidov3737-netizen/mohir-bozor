@@ -117,9 +117,13 @@ Deno.serve(async (req) => {
         if (t.state === -1 || t.state === -2) {
           return reply(id, { result: { transaction: t.id, cancel_time: Number(t.cancel_time), state: t.state } });
         }
-        // Xizmat yoqilgandan keyin pulni qaytarish faqat qo'lda (admin orqali)
-        if (t.state === 2) return E.cantCancel(id);
         const cancel_time = Date.now();
+        // Bajarilgan to'lovni Payme qaytarsa (faqat kassa egasi so'rovi bilan): tranzaksiya -2, buyurtma "no"
+        if (t.state === 2) {
+          await sb.from("payme_tx").update({ state: -2, reason: p.reason ?? null, cancel_time }).eq("id", t.id);
+          await sb.from("orders").update({ status: "no", decided_at: new Date().toISOString() }).eq("id", t.order_id);
+          return reply(id, { result: { transaction: t.id, cancel_time, state: -2 } });
+        }
         await sb.from("payme_tx").update({ state: -1, reason: p.reason ?? null, cancel_time }).eq("id", t.id);
         return reply(id, { result: { transaction: t.id, cancel_time, state: -1 } });
       }
