@@ -1,0 +1,30 @@
+name: Payme o'z-o'zini tekshirish
+on:
+  push:
+    branches: [main]
+    paths: ['.github/workflows/payme-selftest.yml', 'supabase/selftest/**']
+  workflow_dispatch:
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    env:
+      PW: ${{ secrets.SUPABASE_DB_PASSWORD }}
+      REF: qtvyjmiqoknpnlilpfpf
+    steps:
+      - name: Tekshirish
+        run: |
+          sudo apt-get install -y -qq postgresql-client >/dev/null 2>&1 || true
+          for H in aws-0-eu-central-1.pooler.supabase.com aws-1-eu-central-1.pooler.supabase.com; do
+            K=$(PGPASSWORD="$PW" psql "host=$H port=5432 dbname=postgres user=postgres.$REF sslmode=require connect_timeout=15" -tAc "select payme_key from payment_secrets limit 1" 2>/dev/null) && [ -n "$K" ] && break
+          done
+          echo "::add-mask::$K"
+          A="Authorization: Basic $(printf 'Paycom:%s' "$K" | base64 -w0)"
+          U=https://$REF.supabase.co/functions/v1/payme
+          O=7e57a000-0000-4000-8000-000000000001
+          t() { r=$(curl -s -X POST $U -H "$2" -H 'Content-Type: application/json' -d "$3"); echo "$1 => $r"; echo "::notice title=$1::$r"; }
+          t "1 togri" "$A" '{"id":1,"method":"CheckPerformTransaction","params":{"amount":900000,"account":{"order_id":"'$O'"}}}'
+          t "2 notogri summa" "$A" '{"id":2,"method":"CheckPerformTransaction","params":{"amount":100,"account":{"order_id":"'$O'"}}}'
+          t "3 yoq buyurtma" "$A" '{"id":3,"method":"CheckPerformTransaction","params":{"amount":900000,"account":{"order_id":"00000000-0000-4000-8000-000000000000"}}}'
+          t "4 notogri kalit" "Authorization: Basic eDp5" '{"id":4,"method":"CheckPerformTransaction","params":{}}'
+          c=$(curl -s -o /dev/null -w "%{http_code}" "https://checkout.test.paycom.uz/$(printf "m=6ad0b712329182586b8c5b17;ac.order_id=$O;a=900000" | base64 -w0)")
+          echo "::notice title=5 checkout::HTTP $c"
