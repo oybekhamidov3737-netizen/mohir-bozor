@@ -278,15 +278,11 @@ export function Intro({ onDone }) {
 
 // Bir ochilishda bir marta (saytda — brauzer sessiyasida bir marta)
 let shown = false;
+// Har safar ilova ochilganda bir marta ko'rsatiladi. Qaror sahifa yuklanganda bir marta qabul qilinadi,
+// shuning uchun til yuklanib ildiz komponent qayta chizilganda ham animatsiya yo'qolmaydi.
+let decision = null;
 export function shouldShowIntro() {
-  if (shown) return false;
-  shown = true;
-  try {
-    if (Platform.OS === 'web' && typeof sessionStorage !== 'undefined') {
-      if (typeof location !== 'undefined' && /[?&]intro\b/.test(location.search)) return true;
-      if (sessionStorage.getItem('intro')) return false;
-      sessionStorage.setItem('intro', '1');
-    }
-  } catch (e) {}
-  return true;
+  if (decision === null) decision = !shown;
+  return decision;
 }
+export function introDone() { decision = false; shown = true; }

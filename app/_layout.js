@@ -12,7 +12,7 @@ import { captureRef } from '../src/referral';
 import { useAutoUpdate } from '../src/updater';
 import { ThemeProvider, useT } from '../src/theme';
 import { isConfigured } from '../src/config';
-import { Intro, shouldShowIntro } from '../src/intro';
+import { Intro, shouldShowIntro, introDone } from '../src/intro';
 import { ScreenEnter } from '../src/enter';
 import { tr, loadLang, useLang } from '../src/i18n';
 
@@ -106,7 +106,7 @@ function RootInner() {
           <Stack.Screen name="support" options={{ title: tr("Qo'llab-quvvatlash") }} />
           <Stack.Screen name="topup" options={{ title: tr("Hisobni to'ldirish"), presentation: 'modal' }} />
         </Stack>
-        {intro ? <Intro onDone={() => setIntro(false)} /> : null}
+        {intro ? <Intro onDone={() => { introDone(); setIntro(false); }} /> : null}
       </AppProvider>
     </SafeAreaProvider>
   );
