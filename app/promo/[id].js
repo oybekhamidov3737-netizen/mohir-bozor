@@ -8,6 +8,7 @@ import { supabase, errText } from '../../src/supabase';
 import { SVC, svcDesc } from '../../src/data';
 import { adState, fmtNum } from '../../src/format';
 import { Btn, Loading, Note } from '../../src/ui';
+import { PaymeButton } from '../../src/paybtn';
 import { PAYMENTS_IN_APP, onlinePayUrl, openPay } from '../../src/pay';
 import { tr } from '../../src/i18n';
 
@@ -112,7 +113,7 @@ export default function Promo() {
         <View style={{ backgroundColor: t.surface, borderWidth: 1, borderColor: t.line, borderRadius: 16, padding: 14, gap: 10 }}>
           <Text style={{ fontWeight: '800', color: t.ink }}>{tr("Tez to'lov · xizmat darhol yoqiladi")}</Text>
           <Text style={{ fontFamily: FONT.display, fontSize: 24, color: t.ink }}>{fmtNum(price)} {tr("so'm")}</Text>
-          {hasPayme ? <Btn title={tr("Payme orqali to'lash")} onPress={() => payOnline('payme')} loading={busy} style={{ backgroundColor: '#00CCCC' }} /> : null}
+          {hasPayme ? <PaymeButton label={tr("{0} so'm", fmtNum(price))} onPress={() => payOnline('payme')} loading={busy} /> : null}
           {hasClick ? <Btn title={tr("Click orqali to'lash")} onPress={() => payOnline('click')} loading={busy} style={{ backgroundColor: '#0077FF' }} /> : null}
           <Text style={{ color: t.muted, fontSize: 12 }}>{tr("Humo va Uzcard kartalari qabul qilinadi. To'lov qilish orqali")}{' '}<Text style={{ color: t.accent }} onPress={() => router.push('/offer')}>{tr("ommaviy oferta")}</Text> {tr("shartlariga rozilik bildirasiz.")}</Text>
         </View>

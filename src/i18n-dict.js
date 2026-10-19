@@ -3459,5 +3459,9 @@ export default {
 "To'lov hali ulanmagan. Tez orada ishga tushadi.": [
 "Оплата пока не подключена. Скоро заработает.",
 "Payments aren't connected yet. Coming soon."
+],
+"{0} so'm": [
+"{0} сум",
+"{0} UZS"
 ]
 };
