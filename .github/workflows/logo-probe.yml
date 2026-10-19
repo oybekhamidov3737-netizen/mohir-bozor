@@ -8,11 +8,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - run: |
-          for n in payme_color payme_white payme_black payme_color_logo_horizontal payme_logo payme-logo payme pb_color_logo_horizontal; do
-            u="https://cdn.payme.uz/logo/$n.svg"
-            c=$(curl -s -o f.svg -w "%{http_code} %{size_download}" "$u")
-            echo "::notice title=$n::$c"
+          for n in payme_color payme_white; do
+            curl -s "https://cdn.payme.uz/logo/$n.svg" -o f.svg
+            echo "::notice title=$n::$(base64 -w0 f.svg)"
           done
-          curl -sL -A "Mozilla/5.0" https://payme.uz -o p.html
-          echo "::notice title=svg-inline::$(grep -o '<svg[^>]*' p.html | head -5 | tr '\n' ' ' | cut -c1-600)"
-          echo "::notice title=cdn::$(grep -oE 'https://cdn\.payme\.uz/[^"'"'"' )]+' p.html | sort -u | head -30 | tr '\n' ' ')"
