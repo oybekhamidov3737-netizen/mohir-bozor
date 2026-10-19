@@ -20,7 +20,7 @@ jobs:
           echo "::add-mask::$K"
           A="Authorization: Basic $(printf 'Paycom:%s' "$K" | base64 -w0)"
           U=https://$REF.supabase.co/functions/v1/payme
-          O=7e57a000-0000-4000-8000-000000000006
+          O=7e57a000-0000-4000-8000-000000000005
           t() { r=$(curl -s -X POST $U -H "$2" -H 'Content-Type: application/json' -d "$3"); echo "$1 => $r"; echo "::notice title=$1::$r"; }
           t "1 togri" "$A" '{"id":1,"method":"CheckPerformTransaction","params":{"amount":900000,"account":{"order_id":"'$O'"}}}'
           t "2 notogri summa" "$A" '{"id":2,"method":"CheckPerformTransaction","params":{"amount":100,"account":{"order_id":"'$O'"}}}'
