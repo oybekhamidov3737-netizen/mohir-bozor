@@ -8,8 +8,11 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - run: |
-          for u in https://payme.uz https://payme.uz/home/main https://business.payme.uz https://developer.help.paycom.uz; do
-            curl -sL -A "Mozilla/5.0" "$u" -o p.html || continue
-            l=$(grep -oiE '(https?:)?//[^"'"'"' )]+\.(svg|png)|"/[^"]+(logo|payme)[^"]*\.(svg|png)"' p.html | grep -i -E 'logo|payme' | sort -u | head -15 | tr '\n' ' ')
-            echo "::notice title=$u::$l"
+          for n in payme_color payme_white payme_black payme_color_logo_horizontal payme_logo payme-logo payme pb_color_logo_horizontal; do
+            u="https://cdn.payme.uz/logo/$n.svg"
+            c=$(curl -s -o f.svg -w "%{http_code} %{size_download}" "$u")
+            echo "::notice title=$n::$c"
           done
+          curl -sL -A "Mozilla/5.0" https://payme.uz -o p.html
+          echo "::notice title=svg-inline::$(grep -o '<svg[^>]*' p.html | head -5 | tr '\n' ' ' | cut -c1-600)"
+          echo "::notice title=cdn::$(grep -oE 'https://cdn\.payme\.uz/[^"'"'"' )]+' p.html | sort -u | head -30 | tr '\n' ' ')"
