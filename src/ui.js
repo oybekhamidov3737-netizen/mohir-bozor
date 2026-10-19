@@ -1,4 +1,4 @@
-import React, { useRef } from 'react';
+import React, { useRef, useState } from 'react';
 import { ActivityIndicator, Animated, Platform, Pressable, StyleSheet, Text, TextInput, View } from 'react-native';
 import { Image } from 'expo-image';
 import { Ionicons } from '@expo/vector-icons';
@@ -118,14 +118,17 @@ export function Seg({ value, options, onChange }) {
   );
 }
 
-export function Field({ label, error, hint, style, multiline, ...props }) {
+export function Field({ label, error, hint, style, multiline, onFocus, onBlur, ...props }) {
   const t = useT();
+  const [focus, setFocus] = useState(false);
   return (
     <View style={[{ gap: 6 }, style]}>
       {label ? <Text style={{ fontSize: 13, fontWeight: '700', color: t.ink }}>{label}</Text> : null}
       <TextInput placeholderTextColor={t.muted} multiline={multiline} {...props}
+        onFocus={(e) => { setFocus(true); onFocus?.(e); }} onBlur={(e) => { setFocus(false); onBlur?.(e); }}
         style={{
-          minHeight: multiline ? 120 : 48, borderRadius: 12, borderWidth: 1, borderColor: error ? t.danger : t.line,
+          outlineStyle: 'none', outlineWidth: 0,
+          minHeight: multiline ? 120 : 48, borderRadius: 12, borderWidth: focus ? 1.5 : 1, borderColor: error ? t.danger : focus ? t.accent : t.line,
           backgroundColor: t.surface, color: t.ink, paddingHorizontal: 13, paddingVertical: multiline ? 11 : 0,
           fontSize: 16, textAlignVertical: multiline ? 'top' : 'center',
         }} />

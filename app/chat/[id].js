@@ -187,7 +187,7 @@ export default function ChatScreen() {
           <Text style={{ color: t.ink, fontWeight: '800', fontSize: 16 }}>{tr('{0}ga baho bering', profs[otherId]?.name || tr('Foydalanuvchi'))}</Text>
           <Stars value={stars} size={36} onPick={setStars} />
           <TextInput value={rText} onChangeText={setRText} placeholder={tr('Izoh (ixtiyoriy): ish sifati, muddat, muomala…')} placeholderTextColor={t.muted} multiline maxLength={500}
-            style={{ alignSelf: 'stretch', minHeight: 70, borderRadius: 14, backgroundColor: t.chip, color: t.ink, padding: 12, fontSize: 15, textAlignVertical: 'top' }} />
+            style={{ alignSelf: 'stretch', minHeight: 70, borderRadius: 14, backgroundColor: t.chip, color: t.ink, padding: 12, fontSize: 15, textAlignVertical: 'top', outlineStyle: 'none', outlineWidth: 0 }} />
           <View style={{ flexDirection: 'row', gap: 8, alignSelf: 'stretch' }}>
             <Pressable onPress={() => setRateOpen(false)} style={{ flex: 1, height: 46, borderRadius: 14, borderWidth: 1, borderColor: t.line, alignItems: 'center', justifyContent: 'center' }}><Text style={{ color: t.ink, fontWeight: '700' }}>{tr('Bekor qilish')}</Text></Pressable>
             <Pressable onPress={saveReview} disabled={rBusy} style={{ flex: 1, height: 46, borderRadius: 14, backgroundColor: '#F5A623', alignItems: 'center', justifyContent: 'center', opacity: rBusy ? 0.6 : 1 }}><Text style={{ color: '#1A1405', fontWeight: '800' }}>{tr('Saqlash')}</Text></Pressable>
@@ -256,7 +256,7 @@ export default function ChatScreen() {
           ) : null}
           <View style={{ flexDirection: 'row', alignItems: 'flex-end', gap: 8, maxWidth: 736, width: '100%', alignSelf: 'center' }}>
             <TextInput value={text} onChangeText={setText} placeholder={tr("Xabar yozing…")} placeholderTextColor={t.muted} multiline maxLength={2000}
-              style={{ flex: 1, minHeight: 44, maxHeight: 120, borderRadius: 22, borderWidth: 0, borderColor: t.line, backgroundColor: t.chip, color: t.ink, paddingHorizontal: 14, paddingTop: 10, paddingBottom: 10, fontSize: 16 }} />
+              style={{ flex: 1, minHeight: 44, maxHeight: 120, borderRadius: 22, borderWidth: 0, borderColor: t.line, backgroundColor: t.chip, color: t.ink, paddingHorizontal: 14, paddingTop: 10, paddingBottom: 10, fontSize: 16, outlineStyle: 'none', outlineWidth: 0 }} />
             <Pressable onPress={() => send()} disabled={!text.trim() || sending} accessibilityLabel={tr("Yuborish")}
               style={({ pressed }) => ({ opacity: text.trim() ? 1 : 0.5, transform: [{ scale: pressed ? 0.9 : 1 }] })}>
               <LinearGradient colors={['#5A7BFF', '#2747D6']} style={{ width: 44, height: 44, borderRadius: 22, alignItems: 'center', justifyContent: 'center' }}>

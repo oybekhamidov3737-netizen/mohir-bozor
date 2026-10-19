@@ -167,7 +167,7 @@ export default function Home() {
         <View style={{ flexDirection: 'row', alignItems: 'center', gap: 8, backgroundColor: t.surface, borderWidth: 1, borderColor: t.line, borderRadius: 12, paddingHorizontal: 12, height: 46, maxWidth: 1068, width: '100%', alignSelf: 'center' }}>
           <Ionicons name="search" size={19} color={t.muted} />
           <TextInput value={search} onChangeText={setSearch} placeholder={tr("Xizmat, tuman yoki foydalanuvchi ID…")} placeholderTextColor={t.muted}
-            style={{ flex: 1, fontSize: 16, color: t.ink, height: '100%' }} returnKeyType="search" autoCorrect={false} />
+            style={{ flex: 1, fontSize: 16, color: t.ink, height: '100%', outlineStyle: 'none', outlineWidth: 0 }} returnKeyType="search" autoCorrect={false} />
           {search ? <Pressable onPress={() => setSearch('')} hitSlop={10}><Ionicons name="close-circle" size={19} color={t.muted} /></Pressable> : null}
         </View>
       </View>

@@ -85,7 +85,7 @@ export function InviteCard() {
           <Text style={{ fontSize: 12, color: t.muted }}>{tr("Sizni kimdir taklif qilganmi? Kodini kiriting (ro'yxatdan o'tgandan keyin 7 kun ichida):")}</Text>
           <View style={{ flexDirection: 'row', gap: 8 }}>
             <TextInput value={code} onChangeText={(v) => setCode(cleanRef(v))} placeholder={tr("KOD")} placeholderTextColor={t.muted} autoCapitalize="characters"
-              style={{ flex: 1, height: 40, borderRadius: 10, borderWidth: 1, borderColor: t.line, backgroundColor: t.surface, color: t.ink, paddingHorizontal: 12, fontSize: 16, letterSpacing: 2 }} />
+              style={{ flex: 1, height: 40, borderRadius: 10, borderWidth: 1, borderColor: t.line, backgroundColor: t.surface, color: t.ink, paddingHorizontal: 12, fontSize: 16, letterSpacing: 2, outlineStyle: 'none', outlineWidth: 0 }} />
             <Btn small title={tr("Qo'llash")} onPress={apply} loading={busy} />
           </View>
         </View>
