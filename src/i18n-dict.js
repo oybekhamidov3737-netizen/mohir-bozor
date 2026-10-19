@@ -3447,5 +3447,17 @@ export default {
 "STIR / JSHSHIR:": [
 "ИНН / ПИНФЛ:",
 "TIN / PINFL:"
+],
+"To'lov sahifasi ochilmasa, shu tugmani bosing:": [
+"Если страница оплаты не открылась, нажмите:",
+"If the payment page didn't open, tap:"
+],
+"To'lov sahifasini ochish": [
+"Открыть страницу оплаты",
+"Open payment page"
+],
+"To'lov hali ulanmagan. Tez orada ishga tushadi.": [
+"Оплата пока не подключена. Скоро заработает.",
+"Payments aren't connected yet. Coming soon."
 ]
 };

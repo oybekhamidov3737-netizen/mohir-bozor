@@ -1,15 +1,12 @@
 import React, { useState } from 'react';
-import { Pressable, ScrollView, Text, View } from 'react-native';
+import { Linking, Platform, Pressable, ScrollView, Text, View } from 'react-native';
 import { useRouter } from 'expo-router';
-import { Image } from 'expo-image';
 import { useT, FONT } from '../src/theme';
 import { useApp, useRequire } from '../src/app-context';
 import { supabase, errText } from '../src/supabase';
 import { fmtNum } from '../src/format';
-import { pickImages, uploadImage, newName } from '../src/images';
 import { onlinePayUrl, openPay, hasPayme, hasClick, PAYMENTS_IN_APP } from '../src/pay';
 import { Btn, Field, Note } from '../src/ui';
-import { PayDetails } from '../src/paydetails';
 import { tr } from '../src/i18n';
 
 const PRESETS = [10000, 25000, 50000, 100000, 200000];
@@ -20,12 +17,11 @@ export default function TopUp() {
   const t = useT();
   const router = useRouter();
   const need = useRequire();
-  const { uid, config, toast } = useApp();
+  const { config, toast } = useApp();
   const [amount, setAmount] = useState('50000');
-  const [payer, setPayer] = useState('');
-  const [receipt, setReceipt] = useState(null);
   const [busy, setBusy] = useState(false);
   const [err, setErr] = useState('');
+  const [payUrl, setPayUrl] = useState('');
   const sum = parseInt(String(amount).replace(/\D/g, ''), 10) || 0;
   const valid = sum >= MIN && sum <= MAX;
   const online = hasPayme(config) || hasClick(config);
@@ -42,23 +38,12 @@ export default function TopUp() {
     try {
       const { data: o, error } = await supabase.from('orders').insert({ svc: 'topup', price: sum, payer: provider, provider }).select('id, price').single();
       if (error) throw error;
+      const url = onlinePayUrl(provider, o, config);
+      setPayUrl(url);
       toast(tr("To'lov sahifasi ochilmoqda…"));
-      await openPay(onlinePayUrl(provider, o, config));
-      router.back();
-    } catch (e) { setErr(errText(e)); } finally { setBusy(false); }
-  };
-
-  const submitManual = async () => {
-    if (!check()) return;
-    if (payer.trim().length < 2) { setErr(tr("To'lovchi ismini yoki karta raqami oxirgi 4 raqamini kiriting.")); return; }
-    setBusy(true); setErr('');
-    try {
-      let receipt_path = null;
-      if (receipt) receipt_path = await uploadImage('receipts', `${uid}/${newName()}`, receipt);
-      const { error } = await supabase.from('orders').insert({ svc: 'topup', price: sum, payer: payer.trim(), receipt_path });
-      if (error) throw error;
-      toast(tr("So'rov yuborildi. Pul tushgani tasdiqlangach hisobingiz to'ladi."));
-      router.back();
+      await openPay(url);
+      // Veb'da router.back() sahifa almashishini bekor qilib qo'yardi — shuning uchun faqat ilovada orqaga qaytamiz
+      if (Platform.OS !== 'web') router.back();
     } catch (e) { setErr(errText(e)); } finally { setBusy(false); }
   };
 
@@ -98,22 +83,10 @@ export default function TopUp() {
         </View>
       ) : null}
 
-      {config.pay_text ? (
-        <View style={{ backgroundColor: t.surface, borderWidth: 1, borderColor: t.line, borderRadius: 16, padding: 14, gap: 12 }}>
-          <Text style={{ fontWeight: '800', color: t.ink }}>{online ? tr("Yoki kartaga o'tkazma (qo'lda tasdiqlanadi)") : tr("Kartaga o'tkazma")}</Text>
-          <PayDetails text={config.pay_text} />
-          <Field label={tr("To'lovchi ismi yoki karta oxirgi 4 raqami")} value={payer} onChangeText={setPayer} placeholder={tr("Masalan: Aziz, 4417")} maxLength={60} />
-          <View style={{ gap: 8 }}>
-            {receipt ? <Image source={{ uri: receipt.uri }} style={{ width: 120, height: 160, borderRadius: 10 }} contentFit="cover" /> : null}
-            <View style={{ alignSelf: 'flex-start' }}>
-              <Btn small kind="sec" icon="image-outline" title={receipt ? tr("Boshqa chek tanlash") : tr("Chekni yuklash")}
-                onPress={async () => { try { const [r] = await pickImages({ max: 1, width: 1100 }); if (r) setReceipt(r); } catch (e) { toast(e.message); } }} />
-            </View>
-          </View>
-          <Btn title={tr("O'tkazdim — {0} so'm", fmtNum(sum))} onPress={submitManual} loading={busy} disabled={!valid} />
-          <Text style={{ color: t.muted, fontSize: 12, lineHeight: 17 }}>{tr("Pul tushgani tekshirilgach hisobingizga qo'shiladi. Holatini Kabinet → To'lovlarim'da ko'rasiz.")}</Text>
-        </View>
-      ) : !online ? <Note kind="gold">{tr("To'ldirish hali ulanmagan. Tez orada ishga tushadi.")}</Note> : null}
+      {!online ? <Note kind="gold">{tr("To'ldirish hali ulanmagan. Tez orada ishga tushadi.")}</Note> : null}
+      {payUrl ? (
+        <Note>{tr("To'lov sahifasi ochilmasa, shu tugmani bosing:")}{' '}<Text style={{ color: t.accent, fontWeight: '800' }} onPress={() => Linking.openURL(payUrl).catch(() => {})}>{tr("To'lov sahifasini ochish")}</Text></Note>
+      ) : null}
 
       {err ? <Note kind="bad">{err}</Note> : null}
     </ScrollView>
