@@ -1,0 +1,15 @@
+name: Logo qidirish
+on:
+  push:
+    branches: [main]
+    paths: ['.github/workflows/logo-probe.yml']
+jobs:
+  probe:
+    runs-on: ubuntu-latest
+    steps:
+      - run: |
+          for u in https://payme.uz https://payme.uz/home/main https://business.payme.uz https://developer.help.paycom.uz; do
+            curl -sL -A "Mozilla/5.0" "$u" -o p.html || continue
+            l=$(grep -oiE '(https?:)?//[^"'"'"' )]+\.(svg|png)|"/[^"]+(logo|payme)[^"]*\.(svg|png)"' p.html | grep -i -E 'logo|payme' | sort -u | head -15 | tr '\n' ' ')
+            echo "::notice title=$u::$l"
+          done
