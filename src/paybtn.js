@@ -11,7 +11,7 @@ export function PaymeButton({ onPress, loading, label }) {
     }}>
       {loading ? <ActivityIndicator color="#0A1F2B" /> : (
         <>
-          <Image source={require('../assets/payme-logo.png')} style={{ width: 87, height: 30 }} resizeMode="contain" />
+          <Image source={require('../assets/payme-logo.png')} style={{ width: 91, height: 30 }} resizeMode="contain" />
           {label ? (
             <View style={{ flexShrink: 1 }}>
               <Text style={{ color: '#0A1F2B', fontWeight: '800', fontSize: 16 }} numberOfLines={1}>{label}</Text>
