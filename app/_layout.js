@@ -16,6 +16,14 @@ import { Intro, shouldShowIntro } from '../src/intro';
 import { ScreenEnter } from '../src/enter';
 import { tr, loadLang, useLang } from '../src/i18n';
 
+// Veb: matn maydonini bosganda chiqadigan brauzer ramkasini (to'rtburchak) olib tashlash
+if (Platform.OS === 'web' && typeof document !== 'undefined' && !document.getElementById('mb-no-outline')) {
+  const st = document.createElement('style');
+  st.id = 'mb-no-outline';
+  st.textContent = 'input,textarea,select,[contenteditable]{outline:none!important;-webkit-tap-highlight-color:transparent}input:focus,textarea:focus{outline:none!important;box-shadow:none!important}*{-webkit-tap-highlight-color:transparent}';
+  document.head.appendChild(st);
+}
+
 SplashScreen.preventAutoHideAsync().catch(() => {});
 
 // Har bir sahifadagi "orqaga" tugmasi: tarix bo'lsa orqaga, bo'lmasa (havola orqali kirilgan bo'lsa) bosh sahifaga
