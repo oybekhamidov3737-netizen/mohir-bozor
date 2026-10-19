@@ -49,7 +49,7 @@ export default function Cabinet() {
   const ins = useSafeAreaInsets();
   const router = useRouter();
   const { uid, session, profile, isAdmin, config, loadProfile, toast } = useApp();
-  const [c, setC] = useState({ live: 0, done: 0, unpaid: 0, offers: 0, apps: 0, bal: null });
+  const [c, setC] = useState({ live: 0, done: 0, offers: 0, apps: 0, bal: null });
   const [canClaim, setCanClaim] = useState(false);
   const [refreshing, setRefreshing] = useState(false);
   const [mfaNeed, recheckMfa] = useMfaNeeded();
@@ -58,16 +58,15 @@ export default function Cabinet() {
     if (!uid) return;
     const now = new Date().toISOString();
     const head = { count: 'exact', head: true };
-    const [lv, all, up, of, ap, w, ex] = await Promise.all([
+    const [lv, all, of, ap, w, ex] = await Promise.all([
       supabase.from('ads').select('id', head).eq('user_id', uid).eq('status', 'active').gt('expires_at', now),
       supabase.from('ads').select('id', head).eq('user_id', uid),
-      supabase.from('orders').select('id', head).eq('user_id', uid).in('status', ['unpaid', 'pending']),
       supabase.from('threads').select('id, ads!inner(kind)', head).eq('seller_id', uid).eq('ads.kind', 'buyurtma'),
       supabase.from('threads').select('id, ads!inner(kind)', head).eq('buyer_id', uid).eq('ads.kind', 'buyurtma'),
       PAYMENTS_IN_APP ? supabase.from('wallets').select('balance,bonus').eq('user_id', uid).maybeSingle() : Promise.resolve({ data: null }),
       supabase.rpc('admin_exists'),
     ]);
-    setC({ live: lv.count || 0, done: Math.max(0, (all.count || 0) - (lv.count || 0)), unpaid: up.count || 0, offers: of.count || 0, apps: ap.count || 0, bal: w.data });
+    setC({ live: lv.count || 0, done: Math.max(0, (all.count || 0) - (lv.count || 0)), offers: of.count || 0, apps: ap.count || 0, bal: w.data });
     setCanClaim(ex.data === false);
     setRefreshing(false);
   }, [uid]);
@@ -180,14 +179,6 @@ export default function Cabinet() {
           </Pressable>
           <Btn small title={tr("To'ldirish")} icon="add" onPress={() => router.push('/topup')} />
         </View>
-      ) : null}
-
-      {c.unpaid ? (
-        <Pressable onPress={() => router.push({ pathname: '/my-ads', params: { tab: 'unpaid' } })} style={{ marginTop: 12, backgroundColor: t.goldSoft, borderRadius: 18, padding: 12, flexDirection: 'row', alignItems: 'center', gap: 10 }}>
-          <Ionicons name="time" size={20} color={t.gold} />
-          <Text style={{ color: t.ink, flex: 1, fontWeight: '600' }}>{tr("{0} ta xizmat to'lov kutmoqda", c.unpaid)}</Text>
-          <Ionicons name="chevron-forward" size={18} color={t.gold} />
-        </Pressable>
       ) : null}
 
       <Press onPress={() => router.push('/post')} style={{ marginTop: 12 }}>

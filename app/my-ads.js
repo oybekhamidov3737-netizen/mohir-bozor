@@ -1,4 +1,4 @@
-// Mening e'lonlarim: Faol / To'lanmagan / Yakunlangan
+// Mening e'lonlarim: Faol / Yakunlangan
 import React, { useCallback, useState } from 'react';
 import { Pressable, RefreshControl, ScrollView, Text, View } from 'react-native';
 import { Stack, useFocusEffect, useLocalSearchParams, useRouter } from 'expo-router';
@@ -19,9 +19,8 @@ export default function MyAds() {
   const router = useRouter();
   const params = useLocalSearchParams();
   const { uid, isAdmin, config, toast } = useApp();
-  const [tab, setTab] = useState(params.tab === 'unpaid' || params.tab === 'done' ? params.tab : 'live');
+  const [tab, setTab] = useState(params.tab === 'done' ? 'done' : 'live');
   const [ads, setAds] = useState(null);
-  const [orders, setOrders] = useState([]);
   const [events, setEvents] = useState({});
   const [slots, setSlots] = useState(0);
   const [sure, setSure] = useState('');
@@ -29,13 +28,12 @@ export default function MyAds() {
 
   const load = useCallback(async () => {
     if (!uid) return;
-    const [a, o, s] = await Promise.all([
+    const [a, s] = await Promise.all([
       supabase.from('ads').select('*').eq('user_id', uid).order('created_at', { ascending: false }),
-      supabase.from('orders').select('*, ads(id,title,photos,cat)').eq('user_id', uid).in('status', ['unpaid', 'pending']).order('created_at', { ascending: false }).limit(50),
       supabase.from('user_slots').select('extra').eq('user_id', uid).maybeSingle(),
     ]);
     const list = a.data || [];
-    setAds(list); setOrders(o.data || []); setSlots(s.data?.extra || 0);
+    setAds(list); setSlots(s.data?.extra || 0);
     if (list.length) {
       const { data: ev } = await supabase.from('ad_events').select('*').in('ad_id', list.map((x) => x.id)).order('created_at');
       const m = {}; (ev || []).forEach((e) => { (m[e.ad_id] = m[e.ad_id] || []).push(e); });
@@ -118,7 +116,7 @@ export default function MyAds() {
     <ScrollView style={{ flex: 1, backgroundColor: t.bg }} contentContainerStyle={{ padding: 16, gap: 12, paddingBottom: 40, maxWidth: 760, width: '100%', alignSelf: 'center' }}
       refreshControl={<RefreshControl refreshing={refreshing} tintColor={t.accent} onRefresh={() => { setRefreshing(true); load(); }} />}>
       <Stack.Screen options={{ title: tr("Mening e'lonlarim") }} />
-      <Seg value={tab} onChange={setTab} options={[['live', tr('Faol ({0})', live.length)], ['unpaid', tr("To'lanmagan ({0})", orders.length)], ['done', tr('Yakunlangan ({0})', done.length)]]} />
+      <Seg value={tab} onChange={setTab} options={[['live', tr('Faol ({0})', live.length)], ['done', tr('Yakunlangan ({0})', done.length)]]} />
       {ads === null ? <Loading /> : tab === 'live' ? (
         <>
           {lim !== Infinity ? (
@@ -132,22 +130,8 @@ export default function MyAds() {
           ) : null}
           {live.length ? live.map(adCard) : <Empty title={tr("Faol e'lonlar yo'q")} text={tr("Xizmatingizni rasmlar bilan joylang yoki buyurtma e'lonini bering.")} action={tr("E'lon joylash")} onAction={() => router.push('/post')} />}
         </>
-      ) : tab === 'done' ? (
-        done.length ? done.map(adCard) : <Empty title={tr("Yakunlangan e'lonlar yo'q")} text={tr("Muddati tugagan va o'chirilgan e'lonlar shu yerda saqlanadi.")} />
       ) : (
-        <>
-          <Text style={{ color: t.muted, lineHeight: 19 }}>{tr("Bu xizmatlar to'lov kutmoqda. Faollashtirish uchun to'lovni yakunlang yoki chek yuborgan bo'lsangiz, tasdiqlanishini kuting.")}</Text>
-          {orders.length ? orders.map((o) => (
-            <Pressable key={o.id} onPress={() => o.status === 'unpaid' && paid ? router.push(o.svc === 'topup' ? '/topup' : `/promo/${o.ad_id || 'slots'}`) : null}
-              style={{ backgroundColor: t.surface, borderRadius: 18, padding: 12, gap: 4 }}>
-              <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', gap: 8 }}>
-                <Text style={{ fontWeight: '800', color: t.ink, flex: 1 }} numberOfLines={1}>{SVC[o.svc]}{o.ads?.title ? ' · ' + o.ads.title : ''}</Text>
-                <Badge kind="wait">{o.status === 'pending' ? tr('TEKSHIRILMOQDA') : tr("TO'LANMAGAN")}</Badge>
-              </View>
-              <Text style={{ color: t.muted, fontSize: 13 }}>{fmtNum(o.price)} {tr("so'm")} · {o.code} · {ago(o.created_at)}</Text>
-            </Pressable>
-          )) : <Empty title={tr("To'lanmagan xizmatlar yo'q")} />}
-        </>
+        done.length ? done.map(adCard) : <Empty title={tr("Yakunlangan e'lonlar yo'q")} text={tr("Muddati tugagan va o'chirilgan e'lonlar shu yerda saqlanadi.")} />
       )}
     </ScrollView>
   );
