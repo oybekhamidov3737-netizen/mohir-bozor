@@ -8,8 +8,9 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - run: |
-          echo "::notice title=A::y $(dig +short A mohirbozor.uz @8.8.8.8 | tr '\n' ' ')"
-          for u in https://oybekhamidov3737-netizen.github.io/mohir-bozor/ https://oybekhamidov3737-netizen.github.io/mohir-bozor/version.json http://mohirbozor.uz/ https://mohirbozor.uz/; do
-            r=$(curl -s -o /dev/null -m 20 -w "%{http_code} -> %{redirect_url}" "$u")
-            echo "::notice title=$u::x $r"
-          done
+          T=$(dig +short NS uz. | head -1)
+          echo "::notice title=tld::v $T"
+          echo "::notice title=deleg::v $(dig +norec NS mohirbozor.uz @$T | grep -E 'NS|status' | tr '\n' ' ' | cut -c1-400)"
+          echo "::notice title=pscloud::v $(dig +short A mohirbozor.uz @ns1.pscloud.uz | tr '\n' ' ')"
+          echo "::notice title=google::v $(dig +short A mohirbozor.uz @8.8.8.8 | tr '\n' ' ')"
+          echo "::notice title=cf::v $(dig +short A mohirbozor.uz @1.1.1.1 | tr '\n' ' ')"
