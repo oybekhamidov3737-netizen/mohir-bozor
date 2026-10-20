@@ -16,6 +16,12 @@ import { Intro, shouldShowIntro, introDone } from '../src/intro';
 import { ScreenEnter } from '../src/enter';
 import { tr, loadLang, useLang } from '../src/i18n';
 
+// Veb: http yoki www orqali kirilsa — xavfsiz https://mohirbozor.uz manziliga o'tkazish
+if (Platform.OS === 'web' && typeof location !== 'undefined' && /(^|\.)mohirbozor\.uz$/.test(location.hostname)
+  && (location.protocol === 'http:' || location.hostname !== 'mohirbozor.uz')) {
+  location.replace('https://mohirbozor.uz' + location.pathname + location.search + location.hash);
+}
+
 // Veb: matn maydonini bosganda chiqadigan brauzer ramkasini (to'rtburchak) olib tashlash
 if (Platform.OS === 'web' && typeof document !== 'undefined' && !document.getElementById('mb-no-outline')) {
   const st = document.createElement('style');
