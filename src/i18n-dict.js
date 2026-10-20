@@ -3463,5 +3463,29 @@ export default {
 "{0} so'm": [
 "{0} сум",
 "{0} UZS"
+],
+"STIR": [
+"ИНН",
+"TIN"
+],
+"Ro'yxatdan o'tgan": [
+"Зарегистрирован",
+"Registered"
+],
+"Telefon": [
+"Телефон",
+"Phone"
+],
+"Mohir bozor": [
+"Mohir bozor",
+"Mohir bozor"
+],
+"8. Ijrochi va aloqa": [
+"8. Исполнитель и контакты",
+"8. Provider and contacts"
+],
+"To'lov Payme yoki Click orqali Uzcard/Humo kartasi bilan amalga oshiriladi. To'lov tasdiqlangandan keyin xizmat avtomatik ravishda darhol yoqiladi. To'lov tizimi elektron fiskal chekni beradi.": [
+"Оплата производится картой Uzcard/Humo через Payme или Click. После подтверждения оплаты услуга включается автоматически и сразу. Платёжная система выдаёт электронный фискальный чек.",
+"Payment is made with an Uzcard/Humo card via Payme or Click. Once payment is confirmed, the service is activated automatically and instantly. The payment system issues an electronic fiscal receipt."
 ]
 };
