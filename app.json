@@ -52,8 +52,6 @@
         }
       ]
     ],
-    "experiments": {
-      "baseUrl": "/mohir-bozor"
-    }
+    "experiments": {}
   }
 }

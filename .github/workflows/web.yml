@@ -40,6 +40,7 @@ jobs:
           cp dist/index.html dist/404.html
           echo "{\"build\":\"${GITHUB_SHA::7}\"}" > dist/version.json
           touch dist/.nojekyll
+          echo 'mohirbozor.uz' > dist/CNAME
       - name: gh-pages tarmog'iga joylash
         run: |
           cd dist
