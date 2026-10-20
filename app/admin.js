@@ -29,6 +29,8 @@ export default function Admin() {
   const [cfg, setCfg] = useState(null);
   const [paySt, setPaySt] = useState(null);
   const [keys, setKeys] = useState({ payme: '', click: '', mail: '' });
+  const [sms, setSms] = useState({ email: '', password: '', sender: '' });
+  const [smsSt, setSmsSt] = useState(null);
 
   const load = useCallback(async () => {
     const { data: rp } = await supabase.from('reports').select('*, ads(id,title,seller_name,status)').order('created_at', { ascending: false }).limit(200);
@@ -43,7 +45,7 @@ export default function Admin() {
     setProfs(await fetchProfiles(ids));
     setRefreshing(false);
   }, []);
-  useFocusEffect(useCallback(() => { if (isAdmin) { load(); supabase.rpc('admin_payment_status').then(({ data }) => setPaySt(data)); } }, [isAdmin, load]));
+  useFocusEffect(useCallback(() => { if (isAdmin) { load(); supabase.rpc('admin_payment_status').then(({ data }) => setPaySt(data)); supabase.rpc('admin_sms_status').then(({ data }) => setSmsSt(data)); } }, [isAdmin, load]));
   useEffect(() => {
     if (!isAdmin) return;
     const ch = supabase.channel('admin-orders').on('postgres_changes', { event: '*', schema: 'public', table: 'orders' }, () => load()).subscribe();
@@ -92,7 +94,14 @@ export default function Admin() {
       legal_address: String(cfg.legal_address || '').trim(), legal_bank: String(cfg.legal_bank || '').trim(),
       fiscal_mxik: String(cfg.fiscal_mxik || '').replace(/\D/g, ''), fiscal_package: String(cfg.fiscal_package || '').replace(/\D/g, ''),
       fiscal_vat: Math.min(100, n('fiscal_vat')),
+      sms_login: !!cfg.sms_login,
     };
+    if (sms.email || sms.password || sms.sender) {
+      const { error: sErr } = await supabase.rpc('admin_set_sms', { p_email: sms.email, p_password: sms.password, p_sender: sms.sender });
+      if (sErr) { toast(errText(sErr)); return; }
+      setSms({ email: '', password: '', sender: '' });
+      supabase.rpc('admin_sms_status').then(({ data }) => setSmsSt(data));
+    }
     if (keys.mail) {
       const { error: mErr } = await supabase.rpc('admin_set_mail_password', { p_pass: keys.mail });
       if (mErr) { toast(errText(mErr)); return; }
@@ -223,6 +232,16 @@ export default function Admin() {
               ['free_ads', tr("Bepul e'lonlar limiti")], ['slot_pack', tr("Bir paketda nechta joy")], ['promo_days', tr("TOP/VIP muddati (kun)")], ['ad_days', tr("E'lon muddati (kun)")]].map(([k, l]) => (
               <Field key={k} label={l + (k.startsWith('p_') ? tr(" (so'm)") : '')} value={String(cfg[k] ?? '')} keyboardType="number-pad" onChangeText={(v) => setCfg({ ...cfg, [k]: v.replace(/\D/g, '') })} />
             ))}
+            <H>{tr("SMS orqali kirish (Eskiz.uz)")}</H>
+            <Field label={tr("Eskiz login (email)") + (smsSt?.email ? ' · ' + smsSt.email : '')} value={sms.email} onChangeText={(v) => setSms({ ...sms, email: v })} autoCapitalize="none" keyboardType="email-address"
+              placeholder={smsSt?.email ? tr("O'zgartirish uchun yangisini yozing") : 'ism@gmail.com'} />
+            <Field label={tr("Eskiz paroli") + (smsSt?.has_password ? tr(" · kiritilgan ✓") : '')} value={sms.password} onChangeText={(v) => setSms({ ...sms, password: v })} secureTextEntry autoCapitalize="none"
+              placeholder={smsSt?.has_password ? tr("O'zgartirish uchun yangisini yozing") : tr("Parolni yozing")} hint={tr("Chatga hech kimga yubormang.")} />
+            <Field label={tr("Jo'natuvchi nomi (Nickname)") + (smsSt?.sender ? ' · ' + smsSt.sender : '')} value={sms.sender} onChangeText={(v) => setSms({ ...sms, sender: v })} autoCapitalize="none" placeholder="4546" />
+            <Pressable onPress={() => setCfg({ ...cfg, sms_login: !cfg.sms_login })} style={{ flexDirection: 'row', gap: 8, alignItems: 'center' }}>
+              <Ionicons name={cfg.sms_login ? 'checkbox' : 'square-outline'} size={22} color={t.accent} />
+              <Text style={{ color: t.ink, flex: 1 }}>{tr("Telefon raqam bilan kirishni yoqish")}</Text>
+            </Pressable>
             <H>{tr("Xavfsizlik")}</H>
             <Field label={tr("Gmail ilova parolini almashtirish")} value={keys.mail} onChangeText={(v) => setKeys({ ...keys, mail: v })} secureTextEntry autoCapitalize="none"
               placeholder={tr("Yangi 16 harfli parol")} hint={tr("Google hisobi → Xavfsizlik → Ilova parollari. Eski parolni o'chirib, yangisini shu yerga yozing. Chatga hech kimga yubormang.")} />

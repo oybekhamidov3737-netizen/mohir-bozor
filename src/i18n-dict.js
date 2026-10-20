@@ -3491,5 +3491,69 @@ export default {
 "Kod allaqachon yuborilgan — pochtangizni (Spam papkasini ham) tekshiring": [
 "Код уже отправлен — проверьте почту (и папку «Спам»)",
 "Code already sent — check your email (including Spam)"
+],
+"Pochta": [
+"Почта",
+"Email"
+],
+"Telefon raqam": [
+"Номер телефона",
+"Phone number"
+],
+"Telefon raqamingizni kiriting. Unga SMS orqali kirish kodi yuboramiz. Parol shart emas.": [
+"Введите номер телефона. Мы отправим код входа по SMS. Пароль не нужен.",
+"Enter your phone number. We'll send a login code by SMS. No password needed."
+],
+"Telefon raqamni to'liq kiriting: 9 ta raqam, masalan 90 123 45 67": [
+"Введите номер полностью: 9 цифр, например 90 123 45 67",
+"Enter the full number: 9 digits, e.g. 90 123 45 67"
+],
+"+998 {0} raqamiga SMS orqali kod yuborildi. Kodni pastga yozing.": [
+"Код отправлен по SMS на +998 {0}. Введите его ниже.",
+"A code was sent by SMS to +998 {0}. Enter it below."
+],
+"Kod SMS orqali yuborildi": [
+"Код отправлен по SMS",
+"Code sent by SMS"
+],
+"Kod allaqachon yuborilgan — SMS'larni tekshiring": [
+"Код уже отправлен — проверьте SMS",
+"Code already sent — check your SMS"
+],
+"Kelgan 6 xonali kodni kiriting.": [
+"Введите полученный 6-значный код.",
+"Enter the 6-digit code you received."
+],
+"Raqamni o'zgartirish": [
+"Изменить номер",
+"Change number"
+],
+"SMS orqali kirish (Eskiz.uz)": [
+"Вход по SMS (Eskiz.uz)",
+"SMS login (Eskiz.uz)"
+],
+"Eskiz login (email)": [
+"Логин Eskiz (email)",
+"Eskiz login (email)"
+],
+"Eskiz paroli": [
+"Пароль Eskiz",
+"Eskiz password"
+],
+"Parolni yozing": [
+"Введите пароль",
+"Enter password"
+],
+"Chatga hech kimga yubormang.": [
+"Никому не отправляйте в чат.",
+"Never share it in chat."
+],
+"Jo'natuvchi nomi (Nickname)": [
+"Имя отправителя (Nickname)",
+"Sender name (Nickname)"
+],
+"Telefon raqam bilan kirishni yoqish": [
+"Включить вход по номеру телефона",
+"Enable phone number login"
 ]
 };

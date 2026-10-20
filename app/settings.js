@@ -30,7 +30,7 @@ export default function Settings() {
         <>
           <H>{tr('Hisob')}</H>
           <MenuGroup items={[
-            { icon: 'person', title: tr('Profilni tahrirlash'), sub: session.user.email, color: '#2747D6', onPress: () => router.push('/profile') },
+            { icon: 'person', title: tr('Profilni tahrirlash'), sub: /@tel\.mohirbozor\.uz$/.test(session.user.email || '') ? (session.user.user_metadata?.phone || '') : session.user.email, color: '#2747D6', onPress: () => router.push('/profile') },
             { icon: 'briefcase', title: tr('Istagan ishim'), color: '#0C9A6A', onPress: () => router.push('/prefs') },
           ]} />
           {isAdmin ? <MfaSetup /> : null}
