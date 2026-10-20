@@ -1,0 +1,13 @@
+name: DNS tekshirish
+on:
+  push:
+    branches: [main]
+    paths: ['.github/workflows/dns-check.yml']
+jobs:
+  dns:
+    runs-on: ubuntu-latest
+    steps:
+      - run: |
+          echo "::notice title=A::$(dig +short A mohirbozor.uz @8.8.8.8 | tr '\n' ' ')"
+          echo "::notice title=www::$(dig +short www.mohirbozor.uz @8.8.8.8 | tr '\n' ' ')"
+          echo "::notice title=NS::$(dig +short NS mohirbozor.uz @8.8.8.8 | tr '\n' ' ')"
