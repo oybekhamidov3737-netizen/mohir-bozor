@@ -10,6 +10,6 @@ jobs:
       - run: |
           for u in http://mohirbozor.uz/ https://mohirbozor.uz/ https://mohirbozor.uz/version.json https://www.mohirbozor.uz/ https://oybekhamidov3737-netizen.github.io/mohir-bozor/ ; do
             r=$(curl -s -o /dev/null -m 20 -w "%{http_code} -> %{redirect_url}" "$u" || echo "XATO $?")
-            echo "::notice title=$u::z $r"
+            echo "::notice title=$u::q $r"
           done
-          echo "::notice title=ver::z $(curl -s -m 20 https://mohirbozor.uz/version.json || curl -s -m 20 http://mohirbozor.uz/version.json)"
+          echo "::notice title=ver::q $(curl -s -m 20 https://mohirbozor.uz/version.json || curl -s -m 20 http://mohirbozor.uz/version.json)"
