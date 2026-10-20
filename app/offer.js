@@ -15,7 +15,6 @@ export default function Offer() {
   const { config } = useApp();
   const c = config || {};
   const site = WEB_URL.replace('https://', '');
-  const phone = c.support_phone || '+998 91 001 88 18';
   const seller = c.legal_name || '';
   const priced = ['top', 'vip', 'bump', 'extend', 'restore', 'slots'];
   const prices = priced.map((k) => `${SVC[k]} — ${fmtNum(c.prices?.[k])} ${tr("so'm")}`).join('; ');
@@ -75,7 +74,7 @@ export default function Offer() {
       "11.1. Oferta Platformada e'lon qilingan kundan boshlab muddatsiz amal qiladi va Ijrochi uni bekor qilgunga qadar kuchda bo'ladi.",
     ]],
     [tr('12. Ijrochi rekvizitlari'), [
-      `12.1. Ijrochi: ${seller}${c.legal_inn ? `, STIR ${c.legal_inn}` : ''}${c.legal_address ? `, ${c.legal_address}` : ''}. Aloqa: ${phone}, ${site}.`,
+      `12.1. Ijrochi: ${seller}${c.legal_inn ? `, STIR ${c.legal_inn}` : ''}${c.legal_address ? `, ${c.legal_address}` : ''}. Aloqa: ilovadagi «Yordam» bo'limi orqali yoki ${site}.`,
     ]],
   ];
 
