@@ -8,6 +8,8 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - run: |
-          echo "::notice title=A::$(dig +short A mohirbozor.uz @8.8.8.8 | tr '\n' ' ')"
-          echo "::notice title=www::$(dig +short www.mohirbozor.uz @8.8.8.8 | tr '\n' ' ')"
-          echo "::notice title=NS::$(dig +short NS mohirbozor.uz @8.8.8.8 | tr '\n' ' ')"
+          echo "::notice title=A::x $(dig +short A mohirbozor.uz @8.8.8.8 | tr '\n' ' ')"
+          for u in https://oybekhamidov3737-netizen.github.io/mohir-bozor/ https://oybekhamidov3737-netizen.github.io/mohir-bozor/version.json http://mohirbozor.uz/ https://mohirbozor.uz/; do
+            r=$(curl -s -o /dev/null -m 20 -w "%{http_code} -> %{redirect_url}" "$u")
+            echo "::notice title=$u::x $r"
+          done
