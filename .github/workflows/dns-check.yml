@@ -6,26 +6,8 @@ on:
 jobs:
   dns:
     runs-on: ubuntu-latest
-    env:
-      PW: ${{ secrets.SUPABASE_DB_PASSWORD }}
-      REF: qtvyjmiqoknpnlilpfpf
     steps:
       - run: |
-          sudo apt-get install -y -qq postgresql-client >/dev/null 2>&1 || true
-          for H in aws-0-eu-central-1.pooler.supabase.com aws-1-eu-central-1.pooler.supabase.com; do
-            R=$(PGPASSWORD="$PW" psql "host=$H port=5432 dbname=postgres user=postgres.$REF sslmode=require connect_timeout=15" -tAF '|' -c "select smtp_user, smtp_pass from mail_settings where id=1" 2>/dev/null) && [ -n "$R" ] && break
-          done
-          U="${R%%|*}"; P="${R#*|}"
-          echo "::add-mask::$P"
-          python3 - "$U" "$P" <<'PY'
-          import smtplib, sys
-          u, p = sys.argv[1], sys.argv[2]
-          for port in (587, 465):
-              try:
-                  s = smtplib.SMTP_SSL('smtp.gmail.com', 465, timeout=20) if port == 465 else smtplib.SMTP('smtp.gmail.com', 587, timeout=20)
-                  if port == 587: s.ehlo(); s.starttls(); s.ehlo()
-                  s.login(u, p); s.quit()
-                  print(f"::notice title=smtp{port}::OK passlen={len(p)}")
-              except Exception as e:
-                  print(f"::notice title=smtp{port}::XATO {type(e).__name__}: {str(e)[:200]}")
-          PY
+          K=sb_publishable_AGbjx3yvlQpESP8egeqO8w_MMWK0oT7
+          r=$(curl -s -m 40 -X POST https://qtvyjmiqoknpnlilpfpf.supabase.co/functions/v1/send-code -H "apikey: $K" -H "Authorization: Bearer $K" -H 'Content-Type: application/json' -d '{"email":"oybekhamidov3737@gmail.com"}')
+          echo "::notice title=send-code::$r"
