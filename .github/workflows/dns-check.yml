@@ -8,6 +8,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - run: |
+          sleep 60
           K=sb_publishable_AGbjx3yvlQpESP8egeqO8w_MMWK0oT7
           r=$(curl -s -m 40 -X POST https://qtvyjmiqoknpnlilpfpf.supabase.co/functions/v1/send-code -H "apikey: $K" -H "Authorization: Bearer $K" -H 'Content-Type: application/json' -d '{"email":"oybekhamidov3737@gmail.com"}')
           echo "::notice title=send-code::$r"
