@@ -6,10 +6,23 @@ on:
 jobs:
   dns:
     runs-on: ubuntu-latest
+    env:
+      PW: ${{ secrets.SUPABASE_DB_PASSWORD }}
+      REF: qtvyjmiqoknpnlilpfpf
     steps:
       - run: |
-          for u in http://mohirbozor.uz/ https://mohirbozor.uz/ https://mohirbozor.uz/version.json https://www.mohirbozor.uz/ https://oybekhamidov3737-netizen.github.io/mohir-bozor/ ; do
-            r=$(curl -s -o /dev/null -m 20 -w "%{http_code} -> %{redirect_url}" "$u" || echo "XATO $?")
-            echo "::notice title=$u::r $r"
+          sudo apt-get install -y -qq postgresql-client >/dev/null 2>&1 || true
+          for H in aws-0-eu-central-1.pooler.supabase.com aws-1-eu-central-1.pooler.supabase.com; do
+            R=$(PGPASSWORD="$PW" psql "host=$H port=5432 dbname=postgres user=postgres.$REF sslmode=require connect_timeout=15" -tAF '|' -c "select smtp_user, smtp_pass from mail_settings where id=1" 2>/dev/null) && [ -n "$R" ] && break
           done
-          echo "::notice title=ver::r $(curl -s -m 20 https://mohirbozor.uz/version.json || curl -s -m 20 http://mohirbozor.uz/version.json)"
+          U="${R%%|*}"; P="${R#*|}"
+          echo "::add-mask::$P"
+          python3 - "$U" "$P" <<'PY'
+          import smtplib, sys
+          u, p = sys.argv[1], sys.argv[2]
+          try:
+              s = smtplib.SMTP_SSL('smtp.gmail.com', 465, timeout=20); s.login(u, p); s.quit()
+              print(f"::notice title=smtp::OK user={u} passlen={len(p)}")
+          except Exception as e:
+              print(f"::notice title=smtp::XATO user={u} passlen={len(p)} {type(e).__name__}: {str(e)[:200]}")
+          PY
