@@ -20,9 +20,12 @@ jobs:
           python3 - "$U" "$P" <<'PY'
           import smtplib, sys
           u, p = sys.argv[1], sys.argv[2]
-          try:
-              s = smtplib.SMTP_SSL('smtp.gmail.com', 465, timeout=20); s.login(u, p); s.quit()
-              print(f"::notice title=smtp::OK user={u} passlen={len(p)}")
-          except Exception as e:
-              print(f"::notice title=smtp::XATO user={u} passlen={len(p)} {type(e).__name__}: {str(e)[:200]}")
+          for port in (587, 465):
+              try:
+                  s = smtplib.SMTP_SSL('smtp.gmail.com', 465, timeout=20) if port == 465 else smtplib.SMTP('smtp.gmail.com', 587, timeout=20)
+                  if port == 587: s.ehlo(); s.starttls(); s.ehlo()
+                  s.login(u, p); s.quit()
+                  print(f"::notice title=smtp{port}::OK passlen={len(p)}")
+              except Exception as e:
+                  print(f"::notice title=smtp{port}::XATO {type(e).__name__}: {str(e)[:200]}")
           PY
