@@ -3487,5 +3487,9 @@ export default {
 "To'lov Payme yoki Click orqali Uzcard/Humo kartasi bilan amalga oshiriladi. To'lov tasdiqlangandan keyin xizmat avtomatik ravishda darhol yoqiladi. To'lov tizimi elektron fiskal chekni beradi.": [
 "Оплата производится картой Uzcard/Humo через Payme или Click. После подтверждения оплаты услуга включается автоматически и сразу. Платёжная система выдаёт электронный фискальный чек.",
 "Payment is made with an Uzcard/Humo card via Payme or Click. Once payment is confirmed, the service is activated automatically and instantly. The payment system issues an electronic fiscal receipt."
+],
+"Kod allaqachon yuborilgan — pochtangizni (Spam papkasini ham) tekshiring": [
+"Код уже отправлен — проверьте почту (и папку «Спам»)",
+"Code already sent — check your email (including Spam)"
 ]
 };

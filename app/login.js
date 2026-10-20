@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useRef, useState } from 'react';
 import { KeyboardAvoidingView, Platform, ScrollView, Text, View } from 'react-native';
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
@@ -21,15 +21,24 @@ export default function Login() {
   const [err, setErr] = useState('');
   const [pass, setPass] = useState('');
 
+  const sending = useRef(false);
   const send = async () => {
     const e = email.trim().toLowerCase();
     if (!ALLOWED_EMAIL.test(e)) { setErr(tr("Faqat Gmail (@gmail.com) yoki iCloud (@icloud.com) pochtasini kiriting.")); return; }
+    if (sending.current) return; // ikki marta bosilsa, ikkinchi so'rov yuborilmaydi
+    sending.current = true;
     setBusy(true); setErr('');
     const { data, error } = await supabase.functions.invoke('send-code', { body: { email: e } });
-    setBusy(false);
+    setBusy(false); sending.current = false;
     if (error || !data?.ok) {
       let msg = data?.error;
       try { if (!msg && error?.context) msg = (await error.context.json()).error; } catch (x) {}
+      // Kod yaqinda yuborilgan bo'lsa — kod kiritish oynasiga o'tamiz (avvalgi kod amal qiladi)
+      if (error?.context?.status === 429 || /urinish/i.test(String(msg || ''))) {
+        setStep('code');
+        toast(tr("Kod allaqachon yuborilgan — pochtangizni (Spam papkasini ham) tekshiring"));
+        return;
+      }
       setErr(msg || errText(error));
       return;
     }
