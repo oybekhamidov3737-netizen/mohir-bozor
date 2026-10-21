@@ -60,7 +60,7 @@ async function askAI(key: string, sys: string, hist: { role: string; text: strin
       method: "POST", headers: { "content-type": "application/json", "x-goog-api-key": key },
       body: JSON.stringify({ systemInstruction: { parts: [{ text: sys }] },
         contents: hist.map((m) => ({ role: m.role === "bot" ? "model" : "user", parts: [{ text: m.text }] })),
-        generationConfig: { maxOutputTokens: 2048, temperature: 0.4 } }),
+        generationConfig: { maxOutputTokens: 2048, temperature: 0.7 } }),
     });
     const j = await r.json().catch(() => ({}));
     const t = j?.candidates?.[0]?.content?.parts?.map((x: any) => x.text).join("") || "";
