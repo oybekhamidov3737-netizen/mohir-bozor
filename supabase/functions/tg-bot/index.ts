@@ -203,7 +203,7 @@ async function startOperator(cfg: any, chat: number, from: any, firstText?: stri
   await setUser(from, chat, { op_until: new Date(Date.now() + OP_HOURS * 3600e3).toISOString() });
   await tg(cfg.token, "sendMessage", {
     chat_id: chat, reply_markup: OP_MENU,
-    text: "👨‍💼 Siz mutaxassis bilan bog'landingiz.\n\nSavolingizni batafsil yozing (rasm yoki skrinshot ham yuborsa bo'ladi). Mutaxassis shu yerda javob beradi.\n\nTugatgach «✅ Murojaatni yakunlash» ni bosing.",
+    text: "👨‍💼 Sizni bo'sh mutaxassis bilan bog'layapman. Bu bir necha daqiqa vaqt olishi mumkin.\n\nSavolingizni yozib qoldiring — birinchi bo'sh mutaxassis javob beradi.\n\nTugatgach «✅ Murojaatni yakunlash» ni bosing.",
   });
   const r = await tg(cfg.token, "sendMessage", { chat_id: cfg.admin_chat, text: `🆕 Yangi murojaat\n👤 ${who(from, chat)}${firstText ? "\n\n" + firstText : ""}\n\n↩️ Javob berish uchun shu xabarga «Reply» qiling.` });
   if (r?.result?.message_id) await sb.from("tg_relay").upsert({ admin_msg_id: r.result.message_id, user_chat: chat });
