@@ -67,6 +67,43 @@ async function askAI(key: string, sys: string, hist: { role: string; text: strin
   return "";
 }
 
+
+// Kalitsiz ishlaydigan oddiy javoblar (AI ulanmagan yoki javob bermasa)
+async function faqAnswer(text: string) {
+  const t = text.toLowerCase();
+  const { data: c } = await sb.from("config").select("prices,free_ads,slot_pack,promo_days,ad_days,support_phone").eq("id", 1).maybeSingle();
+  const p = c?.prices || {};
+  const so = (n: number) => `${Number(n || 0).toLocaleString("ru-RU").replace(/,/g, " ")} so'm`;
+  const has = (...w: string[]) => w.some((x) => t.includes(x));
+  const out: string[] = [];
+  if (has("narx", "qancha", "nech pul", "necha pul", "цена", "сколько", "стоим", "price", "cost", "top", "vip", "ко'тар", "kotar", "ko'tar", "поднят")) {
+    out.push(`💰 Narxlar:\n• TOP — ${so(p.top)} (${c?.promo_days ?? 7} kun qidiruv tepasida)\n• VIP — ${so(p.vip)} (${c?.promo_days ?? 7} kun bosh sahifada, oltin ramka)\n• Ko'tarish — ${so(p.bump)}\n• Uzaytirish — ${so(p.extend)}\n• Tiklash — ${so(p.restore)}\n• +${c?.slot_pack ?? 5} ta e'lon joyi — ${so(p.slots)}\nOddiy e'lon joylash bepul (${c?.free_ads ?? 5} tagacha).`);
+  }
+  if (has("joyla", "e'lon ber", "elon ber", "e'lon qo", "elon qo", "разместить", "объявлен", "post", "listing")) {
+    out.push(`📝 E'lon joylash: ilovada pastdagi «+» tugmasi → kategoriya, sarlavha, tavsif, narx, hudud va rasmlar → «Joylash». Bepul, ${c?.free_ads ?? 5} tagacha faol e'lon, har biri ${c?.ad_days ?? 30} kun turadi.`);
+  }
+  if (has("to'lov", "tolov", "payme", "click", "karta", "оплат", "плат", "pay")) {
+    out.push("💳 To'lov Payme orqali (Uzcard/Humo). To'lovdan keyin xizmat darhol avtomatik yoqiladi. Kabinetda hisobni to'ldirib, balansdan ham to'lash mumkin.");
+  }
+  if (has("qaytar", "возврат", "вернуть", "refund")) {
+    out.push("↩️ Xizmat yoqilgach pul qaytarilmaydi. Texnik xato yoki pul ikki marta yechilgan bo'lsa — 14 kun ichida Kabinet → Yordam ga yozing, 10 ish kunida qaytariladi.");
+  }
+  if (has("kir", "login", "parol", "kod", "войти", "вход", "код", "пароль")) {
+    out.push(`🔐 Kirish: saytda «Telegram orqali kirish» (raqamni ulashasiz) yoki Gmail/iCloud pochtaga keladigan kod bilan. Parol kerak emas. ${SITE}`);
+  }
+  if (has("telegram", "instagram", "kontakt", "raqam yoz", "контакт", "номер")) {
+    out.push("ℹ️ E'longa tashqi kontakt (Telegram, Instagram, WhatsApp, @username) yozib bo'lmaydi — mijozlar ilova ichidagi chat orqali yozadi.");
+  }
+  if (has("baho", "reyting", "отзыв", "рейтинг", "review")) {
+    out.push("⭐ Baholarni faqat ijodkor bilan chatda yozishgan foydalanuvchilar qoldira oladi: chatdagi «…» → «Baho qoldirish».");
+  }
+  if (has("salom", "assalom", "привет", "здравств", "hello")) {
+    out.push("👋 Assalomu alaykum! Ilova haqida savolingizni yozing: narxlar, e'lon joylash, to'lov, kirish...");
+  }
+  if (!out.length) return "";
+  return out.join("\n\n") + `\n\nBoshqa savol bo'lsa — yozing. Inson bilan: ${SITE} → Kabinet → Yordam yoki ${c?.support_phone || "+998 91 001 88 18"}.`;
+}
+
 const FALLBACK = `Savolingiz uchun rahmat! Javobni ilovadagi qo'llab-quvvatlashdan olasiz: ${SITE} → Kabinet → Yordam.`;
 
 async function support(cfg: any, chat: number, text: string) {
@@ -83,6 +120,7 @@ async function support(cfg: any, chat: number, text: string) {
   const { data: key } = await sb.rpc("get_ai_key");
   let answer = "";
   try { if (key) answer = (await askAI(String(key), await knowledge(), hist)).trim(); } catch (_) { answer = ""; }
+  if (!answer) answer = await faqAnswer(text);
   if (!answer) answer = FALLBACK;
   await sb.from("tg_chat_log").insert([{ chat_id: chat, role: "user", text: text.slice(0, 1500) }, { chat_id: chat, role: "bot", text: answer.slice(0, 3000) }]);
   await tg(cfg.token, "sendMessage", { chat_id: chat, text: answer.slice(0, 4000) });
