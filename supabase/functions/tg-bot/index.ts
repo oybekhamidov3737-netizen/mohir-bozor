@@ -39,7 +39,7 @@ Pullik xizmatlar: TOP ${so(p.top)} (${c?.promo_days ?? 7} kun qidiruv tepasida),
 To'lov: Payme (Uzcard/Humo), xizmat darhol avtomatik yoqiladi. Kabinetda hisobni to'ldirib, balansdan ham to'lasa bo'ladi. Pul qaytarish: xizmat yoqilgach qaytarilmaydi; texnik xato yoki ikki marta yechilgan bo'lsa 14 kun ichida murojaat qilinadi, 10 ish kunida qaytariladi.
 Profil: Kabinet -> profil, ism, rasm, kategoriya, hudud. Har bir foydalanuvchining ID raqami bor, qidiruvda ID bo'yicha topsa bo'ladi. Baholar: faqat chatda yozishgan foydalanuvchilar qoldira oladi. Shikoyat va bloklash chatdagi "…" menyusida.
 Inson bilan bog'lanish: ilovada Kabinet -> Yordam (support chat) yoki telefon ${c?.support_phone || "+998 91 001 88 18"}.
-Qoidalar: qisqa (2-5 gap), samimiy, foydalanuvchi qaysi tilda yozsa o'sha tilda (o'zbek lotin, o'zbek kirill, rus, ingliz) javob ber. Bilmagan narsangni to'qima — "Kabinet -> Yordam" ga yozishni tavsiya qil. Shaxsiy ma'lumot, parol, karta raqami so'rama. Platformaga aloqasiz savollarga xushmuomalalik bilan rad et.`;
+Qoidalar: oddiy matn (Markdown, ** belgilari ishlatma), qisqa (2-5 gap), samimiy, foydalanuvchi qaysi tilda yozsa o'sha tilda (o'zbek lotin, o'zbek kirill, rus, ingliz) javob ber. Bilmagan narsangni to'qima — "Kabinet -> Yordam" ga yozishni tavsiya qil. Shaxsiy ma'lumot, parol, karta raqami so'rama. Platformaga aloqasiz savollarga xushmuomalalik bilan rad et.`;
 }
 
 async function askAI(key: string, sys: string, hist: { role: string; text: string }[]) {
@@ -58,7 +58,7 @@ async function askAI(key: string, sys: string, hist: { role: string; text: strin
       method: "POST", headers: { "content-type": "application/json", "x-goog-api-key": key },
       body: JSON.stringify({ systemInstruction: { parts: [{ text: sys }] },
         contents: hist.map((m) => ({ role: m.role === "bot" ? "model" : "user", parts: [{ text: m.text }] })),
-        generationConfig: { maxOutputTokens: 500, temperature: 0.4 } }),
+        generationConfig: { maxOutputTokens: 2048, temperature: 0.4 } }),
     });
     const j = await r.json().catch(() => ({}));
     const t = j?.candidates?.[0]?.content?.parts?.map((x: any) => x.text).join("") || "";
@@ -119,7 +119,7 @@ async function support(cfg: any, chat: number, text: string) {
   while (hist.length && hist[0].role !== "user") hist.shift();
   const { data: key } = await sb.rpc("get_ai_key");
   let answer = "";
-  try { if (key) answer = (await askAI(String(key), await knowledge(), hist)).trim(); } catch (_) { answer = ""; }
+  try { if (key) answer = (await askAI(String(key), await knowledge(), hist)).replace(/\*\*/g, "").trim(); } catch (_) { answer = ""; }
   if (!answer) answer = await faqAnswer(text);
   if (!answer) answer = FALLBACK;
   await sb.from("tg_chat_log").insert([{ chat_id: chat, role: "user", text: text.slice(0, 1500) }, { chat_id: chat, role: "bot", text: answer.slice(0, 3000) }]);
