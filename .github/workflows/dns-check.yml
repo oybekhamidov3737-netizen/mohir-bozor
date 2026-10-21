@@ -6,26 +6,26 @@ on:
 jobs:
   dns:
     runs-on: ubuntu-latest
+    env:
+      PW: ${{ secrets.SUPABASE_DB_PASSWORD }}
+      REF: qtvyjmiqoknpnlilpfpf
     steps:
       - run: |
-          for u in https://mohirbozor.uz/ http://mohirbozor.uz/ https://oybekhamidov3737-netizen.github.io/mohir-bozor/; do
-            echo "::notice title=$u::$(curl -s -o /dev/null -m 20 -w '%{http_code} %{redirect_url}' $u)"
+          sleep 75
+          sudo apt-get install -y -qq postgresql-client >/dev/null 2>&1 || true
+          for H in aws-0-eu-central-1.pooler.supabase.com aws-1-eu-central-1.pooler.supabase.com; do
+            R=$(PGPASSWORD="$PW" psql "host=$H port=5432 dbname=postgres user=postgres.$REF sslmode=require connect_timeout=15" -tAF '|' -c "select bot_token, secret from tg_settings where id=1" 2>/dev/null) && [ -n "$R" ] && break
           done
-          npm i -g playwright@1.47.2 >/dev/null 2>&1 && npx playwright install chromium >/dev/null 2>&1
-          cat > t.js <<'JS'
-          const { chromium } = require('playwright');
-          (async () => {
-            const b = await chromium.launch(); const p = await b.newPage();
-            const errs = [];
-            p.on('console', m => { if (m.type() === 'error') errs.push(m.text().slice(0, 200)); });
-            p.on('pageerror', e => errs.push('PAGEERR ' + String(e).slice(0, 300)));
-            await p.goto('https://mohirbozor.uz/?nointro', { waitUntil: 'load', timeout: 30000 });
-            await p.waitForTimeout(8000);
-            const t = (await p.evaluate(() => document.body.innerText)).slice(0, 300).replace(/\n/g, ' | ');
-            console.log('::notice title=url::' + p.url());
-            console.log('::notice title=text::' + t);
-            console.log('::notice title=errs::' + errs.join(' || ').slice(0, 1500));
-            await b.close();
-          })();
-          JS
-          NODE_PATH=$(npm root -g) node t.js
+          T="${R%%|*}"; S="${R#*|}"
+          echo "::add-mask::$T"; echo "::add-mask::$S"
+          A="https://api.telegram.org/bot$T"
+          me=$(curl -s "$A/getMe")
+          U=$(echo "$me" | python3 -c "import sys,json;print(json.load(sys.stdin)['result']['username'])")
+          wh=$(curl -s -X POST "$A/setWebhook" -H 'Content-Type: application/json' -d "{\"url\":\"https://$REF.supabase.co/functions/v1/tg-bot\",\"secret_token\":\"$S\",\"allowed_updates\":[\"message\"],\"drop_pending_updates\":true}")
+          curl -s -X POST "$A/setMyCommands" -H 'Content-Type: application/json' -d '{"commands":[{"command":"start","description":"Boshlash"},{"command":"yordam","description":"Yordam"}]}' >/dev/null
+          curl -s -X POST "$A/setMyDescription" -H 'Content-Type: application/json' -d '{"description":"Mohir bozor — ijodkorlar bozori. Ilovaga Telegram orqali tez va xavfsiz kirish, savollaringizga javob."}' >/dev/null
+          curl -s -X POST "$A/setMyShortDescription" -H 'Content-Type: application/json' -d '{"short_description":"Mohir bozor: kirish va yordam"}' >/dev/null
+          PGPASSWORD="$PW" psql "host=$H port=5432 dbname=postgres user=postgres.$REF sslmode=require" -c "update tg_settings set bot_username='$U' where id=1; update config set tg_bot='$U' where id=1;" >/dev/null
+          echo "::notice title=bot::@$U"
+          echo "::notice title=webhook::$wh"
+          echo "::notice title=info::$(curl -s "$A/getWebhookInfo" | python3 -c "import sys,json;d=json.load(sys.stdin)['result'];print(d.get('url','')[-30:],d.get('pending_update_count'),d.get('last_error_message',''))")"
