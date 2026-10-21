@@ -395,8 +395,7 @@ Deno.serve(async (req) => {
       if (!wh?.ok) return json({ error: "Webhook o'rnatilmadi: " + (wh?.description || "") }, 400);
       await sb.from("tg_settings").update({ bot_username: me.result.username }).eq("id", 1);
       await sb.from("config").update({ tg_bot: me.result.username }).eq("id", 1);
-      await tg(cfg.token, "setMyDescription", { description: "Mohir bozor — ijodkorlar bozori. Ilovaga Telegram orqali tez va xavfsiz kirish, savollaringizga javob." });
-      await tg(cfg.token, "setMyCommands", { commands: [{ command: "start", description: "Boshlash" }, { command: "savollar", description: "Ko'p so'raladigan savollar" }, { command: "mutaxassis", description: "Mutaxassis bilan bog'lanish" }] });
+      // Nomi, tavsifi, rasmi va buyruqlari alohida o'rnatilgan (dns-check workflow) — bu yerda o'zgartirilmaydi
       await sb.from("tg_logins").delete().lt("created_at", new Date(Date.now() - 86400e3).toISOString());
       return json({ ok: true, username: me.result.username });
     }

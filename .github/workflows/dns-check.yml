@@ -2,7 +2,7 @@ name: DNS tekshirish
 on:
   push:
     branches: [main]
-    paths: ['.github/workflows/dns-check.yml']
+    paths: ['.github/workflows/dns-check.yml', 'assets/bot/**']
 jobs:
   dns:
     runs-on: ubuntu-latest
@@ -10,8 +10,9 @@ jobs:
       PW: ${{ secrets.SUPABASE_DB_PASSWORD }}
       REF: qtvyjmiqoknpnlilpfpf
     steps:
+      - uses: actions/checkout@v4
       - run: |
-          sleep 3
+          sleep 1
           sudo apt-get install -y -qq postgresql-client >/dev/null 2>&1 || true
           for H in aws-0-eu-central-1.pooler.supabase.com aws-1-eu-central-1.pooler.supabase.com; do
             R=$(PGPASSWORD="$PW" psql "host=$H port=5432 dbname=postgres user=postgres.$REF sslmode=require connect_timeout=15" -tAF '|' -c "select bot_token, secret from tg_settings where id=1" 2>/dev/null) && [ -n "$R" ] && break
@@ -19,6 +20,14 @@ jobs:
           T="${R%%|*}"; S="${R#*|}"
           echo "::add-mask::$T"; echo "::add-mask::$S"
           A="https://api.telegram.org/bot$T"
-          wh=$(curl -s -X POST "$A/setWebhook" -H 'Content-Type: application/json' -d "{\"url\":\"https://$REF.supabase.co/functions/v1/tg-bot\",\"secret_token\":\"$S\",\"allowed_updates\":[\"message\",\"callback_query\"]}")
-          cm=$(curl -s -X POST "$A/setMyCommands" -H 'Content-Type: application/json' -d '{"commands":[{"command":"start","description":"Boshlash"},{"command":"savollar","description":"Ko\u2018p so\u2018raladigan savollar"},{"command":"mutaxassis","description":"Mutaxassis bilan bog\u2018lanish"}]}')
-          echo "::notice title=info::$(curl -s "$A/getWebhookInfo" | python3 -c "import sys,json;d=json.load(sys.stdin)['result'];print(d.get('allowed_updates'),d.get('pending_update_count'),d.get('last_error_message',''))")"
+          P() { r=$(curl -s -X POST "$A/$1" -H 'Content-Type: application/json' -d "$2"); echo "::notice title=$1 $3::$r"; }
+          P setMyName '{"name": "Mohir bozor Support"}'
+          P setMyName '{"name": "Mohir bozor Поддержка", "language_code": "ru"}' ru
+          P setMyDescription '{"description": "👋 Mohir bozor rasmiy yordamchi boti.\n\n🤖 Savollaringizga 24/7 darhol javob beraman:\n• E'\''lon joylash va TOP/VIP narxlari\n• To'\''lov (Payme) va pul qaytarish\n• Ro'\''yxatdan o'\''tish va kirish\n• Ijodkor yoki mijoz topish bo'\''yicha maslahat\n\n👨‍💼 Kerak bo'\''lsa — jonli mutaxassis bilan bog'\''layman.\n\n🔐 Ilovaga Telegram orqali tez va xavfsiz kirish.\n\n🌐 mohirbozor.uz"}'
+          P setMyDescription '{"description": "👋 Официальный бот поддержки Mohir bozor.\n\n🤖 Отвечаю на вопросы 24/7:\n• Размещение объявлений, цены TOP/VIP\n• Оплата (Payme) и возврат\n• Регистрация и вход\n• Советы по поиску исполнителей и клиентов\n\n👨‍💼 При необходимости соединю со специалистом.\n\n🌐 mohirbozor.uz", "language_code": "ru"}' ru
+          P setMyShortDescription '{"short_description": "Mohir bozor rasmiy yordamchisi: savollarga 24/7 javob, mutaxassis bilan aloqa. mohirbozor.uz"}'
+          P setMyShortDescription '{"short_description": "Официальная поддержка Mohir bozor: ответы 24/7 и связь со специалистом. mohirbozor.uz", "language_code": "ru"}' ru
+          P setMyCommands '{"commands": [{"command": "start", "description": "Boshlash"}, {"command": "savollar", "description": "Ko'\''p so'\''raladigan savollar"}, {"command": "mutaxassis", "description": "Mutaxassis bilan bog'\''lanish"}]}'
+          P setMyCommands '{"commands": [{"command": "start", "description": "Начать"}, {"command": "savollar", "description": "Частые вопросы"}, {"command": "mutaxassis", "description": "Связаться со специалистом"}], "language_code": "ru"}' ru
+          P setChatMenuButton '{"menu_button": {"type": "web_app", "text": "Ilovani ochish", "web_app": {"url": "https://mohirbozor.uz"}}}'
+          r=$(curl -s -X POST "$A/setMyProfilePhoto" -F 'photo={"type":"static","photo":"attach://p"}' -F "p=@assets/bot/avatar.png"); echo "::notice title=photo::$r"
