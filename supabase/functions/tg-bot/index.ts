@@ -120,11 +120,10 @@ Deno.serve(async (req) => {
       await sb.from("tg_settings").update({ bot_username: me.result.username }).eq("id", 1);
       await sb.from("config").update({ tg_bot: me.result.username }).eq("id", 1);
       await tg(cfg.token, "setMyDescription", { description: "Mohir bozor — ijodkorlar bozori. Ilovaga Telegram orqali tez va xavfsiz kirish." });
+      await sb.from("tg_logins").delete().lt("created_at", new Date(Date.now() - 86400e3).toISOString());
       return json({ ok: true, username: me.result.username });
     }
 
-    // eski kirish so'rovlarini tozalash
-    await sb.from("tg_logins").delete().lt("created_at", new Date(Date.now() - 86400e3).toISOString());
     return json({ error: "action" }, 400);
   } catch (e) {
     return json({ error: (e as Error)?.message || String(e) }, 500);
