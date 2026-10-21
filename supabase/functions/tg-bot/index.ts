@@ -24,6 +24,70 @@ async function tg(token: string, method: string, body: unknown) {
   return r.json().catch(() => ({}));
 }
 
+
+// ---------- Sun'iy intellekt (support) ----------
+async function knowledge() {
+  const { data: c } = await sb.from("config").select("prices,free_ads,slot_pack,promo_days,ad_days,support_phone").eq("id", 1).maybeSingle();
+  const p = c?.prices || {};
+  const so = (n: number) => `${Number(n || 0).toLocaleString("ru-RU").replace(/,/g, " ")} so'm`;
+  return `Sen "Mohir bozor" (${SITE}) platformasining yordamchi botisan. Faqat shu platforma haqida javob ber.
+Platforma: O'zbekistondagi ijodkorlar bozori — SMM, video montaj, mobilografiya, target reklama, grafik va motion dizayn, kopirayting, fotograf, marketing, veb-sayt, ovoz, bloger xizmatlari. 12 viloyat (Toshkent shahri va Qoraqalpog'iston bilan). Ijodkor xizmatini e'lon qilib joylaydi, mijoz topib, ilova ichidagi chatda yozadi. Buyurtmachi ham "buyurtma" e'loni bera oladi, ijodkorlar unga taklif yuboradi.
+Kirish: Telegram orqali (raqamni ulashish), yoki Gmail/iCloud pochtaga keladigan kod bilan. Parol yo'q.
+E'lon joylash: pastdagi "+" tugmasi -> kategoriya, sarlavha, tavsif, narx, hudud, rasmlar. Oddiy e'lon bepul, ${c?.free_ads ?? 5} tagacha faol e'lon. E'lon ${c?.ad_days ?? 30} kun faol turadi.
+Tashqi kontakt (Telegram, Instagram, WhatsApp, @username) e'longa yozilmaydi — aloqa faqat ilova chatida. Qoidaga zid e'lonlar (ko'chmas mulk, kredit, kazino va h.k.) o'chiriladi.
+Pullik xizmatlar: TOP ${so(p.top)} (${c?.promo_days ?? 7} kun qidiruv tepasida), VIP ${so(p.vip)} (${c?.promo_days ?? 7} kun bosh sahifada oltin ramka bilan), Ko'tarish ${so(p.bump)}, Uzaytirish ${so(p.extend)}, Tiklash ${so(p.restore)}, Qo'shimcha ${c?.slot_pack ?? 5} ta e'lon joyi ${so(p.slots)}.
+To'lov: Payme (Uzcard/Humo), xizmat darhol avtomatik yoqiladi. Kabinetda hisobni to'ldirib, balansdan ham to'lasa bo'ladi. Pul qaytarish: xizmat yoqilgach qaytarilmaydi; texnik xato yoki ikki marta yechilgan bo'lsa 14 kun ichida murojaat qilinadi, 10 ish kunida qaytariladi.
+Profil: Kabinet -> profil, ism, rasm, kategoriya, hudud. Har bir foydalanuvchining ID raqami bor, qidiruvda ID bo'yicha topsa bo'ladi. Baholar: faqat chatda yozishgan foydalanuvchilar qoldira oladi. Shikoyat va bloklash chatdagi "…" menyusida.
+Inson bilan bog'lanish: ilovada Kabinet -> Yordam (support chat) yoki telefon ${c?.support_phone || "+998 91 001 88 18"}.
+Qoidalar: qisqa (2-5 gap), samimiy, foydalanuvchi qaysi tilda yozsa o'sha tilda (o'zbek lotin, o'zbek kirill, rus, ingliz) javob ber. Bilmagan narsangni to'qima — "Kabinet -> Yordam" ga yozishni tavsiya qil. Shaxsiy ma'lumot, parol, karta raqami so'rama. Platformaga aloqasiz savollarga xushmuomalalik bilan rad et.`;
+}
+
+async function askAI(key: string, sys: string, hist: { role: string; text: string }[]) {
+  if (key.startsWith("sk-ant-")) {
+    const r = await fetch("https://api.anthropic.com/v1/messages", {
+      method: "POST",
+      headers: { "x-api-key": key, "anthropic-version": "2023-06-01", "content-type": "application/json" },
+      body: JSON.stringify({ model: "claude-haiku-4-5-20251001", max_tokens: 500, system: sys,
+        messages: hist.map((m) => ({ role: m.role === "bot" ? "assistant" : "user", content: m.text })) }),
+    });
+    const j = await r.json().catch(() => ({}));
+    return (j?.content?.[0]?.text as string) || "";
+  }
+  for (const model of ["gemini-2.5-flash", "gemini-2.0-flash"]) {
+    const r = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent?key=${key}`, {
+      method: "POST", headers: { "content-type": "application/json" },
+      body: JSON.stringify({ systemInstruction: { parts: [{ text: sys }] },
+        contents: hist.map((m) => ({ role: m.role === "bot" ? "model" : "user", parts: [{ text: m.text }] })),
+        generationConfig: { maxOutputTokens: 500, temperature: 0.4 } }),
+    });
+    const j = await r.json().catch(() => ({}));
+    const t = j?.candidates?.[0]?.content?.parts?.map((x: any) => x.text).join("") || "";
+    if (t) return t;
+  }
+  return "";
+}
+
+const FALLBACK = `Savolingiz uchun rahmat! Javobni ilovadagi qo'llab-quvvatlashdan olasiz: ${SITE} → Kabinet → Yordam.`;
+
+async function support(cfg: any, chat: number, text: string) {
+  const since = new Date(Date.now() - 86400e3).toISOString();
+  const { count } = await sb.from("tg_chat_log").select("id", { count: "exact", head: true }).eq("chat_id", chat).eq("role", "user").gt("created_at", since);
+  if ((count || 0) >= 30) {
+    await tg(cfg.token, "sendMessage", { chat_id: chat, text: `Bugungi savollar limiti tugadi. Ertaga yozing yoki ${SITE} → Kabinet → Yordam.` });
+    return;
+  }
+  await tg(cfg.token, "sendChatAction", { chat_id: chat, action: "typing" });
+  const { data: prev } = await sb.from("tg_chat_log").select("role,text").eq("chat_id", chat).order("created_at", { ascending: false }).limit(6);
+  const hist = [...(prev || []).reverse(), { role: "user", text: text.slice(0, 1500) }];
+  while (hist.length && hist[0].role !== "user") hist.shift();
+  const { data: key } = await sb.rpc("get_ai_key");
+  let answer = "";
+  try { if (key) answer = (await askAI(String(key), await knowledge(), hist)).trim(); } catch (_) { answer = ""; }
+  if (!answer) answer = FALLBACK;
+  await sb.from("tg_chat_log").insert([{ chat_id: chat, role: "user", text: text.slice(0, 1500) }, { chat_id: chat, role: "bot", text: answer.slice(0, 3000) }]);
+  await tg(cfg.token, "sendMessage", { chat_id: chat, text: answer.slice(0, 4000) });
+}
+
 async function handleUpdate(cfg: any, u: any) {
   const msg = u?.message;
   if (!msg?.chat?.id) return;
@@ -40,7 +104,7 @@ async function handleUpdate(cfg: any, u: any) {
         reply_markup: { keyboard: [[{ text: "📱 Raqamni ulashish", request_contact: true }]], resize_keyboard: true, one_time_keyboard: true },
       });
     } else {
-      await tg(cfg.token, "sendMessage", { chat_id: chat, text: `Mohir bozor — ijodkorlar bozori.\nIlovaga kirish: ${SITE}` });
+      await tg(cfg.token, "sendMessage", { chat_id: chat, text: `👋 Assalomu alaykum! Men Mohir bozor yordamchisiman.\n\nIlova haqida istalgan savolingizni yozing — e'lon joylash, narxlar, to'lov, TOP/VIP va boshqalar.\n\nIlova: ${SITE}` });
     }
     return;
   }
@@ -74,6 +138,12 @@ async function handleUpdate(cfg: any, u: any) {
       text: `✅ Tayyor! Ilovaga qayting — kirish avtomatik bo'ladi.\n\nAgar so'ralsa, kod: <code>${otp}</code>\nKodni hech kimga bermang.`,
       reply_markup: { remove_keyboard: true },
     });
+    return;
+  }
+
+  if (text && !text.startsWith("/")) await support(cfg, chat, text);
+  else if (text === "/yordam" || text === "/help") {
+    await tg(cfg.token, "sendMessage", { chat_id: chat, text: `Savolingizni oddiy xabar qilib yozing — javob beraman.\nInson bilan bog'lanish: ${SITE} → Kabinet → Yordam.` });
   }
 }
 
@@ -120,6 +190,7 @@ Deno.serve(async (req) => {
       await sb.from("tg_settings").update({ bot_username: me.result.username }).eq("id", 1);
       await sb.from("config").update({ tg_bot: me.result.username }).eq("id", 1);
       await tg(cfg.token, "setMyDescription", { description: "Mohir bozor — ijodkorlar bozori. Ilovaga Telegram orqali tez va xavfsiz kirish." });
+      await tg(cfg.token, "setMyCommands", { commands: [{ command: "start", description: "Boshlash" }, { command: "yordam", description: "Yordam" }] });
       await sb.from("tg_logins").delete().lt("created_at", new Date(Date.now() - 86400e3).toISOString());
       return json({ ok: true, username: me.result.username });
     }

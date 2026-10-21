@@ -3615,5 +3615,13 @@ export default {
 "Telegram orqali kirishni yoqish": [
 "Включить вход через Telegram",
 "Enable Telegram login"
+],
+"Sun'iy intellekt kaliti (bot savollarga javob beradi)": [
+"Ключ ИИ (бот отвечает на вопросы)",
+"AI key (the bot answers questions)"
+],
+"Google Gemini (bepul, aistudio.google.com) yoki Claude kaliti. Saqlash tugmasi bilan saqlanadi.": [
+"Ключ Google Gemini (бесплатно, aistudio.google.com) или Claude. Сохраняется кнопкой «Сохранить».",
+"Google Gemini key (free, aistudio.google.com) or Claude key. Saved with the Save button."
 ]
 };

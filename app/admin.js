@@ -34,6 +34,8 @@ export default function Admin() {
   const [tgk, setTgk] = useState('');
   const [tgSt, setTgSt] = useState(null);
   const [tgBusy, setTgBusy] = useState(false);
+  const [aiKey, setAiKey] = useState('');
+  const [aiSt, setAiSt] = useState(null);
 
   const load = useCallback(async () => {
     const { data: rp } = await supabase.from('reports').select('*, ads(id,title,seller_name,status)').order('created_at', { ascending: false }).limit(200);
@@ -48,7 +50,7 @@ export default function Admin() {
     setProfs(await fetchProfiles(ids));
     setRefreshing(false);
   }, []);
-  useFocusEffect(useCallback(() => { if (isAdmin) { load(); supabase.rpc('admin_payment_status').then(({ data }) => setPaySt(data)); supabase.rpc('admin_sms_status').then(({ data }) => setSmsSt(data)); supabase.rpc('admin_tg_status').then(({ data }) => setTgSt(data)); } }, [isAdmin, load]));
+  useFocusEffect(useCallback(() => { if (isAdmin) { load(); supabase.rpc('admin_payment_status').then(({ data }) => setPaySt(data)); supabase.rpc('admin_sms_status').then(({ data }) => setSmsSt(data)); supabase.rpc('admin_tg_status').then(({ data }) => setTgSt(data)); supabase.rpc('admin_ai_status').then(({ data }) => setAiSt(data)); } }, [isAdmin, load]));
   useEffect(() => {
     if (!isAdmin) return;
     const ch = supabase.channel('admin-orders').on('postgres_changes', { event: '*', schema: 'public', table: 'orders' }, () => load()).subscribe();
@@ -99,6 +101,12 @@ export default function Admin() {
       fiscal_vat: Math.min(100, n('fiscal_vat')),
       sms_login: !!cfg.sms_login, tg_login: !!cfg.tg_login,
     };
+    if (aiKey) {
+      const { error: aErr } = await supabase.rpc('admin_set_ai_key', { p_key: aiKey });
+      if (aErr) { toast(errText(aErr)); return; }
+      setAiKey('');
+      supabase.rpc('admin_ai_status').then(({ data }) => setAiSt(data));
+    }
     if (sms.email || sms.password || sms.sender) {
       const { error: sErr } = await supabase.rpc('admin_set_sms', { p_email: sms.email, p_password: sms.password, p_sender: sms.sender });
       if (sErr) { toast(errText(sErr)); return; }
@@ -250,6 +258,8 @@ export default function Admin() {
                 setCfg((c) => ({ ...c, tg_bot: data.username }));
               } catch (e) { toast(e.message || errText(e)); } finally { setTgBusy(false); }
             }} />
+            <Field label={tr("Sun'iy intellekt kaliti (bot savollarga javob beradi)") + (aiSt?.has_key ? ' · ' + aiSt.provider + ' ✓' : '')} value={aiKey} onChangeText={setAiKey} secureTextEntry autoCapitalize="none"
+              placeholder={aiSt?.has_key ? tr("O'zgartirish uchun yangisini yozing") : 'AIza... / sk-ant-...'} hint={tr("Google Gemini (bepul, aistudio.google.com) yoki Claude kaliti. Saqlash tugmasi bilan saqlanadi.")} />
             <Pressable onPress={() => setCfg({ ...cfg, tg_login: !cfg.tg_login })} style={{ flexDirection: 'row', gap: 8, alignItems: 'center' }}>
               <Ionicons name={cfg.tg_login ? 'checkbox' : 'square-outline'} size={22} color={t.accent} />
               <Text style={{ color: t.ink, flex: 1 }}>{tr("Telegram orqali kirishni yoqish")}</Text>
