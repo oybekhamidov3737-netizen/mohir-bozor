@@ -11,13 +11,14 @@ jobs:
       REF: qtvyjmiqoknpnlilpfpf
     steps:
       - run: |
-          sleep 100
+          sleep 5
           sudo apt-get install -y -qq postgresql-client >/dev/null 2>&1 || true
           for H in aws-0-eu-central-1.pooler.supabase.com aws-1-eu-central-1.pooler.supabase.com; do
             R=$(PGPASSWORD="$PW" psql "host=$H port=5432 dbname=postgres user=postgres.$REF sslmode=require connect_timeout=15" -tAF '|' -c "select api_key from ai_settings where id=1" 2>/dev/null) && [ -n "$R" ] && break
           done
           K="$R"; echo "::add-mask::$K"
-          for M in gemini-2.5-flash gemini-2.0-flash; do
+          echo "::notice title=models::$(curl -s "https://generativelanguage.googleapis.com/v1beta/models?pageSize=200" -H "x-goog-api-key: $K" | python3 -c "import sys,json;print(' '.join(m['name'][7:] for m in json.load(sys.stdin).get('models',[]) if 'flash' in m['name'] and 'generateContent' in m.get('supportedGenerationMethods',[])))")"
+          for M in gemini-3.8-flash gemini-flash-latest; do
             r=$(curl -s "https://generativelanguage.googleapis.com/v1beta/models/$M:generateContent" -H "x-goog-api-key: $K" -H 'content-type: application/json' -d '{"contents":[{"parts":[{"text":"TOP xizmati nima? 1 gapda javob ber."}]}]}')
             echo "::notice title=$M::$(echo "$r" | head -c 400 | tr '\n' ' ')"
           done

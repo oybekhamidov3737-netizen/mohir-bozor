@@ -53,7 +53,7 @@ async function askAI(key: string, sys: string, hist: { role: string; text: strin
     const j = await r.json().catch(() => ({}));
     return (j?.content?.[0]?.text as string) || "";
   }
-  for (const model of ["gemini-2.5-flash", "gemini-2.0-flash"]) {
+  for (const model of ["gemini-3.8-flash", "gemini-flash-latest", "gemini-2.5-flash"]) {
     const r = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent`, {
       method: "POST", headers: { "content-type": "application/json", "x-goog-api-key": key },
       body: JSON.stringify({ systemInstruction: { parts: [{ text: sys }] },
