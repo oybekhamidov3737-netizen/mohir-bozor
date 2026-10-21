@@ -122,7 +122,6 @@ async function support(cfg: any, chat: number, text: string, from?: any) {
   const { count } = await sb.from("tg_chat_log").select("id", { count: "exact", head: true }).eq("chat_id", chat).eq("role", "user").gt("created_at", since);
   if ((count || 0) >= 30) {
     // Bepul AI savollari tugadi — avtomatik mutaxassisga ulanadi, savol ham unga boradi
-    await tg(cfg.token, "sendMessage", { chat_id: chat, text: "ℹ️ Bugungi 30 ta bepul savolingiz tugadi." });
     await startOperator(cfg, chat, from, text);
     return;
   }
