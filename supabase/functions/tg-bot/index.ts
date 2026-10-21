@@ -55,16 +55,25 @@ async function askAI(key: string, sys: string, hist: { role: string; text: strin
     const j = await r.json().catch(() => ({}));
     return (j?.content?.[0]?.text as string) || "";
   }
-  for (const model of ["gemini-3.8-flash", "gemini-flash-latest", "gemini-2.5-flash"]) {
-    const r = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent`, {
-      method: "POST", headers: { "content-type": "application/json", "x-goog-api-key": key },
-      body: JSON.stringify({ systemInstruction: { parts: [{ text: sys }] },
-        contents: hist.map((m) => ({ role: m.role === "bot" ? "model" : "user", parts: [{ text: m.text }] })),
-        generationConfig: { maxOutputTokens: 2048, temperature: 0.7 } }),
-    });
-    const j = await r.json().catch(() => ({}));
-    const t = j?.candidates?.[0]?.content?.parts?.map((x: any) => x.text).join("") || "";
-    if (t) return t;
+  // Tezkor model birinchi (fikrlash o'chirilgan), band bo'lsa keyingisi
+  const models: [string, unknown][] = [
+    ["gemini-3.5-flash", { thinkingBudget: 0 }],
+    ["gemini-3.8-flash", { thinkingLevel: "low" }],
+    ["gemini-flash-latest", { thinkingLevel: "low" }],
+  ];
+  for (const [model, thinkingConfig] of models) {
+    try {
+      const r = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent`, {
+        method: "POST", headers: { "content-type": "application/json", "x-goog-api-key": key },
+        signal: AbortSignal.timeout(15000),
+        body: JSON.stringify({ systemInstruction: { parts: [{ text: sys }] },
+          contents: hist.map((m) => ({ role: m.role === "bot" ? "model" : "user", parts: [{ text: m.text }] })),
+          generationConfig: { maxOutputTokens: 1500, temperature: 0.7, thinkingConfig } }),
+      });
+      const j = await r.json().catch(() => ({}));
+      const t = j?.candidates?.[0]?.content?.parts?.filter((x: any) => !x.thought).map((x: any) => x.text || "").join("") || "";
+      if (t) return t;
+    } catch (_) { /* keyingi model */ }
   }
   return "";
 }
@@ -115,17 +124,22 @@ async function support(cfg: any, chat: number, text: string) {
     await tg(cfg.token, "sendMessage", { chat_id: chat, text: `Bugungi savollar limiti tugadi. Ertaga yozing yoki ${SITE} → Kabinet → Yordam.` });
     return;
   }
-  await tg(cfg.token, "sendChatAction", { chat_id: chat, action: "typing" });
-  const { data: prev } = await sb.from("tg_chat_log").select("role,text").eq("chat_id", chat).order("id", { ascending: false }).limit(16);
+  const [, { data: prev }, { data: key }, sys] = await Promise.all([
+    tg(cfg.token, "sendChatAction", { chat_id: chat, action: "typing" }),
+    sb.from("tg_chat_log").select("role,text").eq("chat_id", chat).order("id", { ascending: false }).limit(16),
+    sb.rpc("get_ai_key"),
+    knowledge(),
+  ]);
   const hist = [...(prev || []).reverse(), { role: "user", text: text.slice(0, 1500) }];
   while (hist.length && hist[0].role !== "user") hist.shift();
-  const { data: key } = await sb.rpc("get_ai_key");
   let answer = "";
-  try { if (key) answer = (await askAI(String(key), await knowledge(), hist)).replace(/\*\*/g, "").trim(); } catch (_) { answer = ""; }
+  try { if (key) answer = (await askAI(String(key), sys, hist)).replace(/\*\*/g, "").trim(); } catch (_) { answer = ""; }
   if (!answer) answer = await faqAnswer(text);
   if (!answer) answer = FALLBACK;
-  await sb.from("tg_chat_log").insert([{ chat_id: chat, role: "user", text: text.slice(0, 1500) }, { chat_id: chat, role: "bot", text: answer.slice(0, 3000) }]);
-  await tg(cfg.token, "sendMessage", { chat_id: chat, text: answer.slice(0, 4000), link_preview_options: { is_disabled: true } });
+  await Promise.all([
+    tg(cfg.token, "sendMessage", { chat_id: chat, text: answer.slice(0, 4000), link_preview_options: { is_disabled: true } }),
+    sb.from("tg_chat_log").insert([{ chat_id: chat, role: "user", text: text.slice(0, 1500) }, { chat_id: chat, role: "bot", text: answer.slice(0, 3000) }]),
+  ]);
 }
 
 async function handleUpdate(cfg: any, u: any) {
