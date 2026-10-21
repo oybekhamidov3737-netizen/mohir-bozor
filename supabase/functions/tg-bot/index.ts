@@ -49,7 +49,7 @@ async function askAI(key: string, sys: string, hist: { role: string; text: strin
     const r = await fetch("https://api.anthropic.com/v1/messages", {
       method: "POST",
       headers: { "x-api-key": key, "anthropic-version": "2023-06-01", "content-type": "application/json" },
-      body: JSON.stringify({ model: "claude-haiku-4-5-20251001", max_tokens: 500, system: sys,
+      body: JSON.stringify({ model: "claude-haiku-4-5-20251001", max_tokens: 1200, system: sys,
         messages: hist.map((m) => ({ role: m.role === "bot" ? "assistant" : "user", content: m.text })) }),
     });
     const j = await r.json().catch(() => ({}));
