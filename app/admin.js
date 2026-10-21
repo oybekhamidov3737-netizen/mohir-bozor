@@ -72,6 +72,8 @@ export default function Admin() {
   const month = okOrders.filter((o) => (o.decided_at || o.created_at || '').slice(0, 7) === mk).reduce((s, o) => s + +o.price, 0);
   const total = okOrders.reduce((s, o) => s + +o.price, 0);
   const pending = (orders || []).filter((o) => o.status === 'pending');
+  const dk = new Date().toISOString().slice(0, 10);
+  const today = okOrders.filter((o) => (o.decided_at || o.created_at || '').slice(0, 10) === dk).reduce((s, o) => s + +o.price, 0);
   const promoted = (ads || []).filter((a) => adState(a) === 'live' && isTop(a)).length;
 
   const kpi = (label, value, money) => (
@@ -130,7 +132,7 @@ export default function Admin() {
 
   return (
     <View style={{ flex: 1, backgroundColor: t.bg }}>
-      <ScrollView horizontal showsHorizontalScrollIndicator={false} style={{ flexGrow: 0 }} contentContainerStyle={{ gap: 8, padding: 16, paddingBottom: 8 }}>
+      <ScrollView horizontal showsHorizontalScrollIndicator={false} style={{ flexGrow: 0, flexShrink: 0, minHeight: 64 }} contentContainerStyle={{ gap: 8, padding: 16, paddingBottom: 8, alignItems: 'center' }}>
         <Pill title={tr("To'lovlar")} on={tab === 'orders'} onPress={() => setTab('orders')} count={pending.length || undefined} />
         <Pill title={tr("Barcha e'lonlar")} on={tab === 'ads'} onPress={() => setTab('ads')} />
         <Pill title={tr("Shikoyatlar")} on={tab === 'reports'} onPress={() => setTab('reports')} count={reports.filter((r) => r.status === 'open').length || undefined} />
@@ -144,10 +146,9 @@ export default function Admin() {
             <View style={{ flexDirection: 'row', flexWrap: 'wrap', gap: 10 }}>
               {kpi(tr("SHU OY TUSHUM"), fmtNum(month), true)}
               {kpi(tr("JAMI TUSHUM"), fmtNum(total), true)}
-              {kpi(tr("KUTILAYOTGAN TO'LOV"), pending.length)}
+              {kpi(tr("BUGUN TUSHUM"), fmtNum(today), true)}
               {kpi(tr("FAOL TOP / VIP"), promoted)}
             </View>
-            {!config.pay_text ? <Note kind="gold">{tr("Foydalanuvchilar to'lov qila olishi uchun \"Sozlamalar\" bo'limida to'lov rekvizitlarini kiriting.")}</Note> : null}
             <H right={tr("{0} ta", orders.length)}>{tr("To'lovlar")}</H>
             {orders.length ? [...pending, ...orders.filter((o) => o.status !== 'pending')].map((o) => (
               <View key={o.id} style={{ backgroundColor: t.surface, borderWidth: 1, borderColor: o.status === 'pending' ? t.gold : t.line, borderRadius: 14, padding: 12, gap: 6 }}>
@@ -168,7 +169,7 @@ export default function Admin() {
                   ) : null}
                 </View>
               </View>
-            )) : <Empty title={tr("Hozircha to'lovlar yo'q")} text={tr("Foydalanuvchilar TOP, VIP, uzaytirish yoki tiklash so'raganda shu yerda chiqadi. Pul tushganini tekshirib, tasdiqlaysiz.")} />}
+            )) : <Empty title={tr("Hozircha to'lovlar yo'q")} text={tr("Foydalanuvchilar Payme orqali to'lov qilganda shu yerda chiqadi. Xizmat avtomatik yoqiladi.")} />}
           </>
         ) : tab === 'ads' ? (
           <>
