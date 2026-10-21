@@ -116,7 +116,7 @@ async function support(cfg: any, chat: number, text: string) {
     return;
   }
   await tg(cfg.token, "sendChatAction", { chat_id: chat, action: "typing" });
-  const { data: prev } = await sb.from("tg_chat_log").select("role,text").eq("chat_id", chat).order("created_at", { ascending: false }).limit(16);
+  const { data: prev } = await sb.from("tg_chat_log").select("role,text").eq("chat_id", chat).order("id", { ascending: false }).limit(16);
   const hist = [...(prev || []).reverse(), { role: "user", text: text.slice(0, 1500) }];
   while (hist.length && hist[0].role !== "user") hist.shift();
   const { data: key } = await sb.rpc("get_ai_key");
