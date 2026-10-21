@@ -1,5 +1,5 @@
 import React, { useCallback, useEffect, useState } from 'react';
-import { Linking, Modal, Platform, Pressable, RefreshControl, ScrollView, Text, View } from 'react-native';
+import { Linking, Platform, Pressable, RefreshControl, ScrollView, Text, View } from 'react-native';
 import { useFocusEffect, useRouter } from 'expo-router';
 import { Image } from 'expo-image';
 import { Ionicons } from '@expo/vector-icons';
@@ -23,7 +23,6 @@ export default function Admin() {
   const [reports, setReports] = useState([]);
   const [profs, setProfs] = useState({});
   const [adFilter, setAdFilter] = useState('all');
-  const [receipt, setReceipt] = useState(null);
   const [sure, setSure] = useState('');
   const [refreshing, setRefreshing] = useState(false);
   const [cfg, setCfg] = useState(null);
@@ -41,7 +40,7 @@ export default function Admin() {
     const { data: rp } = await supabase.from('reports').select('*, ads(id,title,seller_name,status)').order('created_at', { ascending: false }).limit(200);
     setReports(rp || []);
     const [o, a, th] = await Promise.all([
-      supabase.from('orders').select('*, ads(title)').neq('status', 'unpaid').order('created_at', { ascending: false }).limit(300),
+      supabase.from('orders').select('*, ads(title)').neq('status', 'unpaid').neq('provider', 'manual').order('created_at', { ascending: false }).limit(300),
       supabase.from('ads').select('*').order('created_at', { ascending: false }).limit(300),
       supabase.from('threads').select('*, ads(title,photos,cat)').neq('last_text', '').order('last_at', { ascending: false }).limit(200),
     ]);
@@ -62,10 +61,7 @@ export default function Admin() {
 
   const confirm = (key, fn) => { if (sure !== key) { setSure(key); setTimeout(() => setSure((s) => (s === key ? '' : s)), 3500); return; } setSure(''); fn(); };
   const rpc = async (name, args, ok) => { const { error } = await supabase.rpc(name, args); if (error) toast(errText(error)); else { toast(ok); load(); } };
-  const showReceipt = async (path) => {
-    const { data } = await supabase.storage.from('receipts').createSignedUrl(path, 600);
-    if (data?.signedUrl) setReceipt(data.signedUrl); else toast(tr("Chekni ochib bo'lmadi"));
-  };
+
 
   const mk = new Date().toISOString().slice(0, 7);
   const okOrders = (orders || []).filter((o) => o.status === 'ok');
@@ -133,7 +129,7 @@ export default function Admin() {
   return (
     <View style={{ flex: 1, backgroundColor: t.bg }}>
       <ScrollView horizontal showsHorizontalScrollIndicator={false} style={{ flexGrow: 0, flexShrink: 0, minHeight: 64 }} contentContainerStyle={{ gap: 8, padding: 16, paddingBottom: 8, alignItems: 'center' }}>
-        <Pill title={tr("To'lovlar")} on={tab === 'orders'} onPress={() => setTab('orders')} count={pending.length || undefined} />
+        <Pill title={tr("To'lovlar")} on={tab === 'orders'} onPress={() => setTab('orders')} />
         <Pill title={tr("Barcha e'lonlar")} on={tab === 'ads'} onPress={() => setTab('ads')} />
         <Pill title={tr("Shikoyatlar")} on={tab === 'reports'} onPress={() => setTab('reports')} count={reports.filter((r) => r.status === 'open').length || undefined} />
         <Pill title={tr("Suhbatlar")} on={tab === 'chats'} onPress={() => setTab('chats')} />
@@ -150,24 +146,15 @@ export default function Admin() {
               {kpi(tr("FAOL TOP / VIP"), promoted)}
             </View>
             <H right={tr("{0} ta", orders.length)}>{tr("To'lovlar")}</H>
-            {orders.length ? [...pending, ...orders.filter((o) => o.status !== 'pending')].map((o) => (
-              <View key={o.id} style={{ backgroundColor: t.surface, borderWidth: 1, borderColor: o.status === 'pending' ? t.gold : t.line, borderRadius: 14, padding: 12, gap: 6 }}>
+            {orders.length ? orders.map((o) => (
+              <View key={o.id} style={{ backgroundColor: t.surface, borderWidth: 1, borderColor: t.line, borderRadius: 14, padding: 12, gap: 6 }}>
                 <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' }}>
                   <Text style={{ fontWeight: '800', color: t.ink }}>{o.code}</Text>
-                  <Badge kind={o.status === 'ok' ? 'ok' : o.status === 'no' ? 'no' : 'wait'}>{o.status === 'ok' ? tr("TASDIQLANGAN") : o.status === 'no' ? tr("RAD ETILGAN") : tr("KUTILMOQDA")}</Badge>
+                  <Badge kind={o.status === 'ok' ? 'ok' : o.status === 'no' ? 'no' : 'wait'}>{o.status === 'ok' ? tr("TASDIQLANGAN") : o.status === 'no' ? tr("BEKOR QILINGAN") : tr("KUTILMOQDA")}</Badge>
                 </View>
                 <Text style={{ fontWeight: '700', color: t.ink }}>{SVC[o.svc]} — {fmtNum(o.price)} {tr("so'm")}</Text>
                 {o.ads?.title ? <Text style={{ color: t.muted }} numberOfLines={1}>{o.ads.title}</Text> : null}
-                <Text style={{ color: t.muted, fontSize: 13 }}>{o.provider && o.provider !== 'manual' ? tr("{0} · avtomatik · ", o.provider === 'payme' ? 'Payme' : 'Click') : ''}{tr("To'lovchi:")}{' '}{o.payer} · {profs[o.user_id]?.name || ''}{profs[o.user_id]?.public_id ? tr(" (ID {0})", profs[o.user_id].public_id) : ''} · {ago(o.created_at)}</Text>
-                <View style={{ flexDirection: 'row', gap: 6, flexWrap: 'wrap' }}>
-                  {o.receipt_path ? <Btn small kind="sec" icon="receipt-outline" title={tr("Chekni ko'rish")} onPress={() => showReceipt(o.receipt_path)} /> : null}
-                  {o.status === 'pending' ? (
-                    <>
-                      <Btn small title={tr("Tasdiqlash")} icon="checkmark" onPress={() => rpc('approve_order', { p_id: o.id }, 'Tasdiqlandi, xizmat yoqildi')} />
-                      <Btn small kind="dng" title={sure === 'no' + o.id ? tr("Ha, rad etish") : tr("Rad etish")} onPress={() => confirm('no' + o.id, () => rpc('reject_order', { p_id: o.id }, 'Rad etildi'))} />
-                    </>
-                  ) : null}
-                </View>
+                <Text style={{ color: t.muted, fontSize: 13 }}>{o.provider === 'click' ? 'Click' : 'Payme'} · {profs[o.user_id]?.name || ''}{profs[o.user_id]?.public_id ? tr(" (ID {0})", profs[o.user_id].public_id) : ''} · {ago(o.created_at)}</Text>
               </View>
             )) : <Empty title={tr("Hozircha to'lovlar yo'q")} text={tr("Foydalanuvchilar Payme orqali to'lov qilganda shu yerda chiqadi. Xizmat avtomatik yoqiladi.")} />}
           </>
@@ -237,14 +224,16 @@ export default function Admin() {
           </>
         ) : cfg ? (
           <View style={{ gap: 12 }}>
-            <Field label={tr("To'lov rekvizitlari")} value={cfg.pay_text} onChangeText={(v) => setCfg({ ...cfg, pay_text: v })} multiline maxLength={400}
-              placeholder={tr("Karta raqami va egasining ismi yoki Click/Payme yo'riqnomasi")} hint={tr("Bu matn to'lov qilayotgan foydalanuvchilarga ko'rinadi.")} />
             {[['p_vip', tr("VIP narxi")], ['p_top', tr("TOP narxi")], ['p_bump', tr("Ko'tarish narxi")], ['p_extend', tr("Uzaytirish narxi")], ['p_restore', tr("Tiklash narxi")], ['p_slots', tr("+e'lon joylari narxi")],
               ['ref_bonus_inviter', tr("Taklif qilganga bonus (so'm)")], ['ref_bonus_invitee', tr("Yangi foydalanuvchiga bonus (so'm)")],
               ['free_ads', tr("Bepul e'lonlar limiti")], ['slot_pack', tr("Bir paketda nechta joy")], ['promo_days', tr("TOP/VIP muddati (kun)")], ['ad_days', tr("E'lon muddati (kun)")]].map(([k, l]) => (
               <Field key={k} label={l + (k.startsWith('p_') ? tr(" (so'm)") : '')} value={String(cfg[k] ?? '')} keyboardType="number-pad" onChangeText={(v) => setCfg({ ...cfg, [k]: v.replace(/\D/g, '') })} />
             ))}
-            <H>{tr("Telegram orqali kirish")}</H>
+            <H>{tr("Telegram bot")}</H>
+            <Pressable onPress={() => setCfg({ ...cfg, tg_login: !cfg.tg_login })} style={{ flexDirection: 'row', gap: 8, alignItems: 'center' }}>
+              <Ionicons name={cfg.tg_login ? 'checkbox' : 'square-outline'} size={22} color={t.accent} />
+              <Text style={{ color: t.ink, flex: 1 }}>{tr("Telegram orqali kirishni yoqish")}</Text>
+            </Pressable>
             <Field label={tr("Bot tokeni (@BotFather)") + (tgSt?.has_token ? tr(" · kiritilgan ✓") : '')} value={tgk} onChangeText={setTgk} secureTextEntry autoCapitalize="none"
               placeholder={tgSt?.has_token ? tr("O'zgartirish uchun yangisini yozing") : '123456789:AA...'} hint={tr("Chatga hech kimga yubormang.")} />
             <Btn kind="sec" icon="paper-plane-outline" loading={tgBusy} title={tgSt?.username ? tr("Botni qayta ulash · @{0}", tgSt.username) : tr("Botni ulash")} onPress={async () => {
@@ -268,20 +257,6 @@ export default function Admin() {
             <Text style={{ color: t.muted, fontSize: 12, marginTop: -4 }}>{tr("Bosing → Telegram ochiladi → «Start». Shundan keyin botda «Mutaxassis» ni bosganlarning xabarlari sizga keladi; javob berish uchun xabarga «Reply» qiling.")}</Text>
             <Field label={tr("Sun'iy intellekt kaliti (bot savollarga javob beradi)") + (aiSt?.has_key ? ' · ' + aiSt.provider + ' ✓' : '')} value={aiKey} onChangeText={setAiKey} secureTextEntry autoCapitalize="none"
               placeholder={aiSt?.has_key ? tr("O'zgartirish uchun yangisini yozing") : 'AIza... / sk-ant-...'} hint={tr("Google Gemini (bepul, aistudio.google.com) yoki Claude kaliti. Saqlash tugmasi bilan saqlanadi.")} />
-            <Pressable onPress={() => setCfg({ ...cfg, tg_login: !cfg.tg_login })} style={{ flexDirection: 'row', gap: 8, alignItems: 'center' }}>
-              <Ionicons name={cfg.tg_login ? 'checkbox' : 'square-outline'} size={22} color={t.accent} />
-              <Text style={{ color: t.ink, flex: 1 }}>{tr("Telegram orqali kirishni yoqish")}</Text>
-            </Pressable>
-            <H>{tr("SMS orqali kirish (Eskiz.uz)")}</H>
-            <Field label={tr("Eskiz login (email)") + (smsSt?.email ? ' · ' + smsSt.email : '')} value={sms.email} onChangeText={(v) => setSms({ ...sms, email: v })} autoCapitalize="none" keyboardType="email-address"
-              placeholder={smsSt?.email ? tr("O'zgartirish uchun yangisini yozing") : 'ism@gmail.com'} />
-            <Field label={tr("Eskiz paroli") + (smsSt?.has_password ? tr(" · kiritilgan ✓") : '')} value={sms.password} onChangeText={(v) => setSms({ ...sms, password: v })} secureTextEntry autoCapitalize="none"
-              placeholder={smsSt?.has_password ? tr("O'zgartirish uchun yangisini yozing") : tr("Parolni yozing")} hint={tr("Chatga hech kimga yubormang.")} />
-            <Field label={tr("Jo'natuvchi nomi (Nickname)") + (smsSt?.sender ? ' · ' + smsSt.sender : '')} value={sms.sender} onChangeText={(v) => setSms({ ...sms, sender: v })} autoCapitalize="none" placeholder="4546" />
-            <Pressable onPress={() => setCfg({ ...cfg, sms_login: !cfg.sms_login })} style={{ flexDirection: 'row', gap: 8, alignItems: 'center' }}>
-              <Ionicons name={cfg.sms_login ? 'checkbox' : 'square-outline'} size={22} color={t.accent} />
-              <Text style={{ color: t.ink, flex: 1 }}>{tr("Telefon raqam bilan kirishni yoqish")}</Text>
-            </Pressable>
             <H>{tr("Xavfsizlik")}</H>
             <Field label={tr("Gmail ilova parolini almashtirish")} value={keys.mail} onChangeText={(v) => setKeys({ ...keys, mail: v })} secureTextEntry autoCapitalize="none"
               placeholder={tr("Yangi 16 harfli parol")} hint={tr("Google hisobi → Xavfsizlik → Ilova parollari. Eski parolni o'chirib, yangisini shu yerga yozing. Chatga hech kimga yubormang.")} />
@@ -289,7 +264,6 @@ export default function Admin() {
             <Field label={tr("Sotuvchi (YaTT F.I.Sh. yoki MChJ nomi)")} value={String(cfg.legal_name || '')} onChangeText={(v) => setCfg({ ...cfg, legal_name: v })} placeholder={tr("YaTT Hamidov Oybek")} />
             <Field label={tr("STIR (INN)")} value={String(cfg.legal_inn || '')} keyboardType="number-pad" onChangeText={(v) => setCfg({ ...cfg, legal_inn: v })} />
             <Field label={tr("Manzil")} value={String(cfg.legal_address || '')} onChangeText={(v) => setCfg({ ...cfg, legal_address: v })} placeholder={tr("Buxoro sh., ...")} />
-            <Field label={tr("Bank rekvizitlari")} value={String(cfg.legal_bank || '')} onChangeText={(v) => setCfg({ ...cfg, legal_bank: v })} placeholder={tr("H/r: 2020 8000 ... · Bank · MFO")} />
             <H>{tr("Fiskal chek (soliq)")}</H>
             <Field label={tr("MXIK (IKPU) kodi")} value={String(cfg.fiscal_mxik || '')} keyboardType="number-pad" onChangeText={(v) => setCfg({ ...cfg, fiscal_mxik: v })} hint={tr("tasnif.soliq.uz saytidan xizmatingiz kodi (17 raqam)")} />
             <Field label={tr("Qadoq (o'lchov) kodi")} value={String(cfg.fiscal_package || '')} keyboardType="number-pad" onChangeText={(v) => setCfg({ ...cfg, fiscal_package: v })} hint={tr("Shu MXIK kodiga biriktirilgan o'lchov kodi")} />
@@ -298,28 +272,12 @@ export default function Admin() {
             <Field label={tr("Merchant ID (kassa ID)")} value={String(cfg.payme_merchant_id || '')} onChangeText={(v) => setCfg({ ...cfg, payme_merchant_id: v })} autoCapitalize="none" />
             <Field label={tr("Kassa kaliti (Ключ)") + (paySt?.payme_key ? tr(" · kiritilgan ✓") : '')} value={keys.payme} onChangeText={(v) => setKeys({ ...keys, payme: v })} secureTextEntry autoCapitalize="none"
               placeholder={paySt?.payme_key ? tr("O'zgartirish uchun yangisini yozing") : tr("Kalitni joylang")} />
-            <Pressable onPress={() => setCfg({ ...cfg, payme_test: !cfg.payme_test })} style={{ flexDirection: 'row', gap: 8, alignItems: 'center' }}>
-              <Ionicons name={cfg.payme_test ? 'checkbox' : 'square-outline'} size={22} color={t.accent} />
-              <Text style={{ color: t.ink }}>{tr("Sinov rejimi (test.paycom.uz)")}</Text>
-            </Pressable>
             <Note>Payme kabinetida "Endpoint URL": https://qtvyjmiqoknpnlilpfpf.supabase.co/functions/v1/payme · Hisob maydoni: order_id</Note>
-            <H>{tr("Click (avtomatik to'lov)")}</H>
-            <Field label={tr("Service ID")} value={String(cfg.click_service_id || '')} keyboardType="number-pad" onChangeText={(v) => setCfg({ ...cfg, click_service_id: v })} />
-            <Field label={tr("Merchant ID")} value={String(cfg.click_merchant_id || '')} keyboardType="number-pad" onChangeText={(v) => setCfg({ ...cfg, click_merchant_id: v })} />
-            <Field label={tr("Secret key") + (paySt?.click_secret ? tr(" · kiritilgan ✓") : '')} value={keys.click} onChangeText={(v) => setKeys({ ...keys, click: v })} secureTextEntry autoCapitalize="none"
-              placeholder={paySt?.click_secret ? tr("O'zgartirish uchun yangisini yozing") : tr("Kalitni joylang")} />
-            <Note>Click kabinetida Prepare va Complete URL: https://qtvyjmiqoknpnlilpfpf.supabase.co/functions/v1/click</Note>
             <Btn title={tr("Saqlash")} onPress={saveCfg} />
           </View>
         ) : null}
       </ScrollView>
 
-      <Modal visible={!!receipt} transparent animationType="fade" onRequestClose={() => setReceipt(null)}>
-        <Pressable onPress={() => setReceipt(null)} style={{ flex: 1, backgroundColor: 'rgba(0,0,0,.85)', alignItems: 'center', justifyContent: 'center', padding: 16 }}>
-          {receipt ? <Image source={{ uri: receipt }} style={{ width: '100%', height: '85%' }} contentFit="contain" /> : null}
-          <Text style={{ color: '#fff', marginTop: 12 }}>{tr("Yopish uchun bosing")}</Text>
-        </Pressable>
-      </Modal>
     </View>
   );
 }
