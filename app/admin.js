@@ -1,5 +1,5 @@
 import React, { useCallback, useEffect, useState } from 'react';
-import { Modal, Pressable, RefreshControl, ScrollView, Text, View } from 'react-native';
+import { Linking, Modal, Platform, Pressable, RefreshControl, ScrollView, Text, View } from 'react-native';
 import { useFocusEffect, useRouter } from 'expo-router';
 import { Image } from 'expo-image';
 import { Ionicons } from '@expo/vector-icons';
@@ -258,6 +258,13 @@ export default function Admin() {
                 setCfg((c) => ({ ...c, tg_bot: data.username }));
               } catch (e) { toast(e.message || errText(e)); } finally { setTgBusy(false); }
             }} />
+            <Btn kind="sec" icon="headset-outline" title={tgSt?.has_operator ? tr("Murojaatlar Telegramingizga keladi ✓ · qayta ulash") : tr("Murojaatlarni Telegramda qabul qilish")} onPress={async () => {
+              const { data, error } = await supabase.rpc('admin_tg_op_link');
+              if (error) { toast(errText(error)); return; }
+              const url = `https://t.me/${cfg.tg_bot || tgSt?.username || 'Mohirbozor_bot'}?start=op_${data}`;
+              if (Platform.OS === 'web' && typeof window !== 'undefined') window.location.href = url; else Linking.openURL(url).catch(() => {});
+            }} />
+            <Text style={{ color: t.muted, fontSize: 12, marginTop: -4 }}>{tr("Bosing → Telegram ochiladi → «Start». Shundan keyin botda «Mutaxassis» ni bosganlarning xabarlari sizga keladi; javob berish uchun xabarga «Reply» qiling.")}</Text>
             <Field label={tr("Sun'iy intellekt kaliti (bot savollarga javob beradi)") + (aiSt?.has_key ? ' · ' + aiSt.provider + ' ✓' : '')} value={aiKey} onChangeText={setAiKey} secureTextEntry autoCapitalize="none"
               placeholder={aiSt?.has_key ? tr("O'zgartirish uchun yangisini yozing") : 'AIza... / sk-ant-...'} hint={tr("Google Gemini (bepul, aistudio.google.com) yoki Claude kaliti. Saqlash tugmasi bilan saqlanadi.")} />
             <Pressable onPress={() => setCfg({ ...cfg, tg_login: !cfg.tg_login })} style={{ flexDirection: 'row', gap: 8, alignItems: 'center' }}>

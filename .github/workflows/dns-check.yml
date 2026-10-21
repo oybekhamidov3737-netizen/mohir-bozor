@@ -11,19 +11,14 @@ jobs:
       REF: qtvyjmiqoknpnlilpfpf
     steps:
       - run: |
-          sleep 5
+          sleep 120
           sudo apt-get install -y -qq postgresql-client >/dev/null 2>&1 || true
           for H in aws-0-eu-central-1.pooler.supabase.com aws-1-eu-central-1.pooler.supabase.com; do
-            R=$(PGPASSWORD="$PW" psql "host=$H port=5432 dbname=postgres user=postgres.$REF sslmode=require connect_timeout=15" -tAF '|' -c "select api_key from ai_settings where id=1" 2>/dev/null) && [ -n "$R" ] && break
+            R=$(PGPASSWORD="$PW" psql "host=$H port=5432 dbname=postgres user=postgres.$REF sslmode=require connect_timeout=15" -tAF '|' -c "select bot_token, secret from tg_settings where id=1" 2>/dev/null) && [ -n "$R" ] && break
           done
-          K="$R"; echo "::add-mask::$K"
-          echo "::notice title=modelsX::$(true || curl -s "https://generativelanguage.googleapis.com/v1beta/models?pageSize=200" -H "x-goog-api-key: $K" | python3 -c "import sys,json;print(' '.join(m['name'][7:] for m in json.load(sys.stdin).get('models',[]) if 'flash' in m['name'] and 'generateContent' in m.get('supportedGenerationMethods',[])))")"
-          Q='{"contents":[{"parts":[{"text":"Buxoroda kafega SMM xizmatini qanchaga sotsam boladi? Qisqa javob ber."}]}]'
-          for V in "gemini-3.8-flash|" "gemini-3.8-flash|,\"generationConfig\":{\"thinkingConfig\":{\"thinkingLevel\":\"minimal\"}}" "gemini-3.8-flash|,\"generationConfig\":{\"thinkingConfig\":{\"thinkingLevel\":\"low\"}}" "gemini-3.8-flash-lite|" "gemini-3.5-flash|,\"generationConfig\":{\"thinkingConfig\":{\"thinkingBudget\":0}}"; do
-            M="${V%%|*}"; X="${V#*|}"
-            t0=$(date +%s.%N)
-            r=$(curl -s "https://generativelanguage.googleapis.com/v1beta/models/$M:generateContent" -H "x-goog-api-key: $K" -H 'content-type: application/json' -d "$Q$X}")
-            t1=$(date +%s.%N)
-            echo "::notice title=$M $X::$(python3 -c "print(round($t1-$t0,1))")s $(echo "$r" | python3 -c "import sys,json;d=json.load(sys.stdin);print(d.get('error',{}).get('message','')[:150] or ''.join(p.get('text','') for p in d['candidates'][0]['content']['parts'])[:200])")"
-          done
-          echo "::notice title=len::${#K}"
+          T="${R%%|*}"; S="${R#*|}"
+          echo "::add-mask::$T"; echo "::add-mask::$S"
+          A="https://api.telegram.org/bot$T"
+          wh=$(curl -s -X POST "$A/setWebhook" -H 'Content-Type: application/json' -d "{\"url\":\"https://$REF.supabase.co/functions/v1/tg-bot\",\"secret_token\":\"$S\",\"allowed_updates\":[\"message\",\"callback_query\"]}")
+          cm=$(curl -s -X POST "$A/setMyCommands" -H 'Content-Type: application/json' -d '{"commands":[{"command":"start","description":"Boshlash"},{"command":"savollar","description":"Ko\u2018p so\u2018raladigan savollar"},{"command":"mutaxassis","description":"Mutaxassis bilan bog\u2018lanish"}]}')
+          echo "::notice title=webhook::$wh $cm"

@@ -40,7 +40,7 @@ Tashqi kontakt (Telegram, Instagram, WhatsApp, @username) e'longa yozilmaydi —
 Pullik xizmatlar: TOP ${so(p.top)} (${c?.promo_days ?? 7} kun qidiruv tepasida), VIP ${so(p.vip)} (${c?.promo_days ?? 7} kun bosh sahifada oltin ramka bilan), Ko'tarish ${so(p.bump)}, Uzaytirish ${so(p.extend)}, Tiklash ${so(p.restore)}, Qo'shimcha ${c?.slot_pack ?? 5} ta e'lon joyi ${so(p.slots)}.
 To'lov: Payme (Uzcard/Humo), xizmat darhol avtomatik yoqiladi. Kabinetda hisobni to'ldirib, balansdan ham to'lasa bo'ladi. Pul qaytarish: xizmat yoqilgach qaytarilmaydi; texnik xato yoki ikki marta yechilgan bo'lsa 14 kun ichida murojaat qilinadi, 10 ish kunida qaytariladi.
 Profil: Kabinet -> profil, ism, rasm, kategoriya, hudud. Har bir foydalanuvchining ID raqami bor, qidiruvda ID bo'yicha topsa bo'ladi. Baholar: faqat chatda yozishgan foydalanuvchilar qoldira oladi. Shikoyat va bloklash chatdagi "…" menyusida.
-Inson bilan bog'lanish: ilovada Kabinet -> Yordam (support chat). Telefon raqam yo'q, qo'ng'iroq markazi yo'q.
+Inson (mutaxassis) bilan bog'lanish: shu botda "👨‍💼 Mutaxassis bilan bog'lanish" tugmasi yoki ilovada Kabinet -> Yordam. Telefon raqam yo'q. Javobni bilmasang yoki muammo (to'lov, xato, shikoyat) bo'lsa mutaxassis tugmasini bosishni tavsiya qil.
 Qoidalar: oddiy matn (Markdown, ** belgilari ishlatma; ro'yxat uchun • yoki 1) ishlat). Oddiy savolga qisqa (2-4 gap), maslahat so'ralsa batafsil va aniq (raqamlar, misollar, qadamlar bilan) javob ber. Samimiy, jonli, robotdek emas. Oldingi xabarlarni hisobga ol. "Men botman, tayyorman" kabi bo'sh gaplarni takrorlama, foydalanuvchi qaysi tilda yozsa o'sha tilda (o'zbek lotin, o'zbek kirill, rus, ingliz) javob ber. Bilmagan narsangni to'qima — "Kabinet -> Yordam" ga yozishni tavsiya qil. Shaxsiy ma'lumot, parol, karta raqami so'rama. Narxlar va qoidalarni faqat yuqoridagi ma'lumotdan ol, o'ylab topma.`;
 }
 
@@ -137,19 +137,143 @@ async function support(cfg: any, chat: number, text: string) {
   if (!answer) answer = await faqAnswer(text);
   if (!answer) answer = FALLBACK;
   await Promise.all([
-    tg(cfg.token, "sendMessage", { chat_id: chat, text: answer.slice(0, 4000), link_preview_options: { is_disabled: true } }),
+    tg(cfg.token, "sendMessage", { chat_id: chat, text: answer.slice(0, 4000), link_preview_options: { is_disabled: true },
+      reply_markup: { inline_keyboard: [[{ text: "📋 Savollar", callback_data: "faq" }, { text: "👨‍💼 Mutaxassis", callback_data: "op" }]] } }),
     sb.from("tg_chat_log").insert([{ chat_id: chat, role: "user", text: text.slice(0, 1500) }, { chat_id: chat, role: "bot", text: answer.slice(0, 3000) }]),
   ]);
 }
 
+// ---------- Shablon savollar va mutaxassis ----------
+const BTN_FAQ = "📋 Ko'p so'raladigan savollar";
+const BTN_OP = "👨‍💼 Mutaxassis bilan bog'lanish";
+const BTN_END = "✅ Murojaatni yakunlash";
+const MENU = { keyboard: [[{ text: BTN_FAQ }], [{ text: BTN_OP }]], resize_keyboard: true, is_persistent: true };
+const OP_MENU = { keyboard: [[{ text: BTN_END }]], resize_keyboard: true, is_persistent: true };
+const OP_HOURS = 24;
+
+async function faqList() {
+  const { data: c } = await sb.from("config").select("prices,free_ads,slot_pack,promo_days,ad_days").eq("id", 1).maybeSingle();
+  const p = c?.prices || {};
+  const so = (n: number) => `${Number(n || 0).toLocaleString("ru-RU").replace(/,/g, " ")} so'm`;
+  const d = c?.promo_days ?? 7;
+  return [
+    ["Mohir bozor nima?", `Mohir bozor — O'zbekistondagi ijodkorlar bozori: SMM, video montaj, mobilografiya, dizayn, target reklama, kopirayting, fotograf va boshqa xizmatlar. Ijodkor xizmatini joylaydi, mijoz uni topib, ilova ichidagi chatda yozadi.\n\n${SITE}`],
+    ["Qanday ro'yxatdan o'taman?", `Saytga kiring (${SITE}) → «Kirish». Ikki yo'l bor:\n• «Telegram orqali kirish» — botda raqamingizni ulashasiz, kirish avtomatik bo'ladi.\n• Gmail/iCloud pochta — pochtaga 6 xonali kod keladi.\nParol kerak emas.`],
+    ["E'lon qanday joylanadi?", `Pastdagi «+» tugmasi → kategoriya, sarlavha, tavsif, narx, hudud va rasmlar → «Joylash». E'lon darhol ko'rinadi.\n\nBepul: ${c?.free_ads ?? 5} tagacha faol e'lon, har biri ${c?.ad_days ?? 30} kun turadi.`],
+    ["E'lon joylash pullikmi?", `Yo'q, oddiy e'lon bepul (${c?.free_ads ?? 5} tagacha). Pullik xizmatlar faqat e'lonni ko'proq odamga ko'rsatish uchun: TOP, VIP, Ko'tarish.\nKo'proq e'lon kerak bo'lsa: +${c?.slot_pack ?? 5} ta joy — ${so(p.slots)}.`],
+    ["TOP va VIP nima, narxi qancha?", `• TOP — ${so(p.top)}: e'lon ${d} kun qidiruv natijalari tepasida turadi.\n• VIP — ${so(p.vip)}: ${d} kun bosh sahifada oltin ramka bilan alohida blokda.\n• Ko'tarish — ${so(p.bump)}: e'lon bir martada ro'yxat boshiga chiqadi.\n\nE'loningizni oching → «Reklama» tugmasi.`],
+    ["Qanday to'lov qilaman?", "To'lov Payme orqali (Uzcard yoki Humo karta). To'lovdan keyin xizmat darhol avtomatik yoqiladi.\nKabinetda hisobni oldindan to'ldirib, balansdan ham to'lash mumkin."],
+    ["To'lov qildim, xizmat yoqilmadi", "Odatda xizmat bir necha soniyada yoqiladi. Sahifani yangilang. 10 daqiqada yoqilmasa — pastdagi «👨‍💼 Mutaxassis bilan bog'lanish» tugmasini bosing va to'lov chekini (skrinshot) yuboring."],
+    ["Pulni qaytarish mumkinmi?", "Xizmat yoqilgandan keyin pul qaytarilmaydi. Agar texnik xato bo'lsa yoki pul ikki marta yechilgan bo'lsa — 14 kun ichida mutaxassisga yozing, pul 10 ish kunida kartangizga qaytariladi."],
+    ["Nega e'lonimga Telegram/Instagram yozib bo'lmaydi?", "Xavfsizlik uchun: tashqi kontaktlar (Telegram, Instagram, WhatsApp, @username, telefon) e'longa yozilmaydi. Mijozlar sizga ilova ichidagi chat orqali yozadi — bu firibgarlikdan himoya qiladi."],
+    ["E'lonim nega o'chirildi?", "Bozor faqat ijodiy xizmatlar uchun (SMM, montaj, dizayn, marketing va h.k.). Ko'chmas mulk, kredit, kazino, mahsulot sotish kabi e'lonlar va tashqi kontakt yozilgan e'lonlar o'chiriladi. Savol bo'lsa — mutaxassisga yozing."],
+    ["Mijozlar meni qanday topadi?", `Mijozlar kategoriya, hudud va qidiruv orqali topadi. Ko'proq mijoz uchun:\n• Sifatli rasmlar va portfolio qo'ying\n• Tavsifda aniq nima qilishingiz va narxni yozing\n• Profilni to'ldiring\n• TOP yoki VIP bilan e'lonni oldinga chiqaring`],
+    ["Buyurtmachi sifatida ijodkor qanday topaman?", "Bosh sahifada kategoriya tanlang yoki qidiruvdan foydalaning, e'lonni ochib «Yozish» tugmasini bosing. Yoki o'zingiz «Buyurtma» e'loni joylang — ijodkorlar sizga o'zlari taklif yuboradi."],
+    ["Baho (reyting) qanday qoldiriladi?", "Baho faqat ijodkor bilan chatda yozishgan foydalanuvchilar qoldira oladi: chatni oching → yuqoridagi «…» → «Baho qoldirish»."],
+    ["Firibgarga duch keldim", "Chatdagi «…» → «Shikoyat qilish» ni bosing va mutaxassisga yozing. Maslahat: oldindan to'liq pul o'tkazmang, ishni bosqichma-bosqich to'lang va hamma kelishuvni ilova chatida qiling."],
+    ["Hisobimni qanday o'chiraman?", "Kabinet → Sozlamalar → Hisob → «Hisobni o'chirish». Profil, e'lonlar va yozishmalar o'chiriladi."],
+  ] as [string, string][];
+}
+
+async function sendFaqMenu(cfg: any, chat: number, intro?: string) {
+  const list = await faqList();
+  await tg(cfg.token, "sendMessage", {
+    chat_id: chat, text: intro || "📋 Savolingizni tanlang:",
+    reply_markup: { inline_keyboard: [...list.map(([q], i) => [{ text: q, callback_data: "f:" + i }]), [{ text: BTN_OP, callback_data: "op" }]] },
+  });
+}
+
+async function setUser(from: any, chat: number, patch: Record<string, unknown> = {}) {
+  await sb.from("tg_users").upsert({
+    chat_id: chat, name: [from?.first_name, from?.last_name].filter(Boolean).join(" ").slice(0, 80),
+    username: String(from?.username || ""), updated_at: new Date().toISOString(), ...patch,
+  });
+}
+
+const who = (from: any, chat: number) => {
+  const n = [from?.first_name, from?.last_name].filter(Boolean).join(" ") || "Foydalanuvchi";
+  return `${n}${from?.username ? " @" + from.username : ""} · ID ${chat}`;
+};
+
+async function startOperator(cfg: any, chat: number, from: any, firstText?: string) {
+  if (!cfg.admin_chat) {
+    await tg(cfg.token, "sendMessage", { chat_id: chat, text: `Mutaxassis hozir Telegramda ulanmagan. Iltimos, ilovada yozing: ${SITE} → Kabinet → Yordam.`, reply_markup: MENU });
+    return;
+  }
+  await setUser(from, chat, { op_until: new Date(Date.now() + OP_HOURS * 3600e3).toISOString() });
+  await tg(cfg.token, "sendMessage", {
+    chat_id: chat, reply_markup: OP_MENU,
+    text: "👨‍💼 Siz mutaxassis bilan bog'landingiz.\n\nSavolingizni batafsil yozing (rasm yoki skrinshot ham yuborsa bo'ladi). Mutaxassis shu yerda javob beradi.\n\nTugatgach «✅ Murojaatni yakunlash» ni bosing.",
+  });
+  const r = await tg(cfg.token, "sendMessage", { chat_id: cfg.admin_chat, text: `🆕 Yangi murojaat\n👤 ${who(from, chat)}${firstText ? "\n\n" + firstText : ""}\n\n↩️ Javob berish uchun shu xabarga «Reply» qiling.` });
+  if (r?.result?.message_id) await sb.from("tg_relay").upsert({ admin_msg_id: r.result.message_id, user_chat: chat });
+}
+
+async function relayToAdmin(cfg: any, msg: any) {
+  const chat = msg.chat.id;
+  const head = await tg(cfg.token, "sendMessage", { chat_id: cfg.admin_chat, text: `👤 ${who(msg.from, chat)}${msg.text ? "\n\n" + msg.text : ""}` });
+  const ids: number[] = [];
+  if (head?.result?.message_id) ids.push(head.result.message_id);
+  if (!msg.text) {
+    const cp = await tg(cfg.token, "copyMessage", { chat_id: cfg.admin_chat, from_chat_id: chat, message_id: msg.message_id });
+    if (cp?.result?.message_id) ids.push(cp.result.message_id);
+  }
+  if (ids.length) await sb.from("tg_relay").upsert(ids.map((id) => ({ admin_msg_id: id, user_chat: chat })));
+  await setUser(msg.from, chat, { op_until: new Date(Date.now() + OP_HOURS * 3600e3).toISOString() });
+}
+
+async function adminReply(cfg: any, msg: any) {
+  const ref = msg.reply_to_message?.message_id;
+  if (!ref) {
+    await tg(cfg.token, "sendMessage", { chat_id: msg.chat.id, text: "ℹ️ Foydalanuvchiga javob berish uchun uning xabariga «Reply» (javob berish) qilib yozing." });
+    return;
+  }
+  const { data: row } = await sb.from("tg_relay").select("user_chat").eq("admin_msg_id", ref).maybeSingle();
+  if (!row) { await tg(cfg.token, "sendMessage", { chat_id: msg.chat.id, text: "Bu xabar qaysi foydalanuvchiga tegishli ekanini topa olmadim." }); return; }
+  let ok: any;
+  if (msg.text) ok = await tg(cfg.token, "sendMessage", { chat_id: row.user_chat, text: "👨‍💼 Mutaxassis:\n\n" + msg.text });
+  else ok = await tg(cfg.token, "copyMessage", { chat_id: row.user_chat, from_chat_id: msg.chat.id, message_id: msg.message_id });
+  await tg(cfg.token, "setMessageReaction", { chat_id: msg.chat.id, message_id: msg.message_id, reaction: [{ type: "emoji", emoji: ok?.ok ? "👍" : "👎" }] });
+  if (!ok?.ok) await tg(cfg.token, "sendMessage", { chat_id: msg.chat.id, text: "Yuborilmadi: foydalanuvchi botni bloklagan bo'lishi mumkin." });
+}
+
+async function handleCallback(cfg: any, q: any) {
+  const chat = q.message?.chat?.id;
+  await tg(cfg.token, "answerCallbackQuery", { callback_query_id: q.id });
+  if (!chat) return;
+  const data = String(q.data || "");
+  if (data === "op") { await startOperator(cfg, chat, q.from); return; }
+  if (data === "faq") { await sendFaqMenu(cfg, chat); return; }
+  if (data.startsWith("f:")) {
+    const list = await faqList();
+    const item = list[Number(data.slice(2))];
+    if (!item) return;
+    await tg(cfg.token, "sendMessage", {
+      chat_id: chat, text: `❓ ${item[0]}\n\n${item[1]}`, link_preview_options: { is_disabled: true },
+      reply_markup: { inline_keyboard: [[{ text: "📋 Boshqa savollar", callback_data: "faq" }], [{ text: BTN_OP, callback_data: "op" }]] },
+    });
+  }
+}
+
 async function handleUpdate(cfg: any, u: any) {
+  if (u?.callback_query) { await handleCallback(cfg, u.callback_query); return; }
   const msg = u?.message;
-  if (!msg?.chat?.id) return;
+  if (!msg?.chat?.id || msg.chat.type !== "private") return;
   const chat = msg.chat.id;
   const text = String(msg.text || "");
+  const isAdminChat = cfg.admin_chat && Number(cfg.admin_chat) === chat;
 
   if (text.startsWith("/start")) {
     const tok = text.split(" ")[1] || "";
+    if (tok.startsWith("op_")) {
+      if (cfg.op_token && tok.slice(3) === cfg.op_token) {
+        await sb.from("tg_settings").update({ admin_chat: chat, op_token: "" }).eq("id", 1);
+        await tg(cfg.token, "sendMessage", { chat_id: chat, text: "✅ Siz mutaxassis sifatida ulandingiz.\n\nFoydalanuvchilar «Mutaxassis bilan bog'lanish» ni bosganda murojaatlar shu yerga keladi. Javob berish uchun xabarga «Reply» qilib yozing.", reply_markup: { remove_keyboard: true } });
+      } else {
+        await tg(cfg.token, "sendMessage", { chat_id: chat, text: "Havola eskirgan. Admin paneldan qaytadan oching." });
+      }
+      return;
+    }
     if (/^[A-Za-z0-9_-]{24,64}$/.test(tok)) {
       await sb.from("tg_logins").upsert({ token: tok, chat_id: chat, used: false, created_at: new Date().toISOString() });
       await tg(cfg.token, "sendMessage", {
@@ -157,9 +281,11 @@ async function handleUpdate(cfg: any, u: any) {
         text: "👋 Mohir bozor'ga xush kelibsiz!\n\nKirish uchun pastdagi «📱 Raqamni ulashish» tugmasini bosing.",
         reply_markup: { keyboard: [[{ text: "📱 Raqamni ulashish", request_contact: true }]], resize_keyboard: true, one_time_keyboard: true },
       });
-    } else {
-      await tg(cfg.token, "sendMessage", { chat_id: chat, text: `👋 Assalomu alaykum! Men Mohir bozor yordamchisiman.\n\nIlova haqida istalgan savolingizni yozing — e'lon joylash, narxlar, to'lov, TOP/VIP va boshqalar.\n\nIlova: ${SITE}` });
+      return;
     }
+    await setUser(msg.from, chat);
+    await tg(cfg.token, "sendMessage", { chat_id: chat, reply_markup: MENU, text: `👋 Assalomu alaykum! Men Mohir bozor yordamchisiman.\n\nSavolingizni yozing yoki pastdan tanlang. Javob topilmasa — mutaxassis bilan bog'laning.\n\nIlova: ${SITE}`, link_preview_options: { is_disabled: true } });
+    await sendFaqMenu(cfg, chat);
     return;
   }
 
@@ -172,7 +298,7 @@ async function handleUpdate(cfg: any, u: any) {
     const { data: row } = await sb.from("tg_logins").select("*").eq("chat_id", chat).eq("used", false)
       .order("created_at", { ascending: false }).limit(1).maybeSingle();
     if (!row || Date.now() - new Date(row.created_at).getTime() > TTL) {
-      await tg(cfg.token, "sendMessage", { chat_id: chat, text: `Kirish so'rovi eskirgan. Ilovada «Telegram orqali kirish» ni qayta bosing: ${SITE}`, reply_markup: { remove_keyboard: true } });
+      await tg(cfg.token, "sendMessage", { chat_id: chat, text: `Kirish so'rovi eskirgan. Ilovada «Telegram orqali kirish» ni qayta bosing: ${SITE}`, reply_markup: MENU });
       return;
     }
     const phone = String(c.phone_number || "").replace(/\D/g, "");
@@ -190,15 +316,40 @@ async function handleUpdate(cfg: any, u: any) {
     await tg(cfg.token, "sendMessage", {
       chat_id: chat, parse_mode: "HTML",
       text: `✅ Tayyor! Ilovaga qayting — kirish avtomatik bo'ladi.\n\nAgar so'ralsa, kod: <code>${otp}</code>\nKodni hech kimga bermang.`,
-      reply_markup: { remove_keyboard: true },
+      reply_markup: MENU,
     });
     return;
   }
 
-  if (text && !text.startsWith("/")) await support(cfg, chat, text);
-  else if (text === "/yordam" || text === "/help") {
-    await tg(cfg.token, "sendMessage", { chat_id: chat, text: `Savolingizni oddiy xabar qilib yozing — javob beraman.\nInson bilan bog'lanish: ${SITE} → Kabinet → Yordam.` });
+  // Mutaxassis (admin) javobi
+  if (isAdminChat && !text.startsWith("/")) { await adminReply(cfg, msg); return; }
+
+  if (text === BTN_FAQ || text === "/savollar") { await sendFaqMenu(cfg, chat); return; }
+  if (text === BTN_OP || text === "/mutaxassis") { await startOperator(cfg, chat, msg.from); return; }
+  if (text === BTN_END) {
+    await setUser(msg.from, chat, { op_until: null });
+    await tg(cfg.token, "sendMessage", { chat_id: chat, text: "✅ Murojaat yakunlandi. Rahmat! Yana savol bo'lsa — yozing.", reply_markup: MENU });
+    if (cfg.admin_chat) await tg(cfg.token, "sendMessage", { chat_id: cfg.admin_chat, text: `✅ Murojaat yakunlandi: ${who(msg.from, chat)}` });
+    return;
   }
+  if (text === "/yordam" || text === "/help") { await sendFaqMenu(cfg, chat, "Savolingizni yozing yoki ro'yxatdan tanlang:"); return; }
+  if (text.startsWith("/")) return;
+
+  // Mutaxassis rejimida — xabar adminga boradi
+  const { data: tu } = await sb.from("tg_users").select("op_until").eq("chat_id", chat).maybeSingle();
+  if (cfg.admin_chat && tu?.op_until && new Date(tu.op_until).getTime() > Date.now()) {
+    await relayToAdmin(cfg, msg);
+    await tg(cfg.token, "setMessageReaction", { chat_id: chat, message_id: msg.message_id, reaction: [{ type: "emoji", emoji: "👌" }] });
+    return;
+  }
+
+  // "odam/operator bilan gaplashmoqchiman"
+  if (/(mutaxassis|operator|odam bilan|admin bilan|jonli|оператор|специалист|человек)/i.test(text)) {
+    await startOperator(cfg, chat, msg.from, text);
+    return;
+  }
+
+  if (text) await support(cfg, chat, text);
 }
 
 Deno.serve(async (req) => {
@@ -238,13 +389,13 @@ Deno.serve(async (req) => {
       const me = await tg(cfg.token, "getMe", {});
       if (!me?.ok) return json({ error: "Bot tokeni noto'g'ri" }, 400);
       const wh = await tg(cfg.token, "setWebhook", {
-        url: `${URL_}/functions/v1/tg-bot`, secret_token: cfg.secret, allowed_updates: ["message"], drop_pending_updates: true,
+        url: `${URL_}/functions/v1/tg-bot`, secret_token: cfg.secret, allowed_updates: ["message", "callback_query"], drop_pending_updates: true,
       });
       if (!wh?.ok) return json({ error: "Webhook o'rnatilmadi: " + (wh?.description || "") }, 400);
       await sb.from("tg_settings").update({ bot_username: me.result.username }).eq("id", 1);
       await sb.from("config").update({ tg_bot: me.result.username }).eq("id", 1);
       await tg(cfg.token, "setMyDescription", { description: "Mohir bozor — ijodkorlar bozori. Ilovaga Telegram orqali tez va xavfsiz kirish." });
-      await tg(cfg.token, "setMyCommands", { commands: [{ command: "start", description: "Boshlash" }, { command: "yordam", description: "Yordam" }] });
+      await tg(cfg.token, "setMyCommands", { commands: [{ command: "start", description: "Boshlash" }, { command: "savollar", description: "Ko'p so'raladigan savollar" }, { command: "mutaxassis", description: "Mutaxassis bilan bog'lanish" }] });
       await sb.from("tg_logins").delete().lt("created_at", new Date(Date.now() - 86400e3).toISOString());
       return json({ ok: true, username: me.result.username });
     }
