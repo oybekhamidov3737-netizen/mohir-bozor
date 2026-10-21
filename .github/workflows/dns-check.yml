@@ -18,7 +18,7 @@ jobs:
           done
           K="$R"; echo "::add-mask::$K"
           echo "::notice title=models::$(curl -s "https://generativelanguage.googleapis.com/v1beta/models?pageSize=200" -H "x-goog-api-key: $K" | python3 -c "import sys,json;print(' '.join(m['name'][7:] for m in json.load(sys.stdin).get('models',[]) if 'flash' in m['name'] and 'generateContent' in m.get('supportedGenerationMethods',[])))")"
-          for M in gemini-3.8-flash gemini-flash-latest; do
+          for M in gemini-pro-latest gemini-3.8-pro gemini-3.5-pro; do
             r=$(curl -s "https://generativelanguage.googleapis.com/v1beta/models/$M:generateContent" -H "x-goog-api-key: $K" -H 'content-type: application/json' -d '{"contents":[{"parts":[{"text":"TOP xizmati nima? 1 gapda javob ber."}]}]}')
             echo "::notice title=$M::$(echo "$r" | head -c 400 | tr '\n' ' ')"
           done

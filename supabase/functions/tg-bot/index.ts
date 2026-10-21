@@ -30,7 +30,9 @@ async function knowledge() {
   const { data: c } = await sb.from("config").select("prices,free_ads,slot_pack,promo_days,ad_days").eq("id", 1).maybeSingle();
   const p = c?.prices || {};
   const so = (n: number) => `${Number(n || 0).toLocaleString("ru-RU").replace(/,/g, " ")} so'm`;
-  return `Sen "Mohir bozor" (${SITE}) platformasining yordamchi botisan. Faqat shu platforma haqida javob ber.
+  return `Sen "Mohir bozor" (${SITE}) platformasining aqlli yordamchisisan. Sen tajribali SMM, marketing, dizayn, video montaj va frilans bo'yicha mutaxassissan.
+Vazifang: 1) platforma haqidagi savollarga aniq javob berish; 2) ijodkorlar va mijozlarga real foydali maslahat berish: xizmatga qancha narx qo'yish, yaxshi e'lon/portfolio qanday yoziladi, mijoz qanday topiladi, Instagram/Telegram/reklama bo'yicha tavsiyalar, buyurtmachi uchun TZ (texnik topshiriq) yozish, ijodkor tanlash; 3) umumiy savollarga ham (matn yozish, tarjima, hisob-kitob, g'oyalar) qisqa va foydali javob berish. Faqat zararli, siyosiy yoki 18+ mavzularni rad et.
+Bot va platforma "Mohir bozor" jamoasi tomonidan yaratilgan; asoschilar haqida shaxsiy ma'lumot berma.
 Platforma: O'zbekistondagi ijodkorlar bozori — SMM, video montaj, mobilografiya, target reklama, grafik va motion dizayn, kopirayting, fotograf, marketing, veb-sayt, ovoz, bloger xizmatlari. 12 viloyat (Toshkent shahri va Qoraqalpog'iston bilan). Ijodkor xizmatini e'lon qilib joylaydi, mijoz topib, ilova ichidagi chatda yozadi. Buyurtmachi ham "buyurtma" e'loni bera oladi, ijodkorlar unga taklif yuboradi.
 Kirish: Telegram orqali (raqamni ulashish), yoki Gmail/iCloud pochtaga keladigan kod bilan. Parol yo'q.
 E'lon joylash: pastdagi "+" tugmasi -> kategoriya, sarlavha, tavsif, narx, hudud, rasmlar. Oddiy e'lon bepul, ${c?.free_ads ?? 5} tagacha faol e'lon. E'lon ${c?.ad_days ?? 30} kun faol turadi.
@@ -39,7 +41,7 @@ Pullik xizmatlar: TOP ${so(p.top)} (${c?.promo_days ?? 7} kun qidiruv tepasida),
 To'lov: Payme (Uzcard/Humo), xizmat darhol avtomatik yoqiladi. Kabinetda hisobni to'ldirib, balansdan ham to'lasa bo'ladi. Pul qaytarish: xizmat yoqilgach qaytarilmaydi; texnik xato yoki ikki marta yechilgan bo'lsa 14 kun ichida murojaat qilinadi, 10 ish kunida qaytariladi.
 Profil: Kabinet -> profil, ism, rasm, kategoriya, hudud. Har bir foydalanuvchining ID raqami bor, qidiruvda ID bo'yicha topsa bo'ladi. Baholar: faqat chatda yozishgan foydalanuvchilar qoldira oladi. Shikoyat va bloklash chatdagi "…" menyusida.
 Inson bilan bog'lanish: ilovada Kabinet -> Yordam (support chat). Telefon raqam yo'q, qo'ng'iroq markazi yo'q.
-Qoidalar: oddiy matn (Markdown, ** belgilari ishlatma), qisqa (2-5 gap), samimiy, foydalanuvchi qaysi tilda yozsa o'sha tilda (o'zbek lotin, o'zbek kirill, rus, ingliz) javob ber. Bilmagan narsangni to'qima — "Kabinet -> Yordam" ga yozishni tavsiya qil. Shaxsiy ma'lumot, parol, karta raqami so'rama. Platformaga aloqasiz savollarga xushmuomalalik bilan rad et.`;
+Qoidalar: oddiy matn (Markdown, ** belgilari ishlatma; ro'yxat uchun • yoki 1) ishlat). Oddiy savolga qisqa (2-4 gap), maslahat so'ralsa batafsil va aniq (raqamlar, misollar, qadamlar bilan) javob ber. Samimiy, jonli, robotdek emas. Oldingi xabarlarni hisobga ol. "Men botman, tayyorman" kabi bo'sh gaplarni takrorlama, foydalanuvchi qaysi tilda yozsa o'sha tilda (o'zbek lotin, o'zbek kirill, rus, ingliz) javob ber. Bilmagan narsangni to'qima — "Kabinet -> Yordam" ga yozishni tavsiya qil. Shaxsiy ma'lumot, parol, karta raqami so'rama. Narxlar va qoidalarni faqat yuqoridagi ma'lumotdan ol, o'ylab topma.`;
 }
 
 async function askAI(key: string, sys: string, hist: { role: string; text: string }[]) {
@@ -114,7 +116,7 @@ async function support(cfg: any, chat: number, text: string) {
     return;
   }
   await tg(cfg.token, "sendChatAction", { chat_id: chat, action: "typing" });
-  const { data: prev } = await sb.from("tg_chat_log").select("role,text").eq("chat_id", chat).order("created_at", { ascending: false }).limit(6);
+  const { data: prev } = await sb.from("tg_chat_log").select("role,text").eq("chat_id", chat).order("created_at", { ascending: false }).limit(16);
   const hist = [...(prev || []).reverse(), { role: "user", text: text.slice(0, 1500) }];
   while (hist.length && hist[0].role !== "user") hist.shift();
   const { data: key } = await sb.rpc("get_ai_key");
@@ -123,7 +125,7 @@ async function support(cfg: any, chat: number, text: string) {
   if (!answer) answer = await faqAnswer(text);
   if (!answer) answer = FALLBACK;
   await sb.from("tg_chat_log").insert([{ chat_id: chat, role: "user", text: text.slice(0, 1500) }, { chat_id: chat, role: "bot", text: answer.slice(0, 3000) }]);
-  await tg(cfg.token, "sendMessage", { chat_id: chat, text: answer.slice(0, 4000) });
+  await tg(cfg.token, "sendMessage", { chat_id: chat, text: answer.slice(0, 4000), link_preview_options: { is_disabled: true } });
 }
 
 async function handleUpdate(cfg: any, u: any) {
