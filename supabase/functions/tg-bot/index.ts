@@ -147,7 +147,7 @@ async function support(cfg: any, chat: number, text: string) {
 const BTN_FAQ = "📋 Ko'p so'raladigan savollar";
 const BTN_OP = "👨‍💼 Mutaxassis bilan bog'lanish";
 const BTN_END = "✅ Murojaatni yakunlash";
-const MENU = { keyboard: [[{ text: BTN_FAQ }], [{ text: BTN_OP }]], resize_keyboard: true, is_persistent: true };
+const MENU = { keyboard: [[{ text: BTN_FAQ }]], resize_keyboard: true, is_persistent: true };
 const OP_MENU = { keyboard: [[{ text: BTN_END }]], resize_keyboard: true, is_persistent: true };
 const OP_HOURS = 24;
 
@@ -284,7 +284,7 @@ async function handleUpdate(cfg: any, u: any) {
       return;
     }
     await setUser(msg.from, chat);
-    await tg(cfg.token, "sendMessage", { chat_id: chat, reply_markup: MENU, text: `👋 Assalomu alaykum! Men Mohir bozor yordamchisiman.\n\nSavolingizni yozing yoki pastdan tanlang. Javob topilmasa — mutaxassis bilan bog'laning.\n\nIlova: ${SITE}`, link_preview_options: { is_disabled: true } });
+    await tg(cfg.token, "sendMessage", { chat_id: chat, reply_markup: MENU, text: `👋 Assalomu alaykum! Men Mohir bozor yordamchisiman.\n\nSavolingizni yozing yoki ro'yxatdan tanlang.\n\nIlova: ${SITE}`, link_preview_options: { is_disabled: true } });
     await sendFaqMenu(cfg, chat);
     return;
   }
