@@ -94,7 +94,7 @@ export default function Cabinet() {
       <H>{tr("Boshqa")}</H>
       <MenuGroup items={[
         { icon: 'settings', title: tr("Sozlamalar"), sub: tr("Til, ko'rinish, hisob"), color: '#5C6862', onPress: () => router.push('/settings') },
-        { icon: 'help-buoy', title: tr("Yordam"), sub: config.support_phone || '+998 91 001 88 18', color: '#0C9A6A', onPress: () => router.push('/support') },
+        { icon: 'help-buoy', title: tr("Yordam"), sub: '@' + (config.tg_bot || 'Mohirbozor_bot'), color: '#0C9A6A', onPress: () => router.push('/support') },
         { icon: 'chatbubble-ellipses', title: tr("Teskari aloqa"), color: '#F08A00', onPress: () => router.push('/feedback') },
         { icon: 'information-circle', title: tr("Ilova haqida"), sub: tr("Shartlar, maxfiylik, aloqa"), color: '#2747D6', onPress: () => router.push('/about') },
       ]} />

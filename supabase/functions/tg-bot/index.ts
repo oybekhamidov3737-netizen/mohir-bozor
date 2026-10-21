@@ -27,7 +27,7 @@ async function tg(token: string, method: string, body: unknown) {
 
 // ---------- Sun'iy intellekt (support) ----------
 async function knowledge() {
-  const { data: c } = await sb.from("config").select("prices,free_ads,slot_pack,promo_days,ad_days,support_phone").eq("id", 1).maybeSingle();
+  const { data: c } = await sb.from("config").select("prices,free_ads,slot_pack,promo_days,ad_days").eq("id", 1).maybeSingle();
   const p = c?.prices || {};
   const so = (n: number) => `${Number(n || 0).toLocaleString("ru-RU").replace(/,/g, " ")} so'm`;
   return `Sen "Mohir bozor" (${SITE}) platformasining yordamchi botisan. Faqat shu platforma haqida javob ber.
@@ -38,7 +38,7 @@ Tashqi kontakt (Telegram, Instagram, WhatsApp, @username) e'longa yozilmaydi —
 Pullik xizmatlar: TOP ${so(p.top)} (${c?.promo_days ?? 7} kun qidiruv tepasida), VIP ${so(p.vip)} (${c?.promo_days ?? 7} kun bosh sahifada oltin ramka bilan), Ko'tarish ${so(p.bump)}, Uzaytirish ${so(p.extend)}, Tiklash ${so(p.restore)}, Qo'shimcha ${c?.slot_pack ?? 5} ta e'lon joyi ${so(p.slots)}.
 To'lov: Payme (Uzcard/Humo), xizmat darhol avtomatik yoqiladi. Kabinetda hisobni to'ldirib, balansdan ham to'lasa bo'ladi. Pul qaytarish: xizmat yoqilgach qaytarilmaydi; texnik xato yoki ikki marta yechilgan bo'lsa 14 kun ichida murojaat qilinadi, 10 ish kunida qaytariladi.
 Profil: Kabinet -> profil, ism, rasm, kategoriya, hudud. Har bir foydalanuvchining ID raqami bor, qidiruvda ID bo'yicha topsa bo'ladi. Baholar: faqat chatda yozishgan foydalanuvchilar qoldira oladi. Shikoyat va bloklash chatdagi "…" menyusida.
-Inson bilan bog'lanish: ilovada Kabinet -> Yordam (support chat) yoki telefon ${c?.support_phone || "+998 91 001 88 18"}.
+Inson bilan bog'lanish: ilovada Kabinet -> Yordam (support chat). Telefon raqam yo'q, qo'ng'iroq markazi yo'q.
 Qoidalar: oddiy matn (Markdown, ** belgilari ishlatma), qisqa (2-5 gap), samimiy, foydalanuvchi qaysi tilda yozsa o'sha tilda (o'zbek lotin, o'zbek kirill, rus, ingliz) javob ber. Bilmagan narsangni to'qima — "Kabinet -> Yordam" ga yozishni tavsiya qil. Shaxsiy ma'lumot, parol, karta raqami so'rama. Platformaga aloqasiz savollarga xushmuomalalik bilan rad et.`;
 }
 
@@ -71,7 +71,7 @@ async function askAI(key: string, sys: string, hist: { role: string; text: strin
 // Kalitsiz ishlaydigan oddiy javoblar (AI ulanmagan yoki javob bermasa)
 async function faqAnswer(text: string) {
   const t = text.toLowerCase();
-  const { data: c } = await sb.from("config").select("prices,free_ads,slot_pack,promo_days,ad_days,support_phone").eq("id", 1).maybeSingle();
+  const { data: c } = await sb.from("config").select("prices,free_ads,slot_pack,promo_days,ad_days").eq("id", 1).maybeSingle();
   const p = c?.prices || {};
   const so = (n: number) => `${Number(n || 0).toLocaleString("ru-RU").replace(/,/g, " ")} so'm`;
   const has = (...w: string[]) => w.some((x) => t.includes(x));
@@ -101,7 +101,7 @@ async function faqAnswer(text: string) {
     out.push("👋 Assalomu alaykum! Ilova haqida savolingizni yozing: narxlar, e'lon joylash, to'lov, kirish...");
   }
   if (!out.length) return "";
-  return out.join("\n\n") + `\n\nBoshqa savol bo'lsa — yozing. Inson bilan: ${SITE} → Kabinet → Yordam yoki ${c?.support_phone || "+998 91 001 88 18"}.`;
+  return out.join("\n\n") + `\n\nBoshqa savol bo'lsa — yozing. Inson bilan: ${SITE} → Kabinet → Yordam.`;
 }
 
 const FALLBACK = `Savolingiz uchun rahmat! Javobni ilovadagi qo'llab-quvvatlashdan olasiz: ${SITE} → Kabinet → Yordam.`;

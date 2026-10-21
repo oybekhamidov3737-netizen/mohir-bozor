@@ -14,7 +14,7 @@ const FAQ = () => [
   [tr("Qanday e'lon joylayman?"), tr("Pastdagi \"Joylash\" tugmasini bosing. Avval kabinet ochasiz, keyin rasmlar, narx va tavsifni kiritasiz. E'lon darhol ko'rinadi.")],
   [tr("E'lonim nega qabul qilinmadi?"), tr("Bozor faqat SMM, montaj, dizayn, marketing va boshqa ijodiy xizmatlar uchun. Telegram, Instagram yoki WhatsApp manzillarini yozib bo'lmaydi: mijozlar ilova ichidagi chat orqali yozadi.")],
   [tr("TOP va VIP nima?"), tr("TOP e'lonni qidiruvning tepasiga chiqaradi. VIP bundan tashqari bosh sahifadagi alohida oltin blokda ko'rsatadi. E'loningizda \"Reklama\" tugmasini bosing.")],
-  [tr("To'lov qildim, xizmat yoqilmadi"), tr("Kartaga o'tkazma bilan to'lasangiz, bozor egasi tekshirib tasdiqlaydi (odatda bir necha soat ichida). Payme yoki Click orqali to'lov darhol yoqiladi. Kechiksa, quyidagi chat orqali yozing.")],
+  [tr("To'lov qildim, xizmat yoqilmadi"), tr("Payme orqali to'lov odatda darhol yoqiladi. Bir necha daqiqada yoqilmasa, \"Ilovada yozish\" orqali bizga yozing — tekshirib beramiz.")],
   [tr("Firibgarga duch keldim"), tr("E'lon sahifasidagi \"Shikoyat qilish\" tugmasini bosing va bizga yozing. Oldindan to'liq pul o'tkazmang, ishni bosqichma-bosqich to'lang.")],
   [tr("Hisobimni qanday o'chiraman?"), tr("Kabinet → Hisob → \"Hisobni o'chirish\". Profil, e'lonlar va yozishmalar o'chiriladi.")],
 ];
@@ -26,8 +26,8 @@ export default function Support() {
   const { config, isAdmin, toast } = useApp();
   const [open, setOpen] = useState(null);
   const [busy, setBusy] = useState(false);
-  const phone = config.support_phone || '+998 91 001 88 18';
-  const tel = 'tel:' + phone.replace(/[^\d+]/g, '');
+  const bot = config.tg_bot || 'Mohirbozor_bot';
+  const botUrl = 'https://t.me/' + bot;
 
   const chat = async () => {
     if (isAdmin) { router.push('/chats'); return; }
@@ -38,8 +38,8 @@ export default function Support() {
     if (error) { toast(errText(error)); return; }
     router.push(`/chat/${data}`);
   };
-  const call = () => Linking.openURL(tel).catch(() => {
-    copyText(phone).then((ok) => ok && toast(tr("Raqam nusxalandi")));
+  const call = () => Linking.openURL(botUrl).catch(() => {
+    copyText(botUrl).then((ok) => ok && toast(tr("Havola nusxalandi")));
   });
 
   return (
@@ -47,14 +47,14 @@ export default function Support() {
       <View style={{ backgroundColor: t.accent, borderRadius: 20, padding: 20, gap: 8 }}>
         <Ionicons name="headset-outline" size={34} color={t.accentInk} />
         <Text style={{ fontFamily: FONT.display, fontSize: 22, color: t.accentInk }}>{tr("Sizga qanday yordam beraylik?")}</Text>
-        <Text style={{ color: t.accentInk, opacity: 0.85, lineHeight: 20 }}>{tr("Har kuni 9:00 dan 21:00 gacha javob beramiz.")}</Text>
+        <Text style={{ color: t.accentInk, opacity: 0.85, lineHeight: 20 }}>{tr("Telegram botimiz savollarga darhol javob beradi. Murakkab masalalar uchun ilovada yozing.")}</Text>
       </View>
 
       <Pressable onPress={call} style={{ flexDirection: 'row', gap: 12, alignItems: 'center', backgroundColor: t.surface, borderWidth: 1, borderColor: t.line, borderRadius: 16, padding: 14 }}>
-        <View style={{ width: 44, height: 44, borderRadius: 14, backgroundColor: t.accentSoft, alignItems: 'center', justifyContent: 'center' }}><Ionicons name="call" size={22} color={t.accent} /></View>
+        <View style={{ width: 44, height: 44, borderRadius: 14, backgroundColor: t.accentSoft, alignItems: 'center', justifyContent: 'center' }}><Ionicons name="paper-plane" size={22} color={t.accent} /></View>
         <View style={{ flex: 1 }}>
-          <Text style={{ color: t.muted, fontSize: 12 }}>{tr("Qo'ng'iroq qilish")}</Text>
-          <Text selectable style={{ color: t.ink, fontSize: 18, fontWeight: '800' }}>{phone}</Text>
+          <Text style={{ color: t.muted, fontSize: 12 }}>{tr("Telegram yordamchi bot · 24/7")}</Text>
+          <Text selectable style={{ color: t.ink, fontSize: 18, fontWeight: '800' }}>@{bot}</Text>
         </View>
         <Ionicons name="chevron-forward" size={18} color={t.muted} />
       </Pressable>

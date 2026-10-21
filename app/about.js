@@ -14,7 +14,7 @@ export default function About() {
   const t = useT();
   const router = useRouter();
   const { config } = useApp();
-  const phone = config.support_phone || '+998 91 001 88 18';
+  const bot = config.tg_bot || 'Mohirbozor_bot';
   return (
     <ScrollView style={{ flex: 1, backgroundColor: t.bg }} contentContainerStyle={{ padding: 16, gap: 14, paddingBottom: 40, maxWidth: 640, width: '100%', alignSelf: 'center' }}>
       <Stack.Screen options={{ title: tr('Ilova haqida') }} />
@@ -25,7 +25,7 @@ export default function About() {
       </View>
       <Text style={{ color: t.ink, lineHeight: 22, textAlign: 'center' }}>{tr("Mohir bozor — O'zbekistondagi SMM mutaxassislari, montajchilar, mobilograflar, dizaynerlar va marketologlar uchun e'lonlar platformasi. Ijodkor xizmatini joylaydi, mijoz uni topib, ilova ichida yozadi.")}</Text>
       <MenuGroup items={[
-        { icon: 'call', title: tr("Qo'ng'iroq qilish"), sub: phone, color: '#0C9A6A', onPress: () => Linking.openURL('tel:' + phone.replace(/[^\d+]/g, '')).catch(() => {}) },
+        { icon: 'paper-plane', title: tr('Telegram bot'), sub: '@' + bot, color: '#229ED9', onPress: () => Linking.openURL('https://t.me/' + bot).catch(() => {}) },
         { icon: 'globe', title: tr('Sayt'), sub: WEB_URL.replace('https://', ''), color: '#2747D6', onPress: () => Linking.openURL(WEB_URL).catch(() => {}) },
         { icon: 'reader', title: tr('Foydalanish shartlari'), color: '#6A3FE0', onPress: () => router.push('/terms') },
         { icon: 'lock-closed', title: tr('Maxfiylik siyosati'), color: '#F08A00', onPress: () => router.push('/privacy') },
