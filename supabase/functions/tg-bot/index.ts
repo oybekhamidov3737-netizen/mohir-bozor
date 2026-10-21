@@ -117,11 +117,13 @@ async function faqAnswer(text: string) {
 
 const FALLBACK = "Bu savolga aniq javob bera olmadim. Pastdagi «👨‍💼 Mutaxassis» tugmasini bosing — mutaxassis o'zi javob beradi.";
 
-async function support(cfg: any, chat: number, text: string) {
+async function support(cfg: any, chat: number, text: string, from?: any) {
   const since = new Date(Date.now() - 86400e3).toISOString();
   const { count } = await sb.from("tg_chat_log").select("id", { count: "exact", head: true }).eq("chat_id", chat).eq("role", "user").gt("created_at", since);
   if ((count || 0) >= 30) {
-    await tg(cfg.token, "sendMessage", { chat_id: chat, text: "Bugungi savollar limiti tugadi. Mutaxassis bilan bog'laning yoki ertaga yozing.", reply_markup: { inline_keyboard: [[{ text: "👨‍💼 Mutaxassis", callback_data: "op" }]] } });
+    // Bepul AI savollari tugadi — avtomatik mutaxassisga ulanadi, savol ham unga boradi
+    await tg(cfg.token, "sendMessage", { chat_id: chat, text: "ℹ️ Bugungi 30 ta bepul savolingiz tugadi." });
+    await startOperator(cfg, chat, from, text);
     return;
   }
   const [, { data: prev }, { data: key }, sys] = await Promise.all([
@@ -349,7 +351,7 @@ async function handleUpdate(cfg: any, u: any) {
     return;
   }
 
-  if (text) await support(cfg, chat, text);
+  if (text) await support(cfg, chat, text, msg.from);
 }
 
 Deno.serve(async (req) => {
