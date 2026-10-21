@@ -1,5 +1,5 @@
 import React, { useEffect, useRef, useState } from 'react';
-import { KeyboardAvoidingView, Platform, ScrollView, Text, View } from 'react-native';
+import { KeyboardAvoidingView, Linking, Platform, ScrollView, Text, View } from 'react-native';
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
 import { useT, FONT } from '../src/theme';
@@ -15,6 +15,9 @@ export default function Login() {
   const { next } = useLocalSearchParams();
   const { loadProfile, toast, config } = useApp();
   const smsOn = !!config?.sms_login;
+  const tgBot = config?.tg_login && config?.tg_bot ? config.tg_bot : '';
+  const [tgTok, setTgTok] = useState('');
+  const [tgOpened, setTgOpened] = useState(false);
   const [via, setVia] = useState(smsOn ? 'phone' : 'email');
   const [phone, setPhone] = useState('');
   useEffect(() => { if (smsOn) setVia('phone'); }, [smsOn]);
@@ -73,11 +76,11 @@ export default function Login() {
     verify(data.otp);
   };
 
-  const verify = async (auto) => {
+  const verify = async (auto, emOverride) => {
     const c = (typeof auto === 'string' ? auto : code).replace(/\D/g, '');
     if (c.length < 6) { setErr(tr("Kelgan 6 xonali kodni kiriting.")); return; }
     setBusy(true); setErr('');
-    const em = (typeof auto === 'string' ? email.trim().toLowerCase() : otpEmail) || email.trim().toLowerCase();
+    const em = emOverride || (typeof auto === 'string' ? email.trim().toLowerCase() : otpEmail) || email.trim().toLowerCase();
     let { error } = await supabase.auth.verifyOtp({ email: em, token: c, type: 'email' });
     if (error) ({ error } = await supabase.auth.verifyOtp({ email: em, token: c, type: 'magiclink' }));
     if (error) { setBusy(false); setErr(errText(error)); return; }
@@ -88,6 +91,66 @@ export default function Login() {
     else if (next) router.replace(next);
     else router.back();
   };
+
+  // Telegram orqali kirish: tasodifiy token -> t.me/bot?start=token -> bot raqamni so'raydi -> ilova holatni tekshirib turadi
+  const startTg = () => {
+    const a = new Uint8Array(24);
+    (globalThis.crypto || {}).getRandomValues?.(a);
+    const tok = Array.from(a, (b) => b.toString(16).padStart(2, '0')).join('') || String(Date.now()) + Math.random().toString(36).slice(2);
+    const url = `https://t.me/${tgBot}?start=${tok}`;
+    setTgTok(tok); setTgOpened(false); setErr(''); setStep('tg');
+    try { if (Platform.OS === 'web') sessionStorage.setItem('tgTok', tok); } catch (e) {}
+    if (Platform.OS === 'web') { const w = window.open(url, '_blank'); if (!w) window.location.href = url; }
+    else Linking.openURL(url).catch(() => {});
+  };
+  useEffect(() => {
+    if (Platform.OS !== 'web' || tgTok) return;
+    try { const saved = sessionStorage.getItem('tgTok'); if (saved) { setTgTok(saved); setStep('tg'); } } catch (e) {}
+  }, []);
+  useEffect(() => {
+    if (step !== 'tg' || !tgTok) return undefined;
+    let stop = false; const t0 = Date.now();
+    const tick = async () => {
+      if (stop) return;
+      const { data } = await supabase.functions.invoke('tg-bot', { body: { action: 'status', token: tgTok } }).catch(() => ({}));
+      if (stop) return;
+      if (data?.ready) {
+        stop = true;
+        try { sessionStorage.removeItem('tgTok'); } catch (e) {}
+        verify(data.otp, data.email);
+        return;
+      }
+      if (data?.opened) setTgOpened(true);
+      if (data?.expired || Date.now() - t0 > 10 * 60 * 1000) { stop = true; setErr(tr("Vaqt tugadi. Qaytadan urinib ko'ring.")); try { sessionStorage.removeItem('tgTok'); } catch (e) {} return; }
+      setTimeout(tick, 2000);
+    };
+    tick();
+    return () => { stop = true; };
+  }, [step, tgTok]);
+
+  if (step === 'tg') {
+    return (
+      <ScrollView style={{ flex: 1, backgroundColor: t.bg }} contentContainerStyle={{ padding: 20, gap: 16, maxWidth: 480, width: '100%', alignSelf: 'center' }}>
+        <View style={{ width: 64, height: 64, borderRadius: 20, backgroundColor: '#229ED9', alignItems: 'center', justifyContent: 'center', marginTop: 10 }}>
+          <Ionicons name="paper-plane" size={30} color="#fff" />
+        </View>
+        <Text style={{ fontFamily: FONT.display, fontSize: 24, color: t.ink }}>{tr("Telegram orqali kirish")}</Text>
+        <View style={{ backgroundColor: t.surface, borderRadius: 16, padding: 14, gap: 10 }}>
+          {[tr("Telegram'da Mohir bozor boti ochiladi — «START» ni bosing"), tr("«📱 Raqamni ulashish» tugmasini bosing"), tr("Shu sahifaga qayting — kirish avtomatik bo'ladi")].map((x, i) => (
+            <View key={i} style={{ flexDirection: 'row', gap: 10, alignItems: 'flex-start' }}>
+              <View style={{ width: 24, height: 24, borderRadius: 12, backgroundColor: (tgOpened && i === 0) ? '#22C55E' : t.accentSoft, alignItems: 'center', justifyContent: 'center' }}>
+                {(tgOpened && i === 0) ? <Ionicons name="checkmark" size={15} color="#fff" /> : <Text style={{ color: t.accent, fontWeight: '800', fontSize: 12 }}>{i + 1}</Text>}
+              </View>
+              <Text style={{ color: t.ink, flex: 1, lineHeight: 21 }}>{x}</Text>
+            </View>
+          ))}
+        </View>
+        {err ? <Note kind="bad">{err}</Note> : <Note>{busy ? tr("Kirilmoqda…") : tr("Raqamingiz ulashilishi kutilmoqda…")}</Note>}
+        <Btn title={tr("Telegram'ni qayta ochish")} icon="paper-plane-outline" onPress={() => { const url = `https://t.me/${tgBot}?start=${tgTok}`; if (Platform.OS === 'web') { const w = window.open(url, '_blank'); if (!w) window.location.href = url; } else Linking.openURL(url).catch(() => {}); }} style={{ backgroundColor: '#229ED9' }} />
+        <Btn kind="ghost" small title={tr("Boshqa usul bilan kirish")} onPress={() => { setStep('email'); setErr(''); setTgTok(''); try { sessionStorage.removeItem('tgTok'); } catch (e) {} }} />
+      </ScrollView>
+    );
+  }
 
   return (
     <KeyboardAvoidingView style={{ flex: 1, backgroundColor: t.bg }} behavior={Platform.OS === 'ios' ? 'padding' : undefined}>
@@ -112,6 +175,16 @@ export default function Login() {
           </>
         ) : step === 'email' ? (
           <>
+            {tgBot ? (
+              <>
+                <Btn title={tr("Telegram orqali kirish")} icon="paper-plane" onPress={startTg} style={{ backgroundColor: '#229ED9' }} />
+                <View style={{ flexDirection: 'row', alignItems: 'center', gap: 10 }}>
+                  <View style={{ flex: 1, height: 1, backgroundColor: t.line }} />
+                  <Text style={{ color: t.muted, fontSize: 12 }}>{tr("yoki")}</Text>
+                  <View style={{ flex: 1, height: 1, backgroundColor: t.line }} />
+                </View>
+              </>
+            ) : null}
             {smsOn ? <Seg value={via} onChange={(v) => { setVia(v); setErr(''); }} options={[['phone', tr('Telefon')], ['email', tr('Pochta')]]} /> : null}
             {via === 'phone' && smsOn ? (
               <Field label={tr("Telefon raqam")} value={phone} onChangeText={(v) => setPhone(v.replace(/[^\d+ ]/g, '').slice(0, 17))} placeholder="+998 90 123 45 67"

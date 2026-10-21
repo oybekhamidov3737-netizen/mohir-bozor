@@ -3555,5 +3555,65 @@ export default {
 "Telefon raqam bilan kirishni yoqish": [
 "Включить вход по номеру телефона",
 "Enable phone number login"
+],
+"Telegram orqali kirish": [
+"Войти через Telegram",
+"Log in with Telegram"
+],
+"yoki": [
+"или",
+"or"
+],
+"Telegram'da Mohir bozor boti ochiladi — «START» ni bosing": [
+"В Telegram откроется бот Mohir bozor — нажмите «START»",
+"The Mohir bozor bot opens in Telegram — tap «START»"
+],
+"«📱 Raqamni ulashish» tugmasini bosing": [
+"Нажмите «📱 Поделиться номером»",
+"Tap «📱 Share phone number»"
+],
+"Shu sahifaga qayting — kirish avtomatik bo'ladi": [
+"Вернитесь на эту страницу — вход выполнится автоматически",
+"Come back to this page — you'll be logged in automatically"
+],
+"Kirilmoqda…": [
+"Вход…",
+"Logging in…"
+],
+"Raqamingiz ulashilishi kutilmoqda…": [
+"Ожидаем, когда вы поделитесь номером…",
+"Waiting for you to share your number…"
+],
+"Telegram'ni qayta ochish": [
+"Открыть Telegram снова",
+"Open Telegram again"
+],
+"Boshqa usul bilan kirish": [
+"Войти другим способом",
+"Use another method"
+],
+"Vaqt tugadi. Qaytadan urinib ko'ring.": [
+"Время истекло. Попробуйте снова.",
+"Time is up. Please try again."
+],
+"Bot tokeni (@BotFather)": [
+"Токен бота (@BotFather)",
+"Bot token (@BotFather)"
+],
+"Botni ulash": [
+"Подключить бота",
+"Connect bot"
+],
+"Botni qayta ulash · @{0}": [
+"Переподключить бота · @{0}",
+"Reconnect bot · @{0}"
+],
+"Bot ulandi: @{0}": [
+"Бот подключён: @{0}",
+"Bot connected: @{0}"
+],
+"Telegram orqali kirishni yoqish": [
+"Включить вход через Telegram",
+"Enable Telegram login"
 ]
 };

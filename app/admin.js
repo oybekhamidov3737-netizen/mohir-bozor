@@ -31,6 +31,9 @@ export default function Admin() {
   const [keys, setKeys] = useState({ payme: '', click: '', mail: '' });
   const [sms, setSms] = useState({ email: '', password: '', sender: '' });
   const [smsSt, setSmsSt] = useState(null);
+  const [tgk, setTgk] = useState('');
+  const [tgSt, setTgSt] = useState(null);
+  const [tgBusy, setTgBusy] = useState(false);
 
   const load = useCallback(async () => {
     const { data: rp } = await supabase.from('reports').select('*, ads(id,title,seller_name,status)').order('created_at', { ascending: false }).limit(200);
@@ -45,7 +48,7 @@ export default function Admin() {
     setProfs(await fetchProfiles(ids));
     setRefreshing(false);
   }, []);
-  useFocusEffect(useCallback(() => { if (isAdmin) { load(); supabase.rpc('admin_payment_status').then(({ data }) => setPaySt(data)); supabase.rpc('admin_sms_status').then(({ data }) => setSmsSt(data)); } }, [isAdmin, load]));
+  useFocusEffect(useCallback(() => { if (isAdmin) { load(); supabase.rpc('admin_payment_status').then(({ data }) => setPaySt(data)); supabase.rpc('admin_sms_status').then(({ data }) => setSmsSt(data)); supabase.rpc('admin_tg_status').then(({ data }) => setTgSt(data)); } }, [isAdmin, load]));
   useEffect(() => {
     if (!isAdmin) return;
     const ch = supabase.channel('admin-orders').on('postgres_changes', { event: '*', schema: 'public', table: 'orders' }, () => load()).subscribe();
@@ -94,7 +97,7 @@ export default function Admin() {
       legal_address: String(cfg.legal_address || '').trim(), legal_bank: String(cfg.legal_bank || '').trim(),
       fiscal_mxik: String(cfg.fiscal_mxik || '').replace(/\D/g, ''), fiscal_package: String(cfg.fiscal_package || '').replace(/\D/g, ''),
       fiscal_vat: Math.min(100, n('fiscal_vat')),
-      sms_login: !!cfg.sms_login,
+      sms_login: !!cfg.sms_login, tg_login: !!cfg.tg_login,
     };
     if (sms.email || sms.password || sms.sender) {
       const { error: sErr } = await supabase.rpc('admin_set_sms', { p_email: sms.email, p_password: sms.password, p_sender: sms.sender });
@@ -232,6 +235,25 @@ export default function Admin() {
               ['free_ads', tr("Bepul e'lonlar limiti")], ['slot_pack', tr("Bir paketda nechta joy")], ['promo_days', tr("TOP/VIP muddati (kun)")], ['ad_days', tr("E'lon muddati (kun)")]].map(([k, l]) => (
               <Field key={k} label={l + (k.startsWith('p_') ? tr(" (so'm)") : '')} value={String(cfg[k] ?? '')} keyboardType="number-pad" onChangeText={(v) => setCfg({ ...cfg, [k]: v.replace(/\D/g, '') })} />
             ))}
+            <H>{tr("Telegram orqali kirish")}</H>
+            <Field label={tr("Bot tokeni (@BotFather)") + (tgSt?.has_token ? tr(" · kiritilgan ✓") : '')} value={tgk} onChangeText={setTgk} secureTextEntry autoCapitalize="none"
+              placeholder={tgSt?.has_token ? tr("O'zgartirish uchun yangisini yozing") : '123456789:AA...'} hint={tr("Chatga hech kimga yubormang.")} />
+            <Btn kind="sec" icon="paper-plane-outline" loading={tgBusy} title={tgSt?.username ? tr("Botni qayta ulash · @{0}", tgSt.username) : tr("Botni ulash")} onPress={async () => {
+              setTgBusy(true);
+              try {
+                if (tgk) { const { error } = await supabase.rpc('admin_set_tg', { p_token: tgk.trim(), p_username: '' }); if (error) throw error; setTgk(''); }
+                const { data, error } = await supabase.functions.invoke('tg-bot', { body: { action: 'setup' } });
+                let msg = data?.error; try { if (!msg && error?.context) msg = (await error.context.json()).error; } catch (x) {}
+                if (msg || error) throw new Error(msg || errText(error));
+                toast(tr("Bot ulandi: @{0}", data.username));
+                supabase.rpc('admin_tg_status').then(({ data: d }) => setTgSt(d));
+                setCfg((c) => ({ ...c, tg_bot: data.username }));
+              } catch (e) { toast(e.message || errText(e)); } finally { setTgBusy(false); }
+            }} />
+            <Pressable onPress={() => setCfg({ ...cfg, tg_login: !cfg.tg_login })} style={{ flexDirection: 'row', gap: 8, alignItems: 'center' }}>
+              <Ionicons name={cfg.tg_login ? 'checkbox' : 'square-outline'} size={22} color={t.accent} />
+              <Text style={{ color: t.ink, flex: 1 }}>{tr("Telegram orqali kirishni yoqish")}</Text>
+            </Pressable>
             <H>{tr("SMS orqali kirish (Eskiz.uz)")}</H>
             <Field label={tr("Eskiz login (email)") + (smsSt?.email ? ' · ' + smsSt.email : '')} value={sms.email} onChangeText={(v) => setSms({ ...sms, email: v })} autoCapitalize="none" keyboardType="email-address"
               placeholder={smsSt?.email ? tr("O'zgartirish uchun yangisini yozing") : 'ism@gmail.com'} />
