@@ -97,7 +97,7 @@ async function faqAnswer(text: string) {
     out.push("💳 To'lov Payme orqali (Uzcard/Humo). To'lovdan keyin xizmat darhol avtomatik yoqiladi. Kabinetda hisobni to'ldirib, balansdan ham to'lash mumkin.");
   }
   if (has("qaytar", "возврат", "вернуть", "refund")) {
-    out.push("↩️ Xizmat yoqilgach pul qaytarilmaydi. Texnik xato yoki pul ikki marta yechilgan bo'lsa — 14 kun ichida Kabinet → Yordam ga yozing, 10 ish kunida qaytariladi.");
+    out.push("↩️ Xizmat yoqilgach pul qaytarilmaydi. Texnik xato yoki pul ikki marta yechilgan bo'lsa — 14 kun ichida mutaxassisga yozing, 10 ish kunida qaytariladi.");
   }
   if (has("kir", "login", "parol", "kod", "войти", "вход", "код", "пароль")) {
     out.push(`🔐 Kirish: saytda «Telegram orqali kirish» (raqamni ulashasiz) yoki Gmail/iCloud pochtaga keladigan kod bilan. Parol kerak emas. ${SITE}`);
@@ -112,16 +112,16 @@ async function faqAnswer(text: string) {
     out.push("👋 Assalomu alaykum! Ilova haqida savolingizni yozing: narxlar, e'lon joylash, to'lov, kirish...");
   }
   if (!out.length) return "";
-  return out.join("\n\n") + `\n\nBoshqa savol bo'lsa — yozing. Inson bilan: ${SITE} → Kabinet → Yordam.`;
+  return out.join("\n\n");
 }
 
-const FALLBACK = `Savolingiz uchun rahmat! Javobni ilovadagi qo'llab-quvvatlashdan olasiz: ${SITE} → Kabinet → Yordam.`;
+const FALLBACK = "Bu savolga aniq javob bera olmadim. Pastdagi «👨‍💼 Mutaxassis» tugmasini bosing — mutaxassis o'zi javob beradi.";
 
 async function support(cfg: any, chat: number, text: string) {
   const since = new Date(Date.now() - 86400e3).toISOString();
   const { count } = await sb.from("tg_chat_log").select("id", { count: "exact", head: true }).eq("chat_id", chat).eq("role", "user").gt("created_at", since);
   if ((count || 0) >= 30) {
-    await tg(cfg.token, "sendMessage", { chat_id: chat, text: `Bugungi savollar limiti tugadi. Ertaga yozing yoki ${SITE} → Kabinet → Yordam.` });
+    await tg(cfg.token, "sendMessage", { chat_id: chat, text: "Bugungi savollar limiti tugadi. Mutaxassis bilan bog'laning yoki ertaga yozing.", reply_markup: { inline_keyboard: [[{ text: "👨‍💼 Mutaxassis", callback_data: "op" }]] } });
     return;
   }
   const [, { data: prev }, { data: key }, sys] = await Promise.all([
@@ -394,7 +394,7 @@ Deno.serve(async (req) => {
       if (!wh?.ok) return json({ error: "Webhook o'rnatilmadi: " + (wh?.description || "") }, 400);
       await sb.from("tg_settings").update({ bot_username: me.result.username }).eq("id", 1);
       await sb.from("config").update({ tg_bot: me.result.username }).eq("id", 1);
-      await tg(cfg.token, "setMyDescription", { description: "Mohir bozor — ijodkorlar bozori. Ilovaga Telegram orqali tez va xavfsiz kirish." });
+      await tg(cfg.token, "setMyDescription", { description: "Mohir bozor — ijodkorlar bozori. Ilovaga Telegram orqali tez va xavfsiz kirish, savollaringizga javob." });
       await tg(cfg.token, "setMyCommands", { commands: [{ command: "start", description: "Boshlash" }, { command: "savollar", description: "Ko'p so'raladigan savollar" }, { command: "mutaxassis", description: "Mutaxassis bilan bog'lanish" }] });
       await sb.from("tg_logins").delete().lt("created_at", new Date(Date.now() - 86400e3).toISOString());
       return json({ ok: true, username: me.result.username });
