@@ -63,7 +63,11 @@ export default function Root() {
 function RootInner() {
   const t = useT();
   const [intro, setIntro] = useState(shouldShowIntro);
-  const [loaded, err] = useFonts({ Unbounded_500Medium, Unbounded_700Bold });
+  const [loaded0, err] = useFonts({ Unbounded_500Medium, Unbounded_700Bold });
+  // Shrift sekin yuklansa ham ilova 2.5 soniyada ochiladi (shrift keyin o'zi almashadi)
+  const [fontWait, setFontWait] = useState(true);
+  useEffect(() => { const id = setTimeout(() => setFontWait(false), 2500); return () => clearTimeout(id); }, []);
+  const loaded = loaded0 || !fontWait;
   useEffect(() => { if (loaded || err) SplashScreen.hideAsync().catch(() => {}); }, [loaded, err]);
   useAutoUpdate();
   const url = Linking.useURL();

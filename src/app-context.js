@@ -28,7 +28,12 @@ export function AppProvider({ children }) {
 
   useEffect(() => {
     if (!isConfigured()) { setReady(true); return; }
-    supabase.auth.getSession().then(({ data }) => { setSession(data.session); setReady(true); });
+    // Internet sekin bo'lsa ham ilova kutib qolmaydi: 5 soniyadan keyin ochiladi
+    const slow = setTimeout(() => setReady(true), 5000);
+    supabase.auth.getSession()
+      .then(({ data }) => { setSession(data.session); })
+      .catch(() => {})
+      .finally(() => { clearTimeout(slow); setReady(true); });
     const { data: sub } = supabase.auth.onAuthStateChange((_e, s) => setSession(s));
     return () => sub.subscription.unsubscribe();
   }, []);
