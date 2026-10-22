@@ -8,8 +8,9 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - run: |
-          for U in https://mohirbozor.uz/ http://mohirbozor.uz/ https://www.mohirbozor.uz/ https://oybek37.github.io/ https://qtvyjmiqoknpnlilpfpf.supabase.co/auth/v1/health; do
-            r=$(curl -s -o /tmp/b -w '%{http_code} %{time_total}s %{redirect_url}' -m 20 "$U" 2>&1); echo "::notice title=$U::$r $(head -c 150 /tmp/b | tr '\n' ' ')"
+          set +e
+          for U in https://mohirbozor.uz/ http://www.mohirbozor.uz/ https://www.mohirbozor.uz/ https://oybek37.github.io/ https://qtvyjmiqoknpnlilpfpf.supabase.co/auth/v1/health; do
+            r=$(curl -s -o /tmp/b -w '%{http_code} %{time_total}s %{redirect_url}' -m 20 "$U" 2>&1; echo " exit=$?"); echo "::notice title=$U::$r $(head -c 150 /tmp/b | tr '\n' ' ')"
           done
           JS=$(grep -o '/_expo/static/js/web/[^"]*\.js' /tmp/b 2>/dev/null | head -1)
           curl -s https://mohirbozor.uz/ > /tmp/i; JS=$(grep -o '/_expo/static/js/web/[^"]*\.js' /tmp/i | head -1)
