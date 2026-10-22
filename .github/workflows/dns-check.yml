@@ -9,24 +9,7 @@ jobs:
     steps:
       - run: |
           set +e
-          npm i -s playwright@1.48.2 >/dev/null 2>&1 && npx -y playwright@1.48.2 install --with-deps chromium >/dev/null 2>&1
-          cat > t.js <<'JS'
-          const { chromium, devices } = require('playwright');
-          (async () => {
-            const b = await chromium.launch();
-            const p = await b.newPage({ ...devices['iPhone 13'] });
-            const errs = [];
-            p.on('pageerror', e => errs.push('PAGEERR ' + e.message));
-            p.on('console', m => { if (m.type() === 'error') errs.push('CONSOLE ' + m.text()); });
-            p.on('requestfailed', r => errs.push('REQFAIL ' + r.url().slice(0, 90) + ' ' + (r.failure()||{}).errorText));
-            for (const path of ['/', '/login', '/cabinet']) {
-              await p.goto('https://mohirbozor.uz' + path, { waitUntil: 'networkidle', timeout: 45000 }).catch(e => errs.push('GOTO ' + e.message));
-              await p.waitForTimeout(4000);
-              const txt = (await p.evaluate(() => document.body.innerText)).replace(/\s+/g, ' ').slice(0, 300);
-              console.log(`::notice title=${path}::${txt}`);
-            }
-            console.log('::notice title=errors::' + (errs.slice(0, 15).join(' || ') || 'yoq'));
-            await b.close();
-          })();
-          JS
-          node t.js
+          for U in https://didox.uz/ https://www.didox.uz/ https://app.didox.uz/ https://didox.uz/login; do
+            r=$(curl -sL -o /tmp/b -w '%{http_code} %{time_total}s %{url_effective}' -m 25 "$U" 2>&1; echo " exit=$?")
+            echo "::notice title=$U::$r | $(grep -o '<title>[^<]*' /tmp/b | head -1) | $(grep -oE '(src|href)="[^"]+\.(js|css)"' /tmp/b | head -4 | tr '\n' ' ')"
+          done
