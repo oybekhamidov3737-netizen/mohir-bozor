@@ -63,6 +63,12 @@ export function MfaChallenge({ onDone }) {
   );
 }
 
+// Sozlash jarayonini saqlab qo'yish: Parollar ilovasidan qaytganda sahifa yangilansa ham
+// o'sha kalit qoladi (aks holda yangi kalit yaratilib, eski kod "noto'g'ri" bo'lib qoladi).
+const PKEY = 'mb_mfa_pending';
+const savePending = (v) => { try { if (typeof localStorage !== 'undefined') { if (v) localStorage.setItem(PKEY, JSON.stringify(v)); else localStorage.removeItem(PKEY); } } catch (e) {} };
+const readPending = () => { try { return typeof localStorage !== 'undefined' ? JSON.parse(localStorage.getItem(PKEY) || 'null') : null; } catch (e) { return null; } };
+
 // Himoyani yoqish (faqat admin uchun ko'rsatiladi)
 export function MfaSetup() {
   const t = useT();
@@ -75,7 +81,10 @@ export function MfaSetup() {
   const load = useCallback(async () => {
     try {
       const { data } = await supabase.auth.mfa.listFactors();
-      setState((data?.totp || []).length ? 'on' : 'off');
+      if ((data?.totp || []).length) { savePending(null); setState('on'); return; }
+      const p = readPending();
+      if (p && (data?.all || []).some((f) => f.id === p.id && f.status !== 'verified')) { setState(p); return; }
+      setState('off');
     } catch (e) { setState('off'); }
   }, []);
   useEffect(() => { load(); }, [load]);
@@ -85,9 +94,11 @@ export function MfaSetup() {
     try {
       const { data: all } = await supabase.auth.mfa.listFactors();
       for (const f of all?.all || []) { if (f.status !== 'verified') await supabase.auth.mfa.unenroll({ factorId: f.id }); }
-      const { data, error } = await supabase.auth.mfa.enroll({ factorType: 'totp', friendlyName: 'Mohir bozor admin', issuer: 'Mohir bozor' });
+      const d = new Date(); const tag = `${String(d.getDate()).padStart(2, '0')}.${String(d.getMonth() + 1).padStart(2, '0')}`;
+      const { data, error } = await supabase.auth.mfa.enroll({ factorType: 'totp', friendlyName: 'Mohir bozor admin ' + Date.now(), issuer: `Mohir bozor (${tag})` });
       if (error) throw error;
-      setState({ id: data.id, secret: data.totp.secret, uri: data.totp.uri });
+      const st = { id: data.id, secret: data.totp.secret, uri: data.totp.uri, tag };
+      savePending(st); setState(st);
     } catch (e) { setErr(errText(e)); }
     setBusy(false);
   };
@@ -95,7 +106,14 @@ export function MfaSetup() {
     setBusy(true); setErr('');
     const { error } = await supabase.auth.mfa.challengeAndVerify({ factorId: state.id, code: code.replace(/\D/g, '') });
     setBusy(false);
-    if (error) { setErr(tr("Kod noto'g'ri. Parollar ilovasidagi yangi kodni yozing.")); return; }
+    if (error) {
+      const m = String(error.message || '');
+      setErr(/invalid|verification|code/i.test(m)
+        ? tr("Kod mos kelmadi. Parollar ilovasida «Mohir bozor ({0})» yozuvidagi kodni yozing — eski «Mohir bozor» yozuvi bo'lsa, uni o'chiring (u eski kalit).", state.tag || '')
+        : errText(error));
+      return;
+    }
+    savePending(null);
     toast(tr("Ikki bosqichli himoya yoqildi"));
     setCode(''); await loadProfile(); load();
   };
@@ -132,7 +150,8 @@ export function MfaSetup() {
       <Btn kind="sec" icon="key-outline" title={tr("Parollar ilovasiga qo'shish")} onPress={() => Linking.openURL(state.uri).catch(() => toast(tr("Ochilmadi — pastdagi kalitni qo'lda kiriting")))} />
       <Text style={{ color: t.muted, fontSize: 12.5, lineHeight: 18 }}>{tr("Agar ochilmasa: Parollar → Mohir bozor (yoki yangi yozuv) → \"Tasdiqlash kodini sozlash\" → \"Sozlash kalitini kiritish\" va shu kalitni joylang:")}</Text>
       <Btn kind="ghost" small icon="copy-outline" title={state.secret} onPress={() => { copyText(state.secret); toast(tr("Kalit nusxalandi")); }} />
-      <Text style={{ color: t.ink, lineHeight: 21 }}>{tr("2. Parollar ilovasida chiqqan 6 xonali kodni yozing:")}</Text>
+      <Text style={{ color: t.ink, lineHeight: 21 }}>{tr("2. Parollar ilovasida «Mohir bozor ({0})» yozuvidagi 6 xonali kodni yozing:", state.tag || '')}</Text>
+      <Btn kind="ghost" small title={tr("Boshidan boshlash (yangi kalit)")} onPress={() => { savePending(null); start(); }} />
       <Field value={code} onChangeText={(v) => setCode(v.replace(/\D/g, '').slice(0, 6))} placeholder="123456" keyboardType="number-pad"
         autoComplete="one-time-code" textContentType="oneTimeCode" maxLength={6} onSubmitEditing={confirm} />
       {err ? <Note kind="bad">{err}</Note> : null}
