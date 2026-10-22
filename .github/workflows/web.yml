@@ -37,6 +37,9 @@ jobs:
           echo "::error title=Build log::$(tail -n 60 build.log | sed -e 's/\x1b\[[0-9;]*m//g' -e 's/%/%25/g' | sed -e ':a;N;$!ba;s/\n/%0A/g')"
       - name: GitHub Pages uchun tayyorlash
         run: |
+          cp -n public/* dist/ 2>/dev/null || true
+          sed -i 's#</head>#<link rel="apple-touch-icon" href="/apple-touch-icon.png"><link rel="manifest" href="/manifest.webmanifest"><meta name="apple-mobile-web-app-capable" content="yes"><meta name="mobile-web-app-capable" content="yes"><meta name="apple-mobile-web-app-title" content="Mohir bozor"><meta name="apple-mobile-web-app-status-bar-style" content="black-translucent"></head>#' dist/index.html
+          grep -c apple-touch-icon dist/index.html
           cp dist/index.html dist/404.html
           echo "{\"build\":\"${GITHUB_SHA::7}\"}" > dist/version.json
           touch dist/.nojekyll
