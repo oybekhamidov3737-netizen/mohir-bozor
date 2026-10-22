@@ -1,0 +1,83 @@
+name: Ilova sinovi (Android + iPhone simulyator)
+
+on:
+  push:
+    branches: [main]
+    paths: ['.github/workflows/native-test.yml', '.github/native-test.txt']
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  android:
+    runs-on: ubuntu-latest
+    timeout-minutes: 75
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with: { node-version: 20 }
+      - uses: actions/setup-java@v4
+        with: { distribution: zulu, java-version: 17 }
+      - name: Paketlar
+        run: |
+          npm install --no-audit --no-fund
+          npx expo install --fix || true
+      - name: Android loyiha
+        run: npx expo prebuild -p android --no-install --clean
+      - name: APK yig'ish
+        run: |
+          cd android
+          echo "org.gradle.jvmargs=-Xmx5g -XX:MaxMetaspaceSize=1g" >> gradle.properties
+          echo "reactNativeArchitectures=x86_64" >> gradle.properties
+          ./gradlew :app:assembleRelease --no-daemon -q 2>&1 | tail -40
+          ls -la app/build/outputs/apk/release/
+      - name: KVM
+        run: |
+          echo 'KERNEL=="kvm", GROUP="kvm", MODE="0666", OPTIONS+="static_node=kvm"' | sudo tee /etc/udev/rules.d/99-kvm4all.rules
+          sudo udevadm control --reload-rules && sudo udevadm trigger --name-match=kvm
+      - name: Emulyatorda sinash
+        uses: reactivecircus/android-emulator-runner@v2
+        with:
+          api-level: 34
+          arch: x86_64
+          target: google_apis
+          profile: pixel_6
+          disable-animations: true
+          emulator-options: -no-window -gpu swiftshader_indirect -noaudio -no-boot-anim
+          script: bash .github/scripts/android-test.sh
+      - name: Natijalarni joylash
+        if: always()
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: bash .github/scripts/push-results.sh test-android out-android
+
+  ios:
+    runs-on: macos-15
+    timeout-minutes: 90
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with: { node-version: 20 }
+      - name: Paketlar
+        run: |
+          npm install --no-audit --no-fund
+          npx expo install --fix || true
+      - name: iOS loyiha
+        run: npx expo prebuild -p ios --clean
+      - name: Simulyator uchun yig'ish
+        run: |
+          cd ios
+          WS=$(ls -d *.xcworkspace | head -1); SCHEME="${WS%.xcworkspace}"
+          echo "SCHEME=$SCHEME" >> $GITHUB_ENV
+          set -o pipefail
+          xcodebuild -workspace "$WS" -scheme "$SCHEME" -configuration Release -sdk iphonesimulator \
+            -destination 'generic/platform=iOS Simulator' -derivedDataPath build CODE_SIGNING_ALLOWED=NO build 2>&1 \
+            | grep -E "error:|BUILD (SUCCEEDED|FAILED)" | tail -30
+      - name: Simulyatorda sinash
+        run: bash .github/scripts/ios-test.sh
+      - name: Natijalarni joylash
+        if: always()
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: bash .github/scripts/push-results.sh test-ios out-ios
