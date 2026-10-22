@@ -16,7 +16,8 @@ export default function Admin() {
   const t = useT();
   const router = useRouter();
   const { isAdmin, config, loadConfig, toast } = useApp();
-  const [tab, setTab] = useState('orders');
+  const [tab, setTab] = useState('stats');
+  const [ust, setUst] = useState(null);
   const [orders, setOrders] = useState(null);
   const [ads, setAds] = useState(null);
   const [threads, setThreads] = useState(null);
@@ -39,6 +40,7 @@ export default function Admin() {
   const load = useCallback(async () => {
     const { data: rp } = await supabase.from('reports').select('*, ads(id,title,seller_name,status)').order('created_at', { ascending: false }).limit(200);
     setReports(rp || []);
+    supabase.rpc('admin_user_stats').then(({ data }) => setUst(data || null));
     const [o, a, th] = await Promise.all([
       supabase.from('orders').select('*, ads(title)').neq('status', 'unpaid').neq('provider', 'manual').order('created_at', { ascending: false }).limit(300),
       supabase.from('ads').select('*').order('created_at', { ascending: false }).limit(300),
@@ -129,6 +131,7 @@ export default function Admin() {
   return (
     <View style={{ flex: 1, backgroundColor: t.bg }}>
       <ScrollView horizontal showsHorizontalScrollIndicator={false} style={{ flexGrow: 0, flexShrink: 0, minHeight: 64 }} contentContainerStyle={{ gap: 8, padding: 16, paddingBottom: 8, alignItems: 'center' }}>
+        <Pill title={tr("Statistika")} on={tab === 'stats'} onPress={() => setTab('stats')} />
         <Pill title={tr("To'lovlar")} on={tab === 'orders'} onPress={() => setTab('orders')} />
         <Pill title={tr("Barcha e'lonlar")} on={tab === 'ads'} onPress={() => setTab('ads')} />
         <Pill title={tr("Shikoyatlar")} on={tab === 'reports'} onPress={() => setTab('reports')} count={reports.filter((r) => r.status === 'open').length || undefined} />
@@ -137,7 +140,42 @@ export default function Admin() {
       </ScrollView>
       <ScrollView contentContainerStyle={{ padding: 16, paddingTop: 4, paddingBottom: 40, gap: 10, maxWidth: 760, width: '100%', alignSelf: 'center' }}
         refreshControl={<RefreshControl refreshing={refreshing} tintColor={t.accent} onRefresh={() => { setRefreshing(true); load(); }} />}>
-        {orders === null ? <Loading /> : tab === 'orders' ? (
+        {orders === null ? <Loading /> : tab === 'stats' ? (
+          <>
+            <H>{tr("Ro'yxatdan o'tganlar")}</H>
+            {ust ? (
+              <>
+                <View style={{ flexDirection: 'row', flexWrap: 'wrap', gap: 10 }}>
+                  {kpi(tr("BUGUN"), fmtNum(ust.today))}
+                  {kpi(tr("KECHA"), fmtNum(ust.yesterday))}
+                  {kpi(tr("OXIRGI 7 KUN"), fmtNum(ust.week))}
+                  {kpi(tr("JAMI FOYDALANUVCHI"), fmtNum(ust.total))}
+                </View>
+                <H>{tr("Kunlar bo'yicha (14 kun)")}</H>
+                <View style={{ backgroundColor: t.surface, borderWidth: 1, borderColor: t.line, borderRadius: 14, padding: 12, gap: 8 }}>
+                  {(ust.days || []).map((d) => {
+                    const max = Math.max(1, ...(ust.days || []).map((x) => x.n));
+                    const dt = new Date(d.d + 'T00:00:00');
+                    return (
+                      <View key={d.d} style={{ flexDirection: 'row', alignItems: 'center', gap: 10 }}>
+                        <Text style={{ width: 64, color: t.muted, fontSize: 13 }}>{String(dt.getDate()).padStart(2, '0')}.{String(dt.getMonth() + 1).padStart(2, '0')}</Text>
+                        <View style={{ flex: 1, height: 14, borderRadius: 7, backgroundColor: t.chip, overflow: 'hidden' }}>
+                          <View style={{ width: `${(d.n / max) * 100}%`, height: '100%', backgroundColor: t.accent, borderRadius: 7 }} />
+                        </View>
+                        <Text style={{ width: 34, textAlign: 'right', color: t.ink, fontWeight: '800' }}>{d.n}</Text>
+                      </View>
+                    );
+                  })}
+                </View>
+              </>
+            ) : <Loading />}
+            <H>{tr("Tushum")}</H>
+            <View style={{ flexDirection: 'row', flexWrap: 'wrap', gap: 10 }}>
+              {kpi(tr("BUGUN TUSHUM"), fmtNum(today), true)}
+              {kpi(tr("SHU OY TUSHUM"), fmtNum(month), true)}
+            </View>
+          </>
+        ) : tab === 'orders' ? (
           <>
             <View style={{ flexDirection: 'row', flexWrap: 'wrap', gap: 10 }}>
               {kpi(tr("SHU OY TUSHUM"), fmtNum(month), true)}
