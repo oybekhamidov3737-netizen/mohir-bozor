@@ -17,7 +17,7 @@ import { AppearanceCard } from '../../src/appearance';
 import { PAYMENTS_IN_APP } from '../../src/pay';
 import { BUILD_ID } from '../../src/updater';
 import { copyText } from '../../src/copy';
-import { MfaChallenge, MfaSetup, useMfaNeeded } from '../../src/mfa';
+import { MfaChallenge, useMfaNeeded } from '../../src/mfa';
 import { tr } from '../../src/i18n';
 
 const EV = { top: 'TOP', vip: 'VIP', bump: "ko'tarildi", extend: 'uzaytirildi', restore: 'tiklandi', moderator: "moderator o'chirdi" };
@@ -190,7 +190,6 @@ export default function Cabinet() {
 
       {mfaNeed ? <MfaChallenge onDone={recheckMfa} /> : null}
       {isAdmin ? <Btn style={{ marginTop: 12 }} kind="gold" icon="speedometer-outline" title={tr("Boshqaruv paneli (to'lovlar, e'lonlar, suhbatlar)")} onPress={() => router.push('/admin')} /> : null}
-      {isAdmin ? <MfaSetup /> : null}
       {canClaim ? (
         <View style={{ marginTop: 12 }}>
           <Note kind="gold">{tr("Bozorda hali admin yo'q. Agar siz bozor egasi bo'lsangiz, tugmani bosing. Bu faqat bir marta ishlaydi.")}</Note>
