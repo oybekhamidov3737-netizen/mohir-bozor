@@ -2,7 +2,7 @@ name: Click o'z-o'zini tekshirish
 on:
   push:
     branches: [main]
-    paths: ['.github/workflows/click-selftest.yml']
+    paths: ['.github/workflows/click-selftest.yml', '.github/click-selftest.txt']
   workflow_dispatch:
 jobs:
   test:
