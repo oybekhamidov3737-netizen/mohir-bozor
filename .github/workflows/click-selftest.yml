@@ -19,8 +19,10 @@ jobs:
             PGPASSWORD="$PW" psql "host=$H port=5432 dbname=postgres user=postgres.$REF sslmode=require connect_timeout=15" -tAc "select 1" >/dev/null 2>&1 && break
           done
           Q() { PGPASSWORD="$PW" psql "host=$H port=5432 dbname=postgres user=postgres.$REF sslmode=require" -tAX -v ON_ERROR_STOP=1 -c "$1"; }
+          # Oldingi sinovda xato ayirilgan 5000 ni qaytarish (bir martalik)
+          Q "update wallets set balance = balance + 5000 where user_id=(select id from auth.users order by created_at limit 1) and balance = 0" >/dev/null
           SID0=$(Q "select coalesce(click_service_id,'') from config where id=1")
-          SEC0=$(Q "select coalesce(click_secret,'') from payment_secrets limit 1"); echo "::add-mask::$SEC0"
+          SEC0=$(Q "select coalesce(click_secret,'') from payment_secrets limit 1"); [ -n "$SEC0" ] && echo "::add-mask::$SEC0"
           if [ -n "$SEC0" ] && [ -n "$SID0" ]; then SID=$SID0; SEC=$SEC0; REAL=1; else SID=70001; SEC=selftest$RANDOM$RANDOM; REAL=0
             Q "update config set click_service_id='$SID' where id=1" >/dev/null; Q "update payment_secrets set click_secret='$SEC'" >/dev/null; fi
           UID_=$(Q "select id from auth.users order by created_at limit 1")
@@ -30,7 +32,7 @@ jobs:
           U=https://$REF.supabase.co/functions/v1/click
           md5() { printf '%s' "$1" | md5sum | cut -d' ' -f1; }
           T=$(date '+%Y-%m-%d %H:%M:%S'); CT=$((RANDOM*1000+RANDOM))
-          post() { r=$(curl -s -X POST "$U" -H 'Content-Type: application/x-www-form-urlencoded' --data "$2"); echo "::notice title=$1::$r"; echo "$r"; }
+          post() { r=$(curl -s -X POST "$U" -H 'Content-Type: application/x-www-form-urlencoded' --data "$2"); echo "::notice title=$1::$r" >&2; echo "$r"; }
           S=$(md5 "$CT$SID$SEC$O""5000""0""$T")
           post "1 Prepare togri" "click_trans_id=$CT&service_id=$SID&click_paydoc_id=1&merchant_trans_id=$O&amount=5000&action=0&error=0&error_note=Success&sign_time=$T&sign_string=$S" > /tmp/p
           MP=$(python3 -c "import json;print(json.load(open('/tmp/p')).get('merchant_prepare_id',''))")
@@ -51,8 +53,10 @@ jobs:
           post "8b Complete bekor" "click_trans_id=$CT2&service_id=$SID&click_paydoc_id=2&merchant_trans_id=$O2&merchant_prepare_id=$MP2&amount=5000&action=1&error=-5017&error_note=Cancelled&sign_time=$T&sign_string=$S5" >/dev/null
           echo "::notice title=8c bekor holati::$(Q "select status from click_tx where id=$MP2") · buyurtma $(Q "select status from orders where id='$O2'")"
           # Tozalash
-          Q "select wallet_add('$UID_','main',-5000,'admin','click selftest qaytarildi')" >/dev/null
-          Q "delete from bonus_log where user_id='$UID_' and note like '%click selftest%' or (user_id='$UID_' and note like '% Click' and created_at > now() - interval '10 minutes')" >/dev/null
+          if [ "$(Q "select status from orders where id='$O'")" = ok ]; then
+            Q "update wallets set balance = balance - 5000 where user_id='$UID_'" >/dev/null
+            Q "delete from bonus_log where user_id='$UID_' and amount=5000 and note like '% Click' and created_at > now() - interval '15 minutes'" >/dev/null
+          fi
           Q "delete from click_tx where order_id in ('$O','$O2'); delete from orders where id in ('$O','$O2');" >/dev/null
           [ "$REAL" = 0 ] && { Q "update config set click_service_id='$SID0' where id=1" >/dev/null; Q "update payment_secrets set click_secret='$SEC0'" >/dev/null; }
           echo "::notice title=9 tozalandi::balans $(Q "select balance from wallets where user_id='$UID_'") · sid=[$(Q "select click_service_id from config where id=1")]"
