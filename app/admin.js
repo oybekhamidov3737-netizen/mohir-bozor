@@ -311,6 +311,12 @@ export default function Admin() {
             <Field label={tr("Kassa kaliti (Ключ)") + (paySt?.payme_key ? tr(" · kiritilgan ✓") : '')} value={keys.payme} onChangeText={(v) => setKeys({ ...keys, payme: v })} secureTextEntry autoCapitalize="none"
               placeholder={paySt?.payme_key ? tr("O'zgartirish uchun yangisini yozing") : tr("Kalitni joylang")} />
             <Note>Payme kabinetida "Endpoint URL": https://qtvyjmiqoknpnlilpfpf.supabase.co/functions/v1/payme · Hisob maydoni: order_id</Note>
+            <H>{tr("Click (avtomatik to'lov)")}</H>
+            <Field label={tr("Service ID")} value={String(cfg.click_service_id || '')} keyboardType="number-pad" onChangeText={(v) => setCfg({ ...cfg, click_service_id: v })} />
+            <Field label={tr("Merchant ID")} value={String(cfg.click_merchant_id || '')} keyboardType="number-pad" onChangeText={(v) => setCfg({ ...cfg, click_merchant_id: v })} />
+            <Field label={tr("Secret key") + (paySt?.click_secret ? tr(" · kiritilgan ✓") : '')} value={keys.click} onChangeText={(v) => setKeys({ ...keys, click: v })} secureTextEntry autoCapitalize="none"
+              placeholder={paySt?.click_secret ? tr("O'zgartirish uchun yangisini yozing") : tr("Kalitni joylang")} hint={tr("Service ID va Merchant ID kiritilgach, saytda Click tugmasi chiqadi. Click xizmatni faollashtirgandan keyin kiriting.")} />
+            <Note>merchant.click.uz → Сервисы → ✏️ → Prepare URL va Complete URL (ikkalasi bir xil): https://qtvyjmiqoknpnlilpfpf.supabase.co/functions/v1/click</Note>
             <Btn title={tr("Saqlash")} onPress={saveCfg} />
           </View>
         ) : null}
