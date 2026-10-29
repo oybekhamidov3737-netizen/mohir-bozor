@@ -1,0 +1,58 @@
+name: Click o'z-o'zini tekshirish
+on:
+  push:
+    branches: [main]
+    paths: ['.github/workflows/click-selftest.yml']
+  workflow_dispatch:
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    env:
+      PW: ${{ secrets.SUPABASE_DB_PASSWORD }}
+      REF: qtvyjmiqoknpnlilpfpf
+    steps:
+      - name: Tekshirish
+        run: |
+          set +e
+          sudo apt-get install -y -qq postgresql-client >/dev/null 2>&1 || true
+          for H in aws-0-eu-central-1.pooler.supabase.com aws-1-eu-central-1.pooler.supabase.com; do
+            PGPASSWORD="$PW" psql "host=$H port=5432 dbname=postgres user=postgres.$REF sslmode=require connect_timeout=15" -tAc "select 1" >/dev/null 2>&1 && break
+          done
+          Q() { PGPASSWORD="$PW" psql "host=$H port=5432 dbname=postgres user=postgres.$REF sslmode=require" -tAX -v ON_ERROR_STOP=1 -c "$1"; }
+          SID0=$(Q "select coalesce(click_service_id,'') from config where id=1")
+          SEC0=$(Q "select coalesce(click_secret,'') from payment_secrets limit 1"); echo "::add-mask::$SEC0"
+          if [ -n "$SEC0" ] && [ -n "$SID0" ]; then SID=$SID0; SEC=$SEC0; REAL=1; else SID=70001; SEC=selftest$RANDOM$RANDOM; REAL=0
+            Q "update config set click_service_id='$SID' where id=1" >/dev/null; Q "update payment_secrets set click_secret='$SEC'" >/dev/null; fi
+          UID_=$(Q "select id from auth.users order by created_at limit 1")
+          O=$(Q "begin; select set_config('request.jwt.claims', '{\"sub\":\"$UID_\",\"role\":\"authenticated\"}', true); insert into orders (svc, price, provider, payer) values ('topup', 5000, 'click', 'Click') returning id; commit;" | grep -E '^[0-9a-f-]{36}$')
+          echo "::notice title=buyurtma::$O real_kalit=$REAL"
+          BAL0=$(Q "select coalesce(balance,0) from wallets where user_id='$UID_'")
+          U=https://$REF.supabase.co/functions/v1/click
+          md5() { printf '%s' "$1" | md5sum | cut -d' ' -f1; }
+          T=$(date '+%Y-%m-%d %H:%M:%S'); CT=$((RANDOM*1000+RANDOM))
+          post() { r=$(curl -s -X POST "$U" -H 'Content-Type: application/x-www-form-urlencoded' --data "$2"); echo "::notice title=$1::$r"; echo "$r"; }
+          S=$(md5 "$CT$SID$SEC$O""5000""0""$T")
+          post "1 Prepare togri" "click_trans_id=$CT&service_id=$SID&click_paydoc_id=1&merchant_trans_id=$O&amount=5000&action=0&error=0&error_note=Success&sign_time=$T&sign_string=$S" > /tmp/p
+          MP=$(python3 -c "import json;print(json.load(open('/tmp/p')).get('merchant_prepare_id',''))")
+          post "2 Notogri imzo" "click_trans_id=$CT&service_id=$SID&click_paydoc_id=1&merchant_trans_id=$O&amount=5000&action=0&error=0&error_note=Success&sign_time=$T&sign_string=abc" >/dev/null
+          S2=$(md5 "$CT$SID$SEC$O""100""0""$T")
+          post "3 Notogri summa" "click_trans_id=$CT&service_id=$SID&click_paydoc_id=1&merchant_trans_id=$O&amount=100&action=0&error=0&error_note=Success&sign_time=$T&sign_string=$S2" >/dev/null
+          BAD=00000000-0000-4000-8000-000000000000; S3=$(md5 "$CT$SID$SEC$BAD""5000""0""$T")
+          post "4 Yoq buyurtma" "click_trans_id=$CT&service_id=$SID&click_paydoc_id=1&merchant_trans_id=$BAD&amount=5000&action=0&error=0&error_note=Success&sign_time=$T&sign_string=$S3" >/dev/null
+          SC=$(md5 "$CT$SID$SEC$O$MP""5000""1""$T")
+          post "5 Complete togri" "click_trans_id=$CT&service_id=$SID&click_paydoc_id=1&merchant_trans_id=$O&merchant_prepare_id=$MP&amount=5000&action=1&error=0&error_note=Success&sign_time=$T&sign_string=$SC" >/dev/null
+          post "6 Complete qayta" "click_trans_id=$CT&service_id=$SID&click_paydoc_id=1&merchant_trans_id=$O&merchant_prepare_id=$MP&amount=5000&action=1&error=0&error_note=Success&sign_time=$T&sign_string=$SC" >/dev/null
+          echo "::notice title=7 buyurtma holati::$(Q "select status from orders where id='$O'") · balans $BAL0 -> $(Q "select balance from wallets where user_id='$UID_'")"
+          # Bekor qilish yo'li: yangi buyurtma, Complete error=-5017
+          O2=$(Q "begin; select set_config('request.jwt.claims', '{\"sub\":\"$UID_\",\"role\":\"authenticated\"}', true); insert into orders (svc, price, provider, payer) values ('topup', 5000, 'click', 'Click') returning id; commit;" | grep -E '^[0-9a-f-]{36}$')
+          CT2=$((CT+7)); S4=$(md5 "$CT2$SID$SEC$O2""5000""0""$T")
+          post "8a Prepare" "click_trans_id=$CT2&service_id=$SID&click_paydoc_id=2&merchant_trans_id=$O2&amount=5000&action=0&error=0&error_note=Success&sign_time=$T&sign_string=$S4" > /tmp/p2
+          MP2=$(python3 -c "import json;print(json.load(open('/tmp/p2')).get('merchant_prepare_id',''))"); S5=$(md5 "$CT2$SID$SEC$O2$MP2""5000""1""$T")
+          post "8b Complete bekor" "click_trans_id=$CT2&service_id=$SID&click_paydoc_id=2&merchant_trans_id=$O2&merchant_prepare_id=$MP2&amount=5000&action=1&error=-5017&error_note=Cancelled&sign_time=$T&sign_string=$S5" >/dev/null
+          echo "::notice title=8c bekor holati::$(Q "select status from click_tx where id=$MP2") · buyurtma $(Q "select status from orders where id='$O2'")"
+          # Tozalash
+          Q "select wallet_add('$UID_','main',-5000,'admin','click selftest qaytarildi')" >/dev/null
+          Q "delete from bonus_log where user_id='$UID_' and note like '%click selftest%' or (user_id='$UID_' and note like '% Click' and created_at > now() - interval '10 minutes')" >/dev/null
+          Q "delete from click_tx where order_id in ('$O','$O2'); delete from orders where id in ('$O','$O2');" >/dev/null
+          [ "$REAL" = 0 ] && { Q "update config set click_service_id='$SID0' where id=1" >/dev/null; Q "update payment_secrets set click_secret='$SEC0'" >/dev/null; }
+          echo "::notice title=9 tozalandi::balans $(Q "select balance from wallets where user_id='$UID_'") · sid=[$(Q "select click_service_id from config where id=1")]"
