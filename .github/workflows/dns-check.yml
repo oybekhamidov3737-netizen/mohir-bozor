@@ -9,7 +9,11 @@ jobs:
     steps:
       - run: |
           set +e
-          for U in https://didox.uz/ https://www.didox.uz/ https://app.didox.uz/ https://didox.uz/login; do
-            r=$(curl -sL -o /tmp/b -w '%{http_code} %{time_total}s %{url_effective}' -m 25 "$U" 2>&1; echo " exit=$?")
-            echo "::notice title=$U::$r | $(grep -o '<title>[^<]*' /tmp/b | head -1) | $(grep -oE '(src|href)="[^"]+\.(js|css)"' /tmp/b | head -4 | tr '\n' ' ')"
-          done
+          U='https://my.click.uz/services/pay?service_id=114502&merchant_id=66068&amount=1000&transaction_param=00000000-0000-4000-8000-000000000000'
+          r=$(curl -sL -m 30 -o /tmp/b -w '%{http_code} %{url_effective}' "$U"); echo "::notice title=click page::$r"
+          python3 - <<'PY'
+          import re,html
+          s=open('/tmp/b',encoding='utf8',errors='ignore').read()
+          t=re.sub(r'<script.*?</script>|<style.*?</style>','',s,flags=re.S); t=html.unescape(re.sub(r'<[^>]+>',' ',t)); t=re.sub(r'\s+',' ',t)
+          print('::notice title=click text::'+t[:700])
+          PY
