@@ -7,7 +7,7 @@ import { supabase, errText } from '../src/supabase';
 import { fmtNum } from '../src/format';
 import { onlinePayUrl, openPay, hasPayme, hasClick, PAYMENTS_IN_APP } from '../src/pay';
 import { Btn, Field, Note } from '../src/ui';
-import { PaymeButton } from '../src/paybtn';
+import { PaymeButton, ClickButton } from '../src/paybtn';
 import { tr } from '../src/i18n';
 
 const PRESETS = [10000, 25000, 50000, 100000, 200000];
@@ -79,7 +79,7 @@ export default function TopUp() {
         <View style={{ backgroundColor: t.surface, borderWidth: 1, borderColor: t.line, borderRadius: 16, padding: 14, gap: 10 }}>
           <Text style={{ fontWeight: '800', color: t.ink }}>{tr("Tez to'ldirish · darhol tushadi")}</Text>
           {hasPayme(config) ? <PaymeButton label={tr("{0} so'm", fmtNum(sum))} onPress={() => payOnline('payme')} loading={busy} /> : null}
-          {hasClick(config) ? <Btn title={tr("Click · {0} so'm", fmtNum(sum))} onPress={() => payOnline('click')} loading={busy} style={{ backgroundColor: '#0077FF' }} /> : null}
+          {hasClick(config) ? <ClickButton label={tr("{0} so'm", fmtNum(sum))} onPress={() => payOnline('click')} loading={busy} /> : null}
           <Text style={{ color: t.muted, fontSize: 12 }}>{tr("Humo va Uzcard kartalari qabul qilinadi. To'lov qilish orqali")}{' '}<Text style={{ color: t.accent }} onPress={() => router.push('/offer')}>{tr("ommaviy oferta")}</Text> {tr("shartlariga rozilik bildirasiz.")}</Text>
         </View>
       ) : null}
