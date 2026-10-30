@@ -3,22 +3,47 @@ on:
   push:
     branches: [main]
     paths: ['.github/workflows/dns-check.yml']
+permissions:
+  contents: write
 jobs:
   dns:
     runs-on: ubuntu-latest
     steps:
+      - uses: actions/checkout@v4
       - run: |
           set +e
+          mkdir -p out && cd out
+          curl -sL -A "Mozilla/5.0" https://click.uz/ -o home.html
+          curl -sL -A "Mozilla/5.0" https://click.uz/ru -o ru.html
+          grep -oiE '(src|href)="[^"]*(logo|click)[^"]*\.(svg|png)[^"]*"' home.html ru.html | sort -u > urls.txt
+          cat urls.txt
+          i=0
+          for u in $(sed -E 's/.*="([^"]*)"/\1/' urls.txt | sort -u); do
+            case "$u" in http*) U="$u";; //*) U="https:$u";; /*) U="https://click.uz$u";; *) U="https://click.uz/$u";; esac
+            i=$((i+1)); ext="${U##*.}"; ext="${ext%%\?*}"
+            curl -sL -A "Mozilla/5.0" "$U" -o "logo$i.$ext"; echo "$i $U" >> map.txt
+          done
+          for U in https://click.uz/click/images/logo.svg https://click.uz/assets/images/logo.svg https://docs.click.uz/wp-content/uploads/2018/11/click-01.png https://my.click.uz/static/img/logo.svg; do
+            i=$((i+1)); curl -sfL -A "Mozilla/5.0" "$U" -o "extra$i.${U##*.}" && echo "extra$i $U" >> map.txt
+          done
           npm i -s playwright@1.48.2 >/dev/null 2>&1 && npx -y playwright@1.48.2 install --with-deps chromium >/dev/null 2>&1
-          cat > t.js <<'JS'
-          const { chromium, devices } = require('playwright');
+          cat > ../t.js <<'JS'
+          const { chromium } = require('playwright');
           (async () => {
-            const b = await chromium.launch(); const p = await b.newPage({ ...devices['iPhone 13'] });
-            await p.goto('https://my.click.uz/services/pay?service_id=114502&merchant_id=66068&amount=1000&transaction_param=00000000-0000-4000-8000-000000000000', { waitUntil: 'networkidle', timeout: 45000 }).catch(e => console.log('GOTO', e.message));
-            await p.waitForTimeout(6000);
-            const t = (await p.evaluate(() => document.body.innerText)).replace(/\s+/g, ' ').slice(0, 600);
-            console.log('::notice title=click sahifa::' + t);
+            const b = await chromium.launch(); const p = await b.newPage({ viewport:{width:1280,height:800} });
+            await p.goto('https://click.uz/', { waitUntil: 'networkidle', timeout: 45000 }).catch(e => console.log('GOTO', e.message));
+            await p.waitForTimeout(3000);
+            await p.screenshot({ path: 'home.png' });
+            const imgs = await p.evaluate(() => [...document.querySelectorAll('img,svg')].slice(0,15).map(e => e.tagName + ' ' + (e.src || e.getAttribute('class') || '') + ' ' + e.getBoundingClientRect().x + ',' + e.getBoundingClientRect().y + ' ' + e.getBoundingClientRect().width + 'x' + e.getBoundingClientRect().height));
+            require('fs').writeFileSync('imgs.txt', imgs.join('\n'));
+            const svg = await p.evaluate(() => { const h = document.querySelector('header') || document.body; const s = h.querySelector('svg'); return s ? s.outerHTML : ''; });
+            require('fs').writeFileSync('header.svg', svg);
             await b.close();
           })();
           JS
-          node t.js
+          cp ../t.js . ; node t.js; rm -f t.js; rm -rf node_modules package*.json
+          ls -la
+      - if: always()
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: bash .github/scripts/push-results.sh probe-click out
