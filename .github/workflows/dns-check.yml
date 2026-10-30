@@ -9,11 +9,16 @@ jobs:
     steps:
       - run: |
           set +e
-          U='https://my.click.uz/services/pay?service_id=114502&merchant_id=66068&amount=1000&transaction_param=00000000-0000-4000-8000-000000000000'
-          r=$(curl -sL -m 30 -o /tmp/b -w '%{http_code} %{url_effective}' "$U"); echo "::notice title=click page::$r"
-          python3 - <<'PY'
-          import re,html
-          s=open('/tmp/b',encoding='utf8',errors='ignore').read()
-          t=re.sub(r'<script.*?</script>|<style.*?</style>','',s,flags=re.S); t=html.unescape(re.sub(r'<[^>]+>',' ',t)); t=re.sub(r'\s+',' ',t)
-          print('::notice title=click text::'+t[:700])
-          PY
+          npm i -s playwright@1.48.2 >/dev/null 2>&1 && npx -y playwright@1.48.2 install --with-deps chromium >/dev/null 2>&1
+          cat > t.js <<'JS'
+          const { chromium, devices } = require('playwright');
+          (async () => {
+            const b = await chromium.launch(); const p = await b.newPage({ ...devices['iPhone 13'] });
+            await p.goto('https://my.click.uz/services/pay?service_id=114502&merchant_id=66068&amount=1000&transaction_param=00000000-0000-4000-8000-000000000000', { waitUntil: 'networkidle', timeout: 45000 }).catch(e => console.log('GOTO', e.message));
+            await p.waitForTimeout(6000);
+            const t = (await p.evaluate(() => document.body.innerText)).replace(/\s+/g, ' ').slice(0, 600);
+            console.log('::notice title=click sahifa::' + t);
+            await b.close();
+          })();
+          JS
+          node t.js
