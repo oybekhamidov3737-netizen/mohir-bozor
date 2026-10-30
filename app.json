@@ -22,7 +22,8 @@
       "infoPlist": {
         "NSPhotoLibraryUsageDescription": "E'lon, profil rasmi va to'lov chekini tanlash uchun galereyangizga ruxsat kerak.",
         "NSCameraUsageDescription": "E'lon va profil uchun rasmga olish uchun kameraga ruxsat kerak."
-      }
+      },
+      "buildNumber": "1"
     },
     "android": {
       "package": "uz.mohir.bozor",
@@ -30,7 +31,8 @@
         "foregroundImage": "./assets/adaptive-icon.png",
         "backgroundColor": "#2747D6"
       },
-      "edgeToEdgeEnabled": true
+      "edgeToEdgeEnabled": true,
+      "versionCode": 1
     },
     "web": {
       "output": "single",
