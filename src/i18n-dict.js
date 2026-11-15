@@ -1,5 +1,21 @@
 // Tarjimalar: o'zbekcha matn → [ruscha, inglizcha].
 export default {
+"Oxirgi yangilanish: 2026-yil 15-noyabr": [
+"Последнее обновление: 15 ноября 2026 г.",
+"Last updated: November 15, 2026"
+],
+"Savollar bo'lsa, Telegram'dagi @Mohirbozor_bot qo'llab-quvvatlash boti orqali murojaat qiling.": [
+"Если есть вопросы, пишите в нашего бота поддержки в Telegram: @Mohirbozor_bot.",
+"If you have questions, contact us via our Telegram support bot: @Mohirbozor_bot."
+],
+"E'lonlaringiz va profilingiz (ism, rasm, hudud, o'zingiz haqingizda) hammaga ochiq. Telefon raqamingiz faqat e'longa o'zingiz yozgan bo'lsangiz ko'rinadi. Yozishmalarni faqat suhbat ishtirokchilari ko'radi; shikoyat yoki firibgarlikni tekshirish uchun bozor ma'muriyati ham ko'rishi mumkin. To'lovlar tarixi faqat sizga va ma'muriyatga ko'rinadi.": [
+"Ваши объявления и профиль (имя, фото, регион, о себе) доступны всем. Номер телефона виден, только если вы сами указали его в объявлении. Переписку видят только участники диалога; для проверки жалоб или мошенничества её также может просматривать администрация. История платежей видна только вам и администрации.",
+"Your ads and profile (name, photo, region, about you) are public. Your phone number is visible only if you added it to an ad yourself. Messages are seen only by chat participants; the marketplace administration may also view them to investigate complaints or fraud. Payment history is visible only to you and the administration."
+],
+"Elektron pochta manzilingiz yoki Telegram akkauntingiz (kirish uchun), profil ma'lumotlaringiz (ism, rasm, hudud, yo'nalish, o'zingiz haqingizda), telefon raqamingiz, joylagan e'lonlaringiz va rasmlari, ilova ichidagi yozishmalar hamda to'lovlaringiz tarixi (summa, sana, to'lov tizimi). Karta ma'lumotlari Payme va Click tomonida kiritiladi, biz ularni ko'rmaymiz va saqlamaymiz.": [
+"Ваш адрес электронной почты или Telegram-аккаунт (для входа), данные профиля (имя, фото, регион, направление, о себе), номер телефона, ваши объявления и фото к ним, переписка в приложении, а также история ваших платежей (сумма, дата, платёжная система). Данные карты вводятся на стороне Payme и Click — мы их не видим и не храним.",
+"Your email address or Telegram account (for sign-in), profile details (name, photo, region, field, about you), phone number, the ads you post and their photos, in-app messages, and your payment history (amount, date, payment system). Card details are entered on the Payme and Click side — we never see or store them."
+],
 "Asosiy": [
 "Главная",
 "Home"
