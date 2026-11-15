@@ -16,7 +16,7 @@ jobs:
           npm i -s playwright@1.48.2 >/dev/null 2>&1 && npx -y playwright@1.48.2 install --with-deps chromium >/dev/null 2>&1
           cat > t.js <<'JS'
           const { chromium } = require('playwright');
-          const pages = [['1-home','/'],['2-ad','/ad/6d64b30a-54a7-4143-957c-5021891276fd'],['3-jobs','/jobs'],['4-login','/login'],['5-about','/about'],['6-support','/support']];
+          const pages = [['1-home','/'],['2-ad','/ad/132b5e9e-706c-41a0-a78e-db4ce50a8a06'],['3-jobs','/jobs'],['4-login','/login'],['5-about','/about'],['6-support','/support']];
           const sizes = { ios: { w: 440, h: 956, s: 3 }, android: { w: 360, h: 640, s: 3 } };
           (async () => {
             const b = await chromium.launch();
