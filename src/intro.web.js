@@ -3,7 +3,6 @@
 // Mantiq va vaqtlar src/intro.js (telefon ilovasi) bilan bir xil.
 import React, { useEffect, useMemo, useRef } from 'react';
 import { useWindowDimensions } from 'react-native';
-import { createAudioPlayer } from 'expo-audio';
 import { tr } from './i18n';
 
 const SOUNDS = {
@@ -14,6 +13,53 @@ const SOUNDS = {
 };
 const STAR_IMG = require('../assets/intro-star.png');
 const srcOf = (m) => (typeof m === 'string' ? m : m?.uri || m?.default || '');
+
+// Ovozlar Web Audio orqali animatsiya boshlangan paytga nisbatan OLDINDAN rejalashtiriladi:
+// sahifa orqada yuklanib asosiy oqim band bo'lsa ham ovoz animatsiya ritmidan chiqmaydi
+// (setTimeout + <audio> band oqimda kechikadi va ritm buziladi). Brauzer ovozga ruxsat bermasa — jim.
+const VOL = { hop1: 0.45, hop2: 0.45, hop3: 0.45, chime: 0.55 };
+let pre = null; // ovoz fayllari sahifa ochilishi bilan (intro boshlanmasdan) yuklab olinadi
+function prefetch() {
+  if (pre || typeof fetch === 'undefined') return pre;
+  pre = Promise.all(Object.keys(SOUNDS).map((k) => fetch(srcOf(SOUNDS[k]))
+    .then((r) => (r.ok ? r.arrayBuffer() : null)).then((ab) => [k, ab]).catch(() => [k, null])));
+  return pre;
+}
+function makeCtx() {
+  const AC = typeof window !== 'undefined' && (window.AudioContext || window.webkitAudioContext);
+  if (!AC) return null;
+  try { return new AC({ latencyHint: 'interactive' }); } catch (e) { try { return new AC(); } catch (e2) { return null; } }
+}
+function decode(ctx, ab) {
+  return new Promise((ok) => {
+    if (!ab) { ok(null); return; }
+    try {
+      const r = ctx.decodeAudioData(ab.slice(0), (b) => ok(b), () => ok(null));
+      if (r && typeof r.then === 'function') r.then(ok, () => ok(null));
+    } catch (e) { ok(null); }
+  });
+}
+async function canPlay(ctx) {
+  if (ctx.state === 'running') return true;
+  try { await Promise.race([ctx.resume(), new Promise((r) => setTimeout(r, 300))]); } catch (e) {}
+  return ctx.state === 'running';
+}
+// performance.now() vaqtini audio soatiga o'tkazish (chiqish kechikishi ham hisobga olinadi)
+function ctxTimeOf(ctx, perfMs) {
+  try {
+    const ts = ctx.getOutputTimestamp && ctx.getOutputTimestamp();
+    if (ts && ts.performanceTime > 0 && ts.contextTime > 0) return ts.contextTime + (perfMs - ts.performanceTime) / 1000;
+  } catch (e) {}
+  return ctx.currentTime + (perfMs - performance.now()) / 1000;
+}
+// CSS animatsiya haqiqatda qachon boshlangani (hujjat vaqt o'qida, performance.now() bilan bir xil soat)
+function animBase(el) {
+  try {
+    const a = el && el.getAnimations ? el.getAnimations().find((x) => x.animationName === 'mbX') : null;
+    if (a && a.startTime != null) return a.startTime;
+  } catch (e) {}
+  return null;
+}
 
 const MW = 624, MH = 540, SW = 112, R = 106, HS = SW / 2;
 const XS = [100, 312, 524], YT = 200, YB = 440, ARCH = [206, 418];
@@ -114,45 +160,86 @@ export function Intro({ onDone }) {
   const timers = useRef([]);
   const root = useRef(null);
 
+  const audio = useRef({ ctx: null, sources: [], off: false });
+  const star = useRef(null);
+
+  const stopAudio = () => {
+    const a = audio.current; a.off = true;
+    a.sources.forEach((x) => { try { x.stop(); } catch (e) {} });
+    a.sources = [];
+    const c = a.ctx; a.ctx = null;
+    if (c) setTimeout(() => { try { c.close(); } catch (e) {} }, 50);
+  };
+
   const finish = () => {
     if (done.current) return;
     done.current = true;
     timers.current.forEach(clearTimeout);
+    stopAudio();
     onDone && onDone();
   };
 
   const skip = () => {
     // Bosilsa: tezda yo'qoladi
+    stopAudio();
     if (root.current) { root.current.style.transition = 'opacity .3s'; root.current.style.opacity = '0'; }
     timers.current.push(setTimeout(finish, 300));
   };
 
   useEffect(() => {
-    const players = {};
-    // Brauzerlar foydalanuvchi sahifaga tegmaguncha ovoz va tebranishni taqiqlaydi (xato beradi).
-    // Shuning uchun ular faqat foydalanuvchi sahifa bilan ishlagan bo'lsa yoqiladi.
+    audio.current = { ctx: null, sources: [], off: false };
+    const mount = performance.now();
+    // Tebranish (iPhone'da) faqat foydalanuvchi sahifaga tekkan bo'lsa ruxsat etiladi
     const active = typeof navigator !== 'undefined' && !!navigator.userActivation && navigator.userActivation.hasBeenActive;
-    if (active) {
-      try { Object.keys(SOUNDS).forEach((k) => { players[k] = createAudioPlayer(SOUNDS[k]); try { players[k].volume = k === 'chime' ? 0.55 : 0.45; } catch (e) {} }); } catch (e) {}
-    }
-    const play = (k) => {
-      try {
-        const p = players[k];
-        if (!p) return;
-        p.seekTo(0);
-        const r = p.play();
-        if (r && typeof r.catch === 'function') r.catch(() => {});
-      } catch (e) {}
+    const atAbs = (abs, fn) => timers.current.push(setTimeout(fn, Math.max(0, abs - performance.now())));
+    let raf = 0, tries = 0, base = null;
+    const plan = [];
+    { let st = 0; H.forEach((h, i) => { plan.push(['hop' + (i + 1), STAR0 + st]); st = LAND[i]; }); plan.push(['chime', FINAL]); }
+
+    const onBase = (b) => {
+      base = b;
+      if (active) LAND.forEach((ms, i) => atAbs(base + STAR0 + ms, () => haptic(i === 2 ? [20, 40, 30] : 12)));
+      atAbs(base + DONE + 400, finish); // zaxira: animationend kelmasa ham yopiladi
+      startAudio();
     };
-    const at = (ms, fn) => timers.current.push(setTimeout(fn, ms));
-    let st = 0;
-    H.forEach((h, i) => { at(STAR0 + st, () => play('hop' + (i + 1))); st = LAND[i]; });
-    if (active) LAND.forEach((ms, i) => at(STAR0 + ms, () => haptic(i === 2 ? [20, 40, 30] : 12)));
-    at(FINAL, () => play('chime'));
-    at(DONE, finish);
+    const waitBase = () => {
+      const b = animBase(star.current);
+      if (b != null) { onBase(b); return; }
+      if (++tries > 40) { onBase(mount); return; } // getAnimations yo'q eski brauzer
+      raf = requestAnimationFrame(waitBase);
+    };
+    raf = requestAnimationFrame(waitBase);
+
+    async function startAudio() {
+      const a = audio.current;
+      const ctx = makeCtx();
+      if (!ctx) return;
+      a.ctx = ctx;
+      const [ok, list] = await Promise.all([canPlay(ctx), prefetch() || Promise.resolve([])]);
+      if (!ok || a.off || a.ctx !== ctx) { if (a.ctx === ctx) { a.ctx = null; try { ctx.close(); } catch (e) {} } return; }
+      const bufs = {};
+      await Promise.all(list.map(async ([k, ab]) => { bufs[k] = await decode(ctx, ab); }));
+      if (a.off || a.ctx !== ctx) return;
+      const now = performance.now();
+      plan.forEach(([k, ms]) => {
+        const buf = bufs[k];
+        const at = base + ms;
+        if (!buf || at < now - 40) return; // vaqti o'tib ketgan ovoz chalinmaydi — ritm buzilmasin
+        try {
+          const src = ctx.createBufferSource(); src.buffer = buf;
+          const g = ctx.createGain(); g.gain.value = VOL[k];
+          src.connect(g); g.connect(ctx.destination);
+          src.start(Math.max(ctx.currentTime, ctxTimeOf(ctx, at)));
+          a.sources.push(src);
+        } catch (e) {}
+      });
+    }
+
+    timers.current.push(setTimeout(finish, DONE + 2500)); // oxirgi zaxira
     return () => {
+      cancelAnimationFrame(raf);
       timers.current.forEach(clearTimeout);
-      Object.values(players).forEach((p) => { try { p.remove(); } catch (e) {} });
+      stopAudio();
     };
   }, []);
 
@@ -168,6 +255,7 @@ export function Intro({ onDone }) {
 
   return (
     <div ref={root} onClick={skip} role="button" aria-label="O'tkazib yuborish"
+      onAnimationEnd={(e) => { if (e.target === root.current && e.animationName === 'mbFade') finish(); }}
       className="mb-a" style={{ position: 'fixed', inset: 0, zIndex: 9999, overflow: 'hidden', cursor: 'pointer',
         background: 'linear-gradient(160deg,#4068FF 0%,#2747D6 55%,#122CB0 100%)',
         ...A('mbFade', 480, EXIT, 'cubic-bezier(.55,0,1,.45)') }}>
@@ -204,7 +292,7 @@ export function Intro({ onDone }) {
             <div key={n} className="mb-a" style={{ ...abs, left: sl, top: stp, width: S, height: S, borderRadius: '50%', border: `${bw}px solid ${c}`, boxSizing: 'border-box', ...A(n, d, FINAL + dl, 'cubic-bezier(.2,.7,.3,1)') }} />
           ))}
           {/* Uchqun: X (chiziqli) → Y (sakrash) → aylanish → siqilish */}
-          <div className="mb-a" style={{ ...abs, left: sl, top: stp, width: S, height: S, ...A('mbX', STAR_DUR, STAR0) }}>
+          <div ref={star} className="mb-a" style={{ ...abs, left: sl, top: stp, width: S, height: S, ...A('mbX', STAR_DUR, STAR0) }}>
             <div className="mb-a" style={{ width: S, height: S, ...A('mbY', STAR_DUR, STAR0) }}>
               <div className="mb-a" style={{ width: S, height: S, ...A('mbR', STAR_DUR, STAR0, 'ease-in-out') }}>
                 <div className="mb-a" style={{ width: S, height: S, transformOrigin: '50% 60%', ...A('mbQ', FX_DUR, STAR0) }}>
@@ -249,3 +337,6 @@ export function introDone() {
   decision = false; shown = true;
   try { sessionStorage.setItem(SEEN_KEY, '1'); } catch (e) {}
 }
+
+// Intro chiqadigan bo'lsa ovoz fayllari ilova ochilishi bilan yuklana boshlaydi (intro boshlanguncha tayyor bo'ladi)
+if (typeof window !== 'undefined') { try { if (shouldShowIntro()) prefetch(); } catch (e) {} }

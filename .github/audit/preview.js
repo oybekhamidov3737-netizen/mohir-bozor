@@ -12,7 +12,7 @@ const scrollMain = (p, y) => p.evaluate((y) => {
 (async () => {
   fs.mkdirSync('preview', { recursive: true });
   const b = await chromium.launch();
-  for (const v of ['a', 'b']) {
+  for (const v of ['a']) {
     for (const scheme of ['light', 'dark']) {
       const ctx = await b.newContext({ viewport: { width: 393, height: 852 }, deviceScaleFactor: 3, isMobile: true, hasTouch: true, colorScheme: scheme });
       const p = await ctx.newPage();
@@ -27,9 +27,6 @@ const scrollMain = (p, y) => p.evaluate((y) => {
         if (el) { el.style.scrollBehavior = 'auto'; el.scrollLeft = k * el.clientWidth; }
         return !!el;
       }, k);
-      if (v === 'a' && scheme === 'light') {
-        for (const k of [2, 1, 3, 4]) { await slide(k); await p.waitForTimeout(700); await p.screenshot({ path: `preview/${v}-${scheme}-slide${k}.png`, clip: { x: 0, y: 200, width: 393, height: 330 } }); }
-      }
       await slide(0); await p.waitForTimeout(700);
       await p.screenshot({ path: `preview/${v}-${scheme}-home.png` });
       await scrollMain(p, 640); await p.waitForTimeout(900);
