@@ -1,3 +1,4 @@
+// v4: oldingi dizayn + lupali menyu
 // Dizayn skrinshotlari: bosh sahifa, kabinet, e'lon, pastki menyu (bosilgan / surilgan holat)
 const { chromium } = require('playwright');
 const fs = require('fs');
