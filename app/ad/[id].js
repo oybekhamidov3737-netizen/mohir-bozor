@@ -9,7 +9,7 @@ import { useT, FONT } from '../../src/theme';
 import { PAYMENTS_IN_APP } from '../../src/pay';
 import { useApp, useRequire } from '../../src/app-context';
 import { supabase, publicUrl, errText } from '../../src/supabase';
-import { catOf } from '../../src/data';
+import { catOf, GRAD } from '../../src/data';
 import { LinearGradient } from 'expo-linear-gradient';
 import { ago, adState, isTop, isVip, locLabel, priceText, since, seenText, isOnline } from '../../src/format';
 import { fetchFeed } from '../../src/api';
@@ -96,9 +96,9 @@ export default function AdPage() {
   const isLong = (ad.description || '').length > 260;
   const tile = (icon, k, v, i) => (
     <View key={k} style={{ width: '48.5%', flexDirection: 'row', gap: 10, alignItems: 'center', backgroundColor: t.bg, borderRadius: 16, padding: 10 }}>
-      <View style={{ width: 36, height: 36, borderRadius: 11, backgroundColor: t.accentSoft, alignItems: 'center', justifyContent: 'center' }}>
-        <Ionicons name={icon} size={18} color={t.accent} />
-      </View>
+      <LinearGradient colors={GRAD[i % GRAD.length]} start={{ x: 0, y: 0 }} end={{ x: 1, y: 1 }} style={{ width: 36, height: 36, borderRadius: 12, alignItems: 'center', justifyContent: 'center' }}>
+        <Ionicons name={icon} size={18} color="#fff" />
+      </LinearGradient>
       <View style={{ flex: 1 }}>
         <Text style={{ fontSize: 11, color: t.muted, fontWeight: '600' }}>{k}</Text>
         <Text style={{ fontSize: 13.5, color: t.ink, fontWeight: '700' }} numberOfLines={2}>{v}</Text>
@@ -152,9 +152,9 @@ export default function AdPage() {
             </View>
             <Text style={{ color: t.muted, fontSize: 12 }}>· {ago(ad.created_at)}</Text>
           </View>
-          <Text style={{ fontSize: 22, fontWeight: '700', color: t.ink, lineHeight: 28, letterSpacing: -0.4 }}>{ad.title}</Text>
+          <Text style={{ fontSize: 22, fontWeight: '800', color: t.ink, lineHeight: 28 }}>{ad.title}</Text>
           <View style={{ flexDirection: 'row', alignItems: 'center', gap: 8, flexWrap: 'wrap' }}>
-            <Text style={{ ...FONT.display, fontSize: 26, color: t.ink, letterSpacing: -0.8 }}>{priceText(ad)}</Text>
+            <Text style={{ fontFamily: FONT.display, fontSize: 24, color: t.price }}>{priceText(ad)}</Text>
             {ad.negotiable && +ad.price ? <View style={{ backgroundColor: t.goldSoft, borderRadius: 999, paddingHorizontal: 9, paddingVertical: 3 }}><Text style={{ color: t.gold, fontSize: 12, fontWeight: '800' }}>{tr("Kelishiladi")}</Text></View> : null}
           </View>
           {st !== 'live' ? <Note kind="gold">{st === 'expired' ? tr("Bu e'lonning muddati tugagan, u qidiruvda ko'rinmaydi.") : tr("Bu e'lon arxivda.")}</Note> : null}
@@ -169,16 +169,18 @@ export default function AdPage() {
 
         <View style={{ paddingHorizontal: 16, gap: 10 }}>
           <View style={{ backgroundColor: t.surface, borderRadius: 22, padding: 16, marginTop: 10, gap: 8 }}>
-            <Text style={{ ...FONT.displayM, fontSize: 17, color: t.ink }}>{tr("Tavsif")}</Text>
+            <Text style={{ fontFamily: FONT.displayM, fontSize: 17, color: t.ink }}>{tr("Tavsif")}</Text>
             <Text selectable style={{ color: t.ink, fontSize: 15, lineHeight: 23 }} numberOfLines={isLong && !more ? 7 : undefined}>{ad.description}</Text>
             {isLong ? <Pressable onPress={() => setMore(!more)}><Text style={{ color: t.accent, fontWeight: '800' }}>{more ? tr("Yigʻish") : tr("To'liq o'qish")}</Text></Pressable> : null}
           </View>
 
           <View style={{ backgroundColor: t.surface, borderRadius: 22, padding: 16, gap: 12 }}>
-            <Text style={{ ...FONT.displayM, fontSize: 17, color: t.ink }}>{ad.kind === 'buyurtma' ? tr("Buyurtmachi") : tr("Ijrochi")}</Text>
+            <Text style={{ fontFamily: FONT.displayM, fontSize: 17, color: t.ink }}>{ad.kind === 'buyurtma' ? tr("Buyurtmachi") : tr("Ijrochi")}</Text>
             <View style={{ flexDirection: 'row', gap: 12, alignItems: 'center' }}>
               <View>
-                <Avatar profile={seller} name={ad.seller_name} size={56} />
+                <LinearGradient colors={['#FFC43D', '#FF77AE', '#6A8BFF']} start={{ x: 0, y: 0 }} end={{ x: 1, y: 1 }} style={{ padding: 2.5, borderRadius: 20 }}>
+                  <View style={{ backgroundColor: t.surface, padding: 2, borderRadius: 18 }}><Avatar profile={seller} name={ad.seller_name} size={52} /></View>
+                </LinearGradient>
                 {isOnline(seller?.last_seen) ? <View style={{ position: 'absolute', right: -1, bottom: -1, width: 14, height: 14, borderRadius: 7, backgroundColor: '#22C55E', borderWidth: 2.5, borderColor: t.surface }} /> : null}
               </View>
               <View style={{ flex: 1, gap: 2 }}>
@@ -238,29 +240,26 @@ export default function AdPage() {
 
       <ListPicker visible={reportOpen} onClose={() => setReportOpen(false)} title={tr("Shikoyat sababi")} value={null} items={REASONS} onPick={sendReport} />
       {!mine && st === 'live' ? (
-        // Pastdagi suzuvchi panel: narx, qo'ng'iroq va "Yozish"
-        <View pointerEvents="box-none" style={{ position: 'absolute', left: 0, right: 0, bottom: 0, alignItems: 'center', paddingHorizontal: 12, paddingBottom: Math.max(10, ins.bottom - 4) }}>
-          <View style={{ width: '100%', maxWidth: 728, borderRadius: 30, paddingLeft: 18, paddingRight: 8, paddingVertical: 8, backgroundColor: t.surface,
-            ...(Platform.OS === 'web' ? { boxShadow: t.dark ? '0 10px 30px rgba(0,0,0,0.5)' : '0 10px 30px rgba(18,32,80,0.16)' } : { shadowColor: '#0B1640', shadowOpacity: 0.18, shadowRadius: 20, shadowOffset: { width: 0, height: 8 }, elevation: 12 }) }}>
-          <View style={{ flexDirection: 'row', gap: 10, alignItems: 'center', width: '100%' }}>
+        <View style={{ position: 'absolute', left: 0, right: 0, bottom: 0, backgroundColor: t.surface, borderTopLeftRadius: 24, borderTopRightRadius: 24, paddingHorizontal: 16, paddingTop: 12, paddingBottom: ins.bottom + 12,
+          ...(Platform.OS === 'web' ? { boxShadow: '0 -8px 24px rgba(0,0,0,0.10)' } : { shadowColor: '#000', shadowOpacity: 0.1, shadowRadius: 16, shadowOffset: { width: 0, height: -4 }, elevation: 12 }) }}>
+          <View style={{ flexDirection: 'row', gap: 10, alignItems: 'center', maxWidth: 728, width: '100%', alignSelf: 'center' }}>
             <View style={{ flex: 1 }}>
               <Text style={{ color: t.muted, fontSize: 11, fontWeight: '600' }}>{tr("Narx")}</Text>
               <Text style={{ color: t.ink, fontWeight: '900', fontSize: 15 }} numberOfLines={1}>{priceText(ad)}</Text>
             </View>
             {ad.phone ? (
               <Press onPress={() => { if (!phone) setPhone(true); else Linking.openURL('tel:' + ad.phone.replace(/[^\d+]/g, '')).catch(() => {}); }}
-                accessibilityLabel={tr("Qo'ng'iroq")} style={{ height: 52, minWidth: 52, paddingHorizontal: phone ? 14 : 0, borderRadius: 26, backgroundColor: t.accentSoft, alignItems: 'center', justifyContent: 'center', flexDirection: 'row', gap: 6 }}>
+                accessibilityLabel={tr("Qo'ng'iroq")} style={{ height: 52, minWidth: 52, paddingHorizontal: phone ? 14 : 0, borderRadius: 18, backgroundColor: t.accentSoft, alignItems: 'center', justifyContent: 'center', flexDirection: 'row', gap: 6 }}>
                 <Ionicons name="call" size={20} color={t.accent} />
                 {phone ? <Text style={{ color: t.accent, fontWeight: '800' }}>{ad.phone}</Text> : null}
               </Press>
             ) : null}
             <Press onPress={write} disabled={busy} accessibilityLabel={tr("Yozish")}>
-              <LinearGradient colors={['#5A7BFF', '#2747D6']} start={{ x: 0, y: 0 }} end={{ x: 1, y: 1 }} style={{ height: 52, paddingHorizontal: 24, borderRadius: 26, flexDirection: 'row', alignItems: 'center', gap: 8 }}>
+              <LinearGradient colors={['#5A7BFF', '#2747D6']} start={{ x: 0, y: 0 }} end={{ x: 1, y: 1 }} style={{ height: 52, paddingHorizontal: 24, borderRadius: 18, flexDirection: 'row', alignItems: 'center', gap: 8 }}>
                 <Ionicons name="chatbubble-ellipses" size={20} color="#fff" />
                 <Text style={{ color: '#fff', fontWeight: '800', fontSize: 16 }}>{busy ? '...' : tr("Yozish")}</Text>
               </LinearGradient>
             </Press>
-          </View>
           </View>
         </View>
       ) : null}

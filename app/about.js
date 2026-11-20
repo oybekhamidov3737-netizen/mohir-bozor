@@ -20,7 +20,7 @@ export default function About() {
       <Stack.Screen options={{ title: tr('Ilova haqida') }} />
       <View style={{ alignItems: 'center', gap: 10, paddingVertical: 16 }}>
         <Image source={require('../assets/icon.png')} style={{ width: 96, height: 96, borderRadius: 26 }} />
-        <Text style={{ ...FONT.display, fontSize: 24, color: t.ink }}>mohir bozor</Text>
+        <Text style={{ fontFamily: FONT.display, fontSize: 24, color: t.ink }}>mohir bozor</Text>
         <Text style={{ color: t.muted }}>{tr('Versiya')} 1.0 · {BUILD_ID || '—'}</Text>
       </View>
       <Text style={{ color: t.ink, lineHeight: 22, textAlign: 'center' }}>{tr("Mohir bozor — O'zbekistondagi SMM mutaxassislari, montajchilar, mobilograflar, dizaynerlar va marketologlar uchun e'lonlar platformasi. Ijodkor xizmatini joylaydi, mijoz uni topib, ilova ichida yozadi.")}</Text>

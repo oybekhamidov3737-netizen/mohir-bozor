@@ -4,8 +4,8 @@ import React, { useEffect, useRef, useState } from 'react';
 import { Animated, Easing, Platform, Pressable, ScrollView, Text, View } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
 import { Ionicons } from '@expo/vector-icons';
-import { useT, FONT, cardShadow } from './theme';
-import { CATS, GRAD, CAT_COLORS, REG_NAMES } from './data';
+import { useT, FONT } from './theme';
+import { CATS, GRAD, REG_NAMES } from './data';
 import { supabase } from './supabase';
 import { fmtNum } from './format';
 import { Avatar, Press } from './ui';
@@ -31,7 +31,7 @@ function Rotator() {
   }, [a]);
   return (
     <View style={{ alignSelf: 'flex-start', backgroundColor: '#FFC43D', borderRadius: 12, paddingHorizontal: 10, paddingVertical: 2, marginVertical: 4, transform: [{ rotate: '-2deg' }] }}>
-      <Animated.Text style={{ ...FONT.display, fontSize: 26, color: '#1A1405', opacity: a, transform: [{ translateY: a.interpolate({ inputRange: [0, 1], outputRange: [12, 0] }) }, { scale: a.interpolate({ inputRange: [0, 1], outputRange: [0.85, 1] }) }] }}>
+      <Animated.Text style={{ fontFamily: FONT.display, fontSize: 26, color: '#1A1405', opacity: a, transform: [{ translateY: a.interpolate({ inputRange: [0, 1], outputRange: [12, 0] }) }, { scale: a.interpolate({ inputRange: [0, 1], outputRange: [0.85, 1] }) }] }}>
         {tr(WORDS[i])}
       </Animated.Text>
     </View>
@@ -115,9 +115,9 @@ export function Hero({ stats, onPost, onRegion }) {
         <View style={{ width: 7, height: 7, borderRadius: 4, backgroundColor: '#34DBA5' }} />
         <Text style={{ color: '#fff', fontSize: 12, fontWeight: '700' }}>{tr("Ijodkorlar bozori · O'zbekiston")}</Text>
       </View>
-      <Text style={{ ...FONT.display, fontSize: 26, color: '#fff', lineHeight: 32 }}>{tr("Kerakli")}</Text>
+      <Text style={{ fontFamily: FONT.display, fontSize: 26, color: '#fff', lineHeight: 32 }}>{tr("Kerakli")}</Text>
       <Rotator />
-      <Text style={{ ...FONT.display, fontSize: 26, color: '#fff', lineHeight: 32 }}>{tr("shu yerda")}</Text>
+      <Text style={{ fontFamily: FONT.display, fontSize: 26, color: '#fff', lineHeight: 32 }}>{tr("shu yerda")}</Text>
       <Text style={{ color: 'rgba(255,255,255,0.85)', marginTop: 8, marginBottom: 16, lineHeight: 20, maxWidth: 300 }}>
         {tr("Barcha viloyat va tumanlardagi ijodkorlar. Narxni ko'ring, ilova ichida yozing.")}
       </Text>
@@ -135,7 +135,7 @@ export function Hero({ stats, onPost, onRegion }) {
       <View style={{ flexDirection: 'row', marginTop: 18, backgroundColor: 'rgba(0,0,0,0.16)', borderRadius: 16, paddingVertical: 12 }}>
         {[[stats.ads, "e'lon"], [stats.users, tr('ijodkor')], [12, tr('viloyat')]].map(([v, l], i) => (
           <View key={l} style={{ flex: 1, alignItems: 'center', borderLeftWidth: i ? 1 : 0, borderColor: 'rgba(255,255,255,0.15)' }}>
-            <CountUp value={v} style={{ ...FONT.display, fontSize: 20, color: '#fff' }} />
+            <CountUp value={v} style={{ fontFamily: FONT.display, fontSize: 20, color: '#fff' }} />
             <Text style={{ color: 'rgba(255,255,255,0.75)', fontSize: 12, fontWeight: '600' }}>{l}</Text>
           </View>
         ))}
@@ -177,12 +177,12 @@ export function HowItWorks() {
   return (
     <View style={{ flexDirection: 'row', gap: 8 }}>
       {steps.map(([ic, h, d], i) => (
-        <View key={h} style={{ flex: 1, backgroundColor: t.surface, borderRadius: 20, padding: 13, gap: 6, ...cardShadow(t) }}>
+        <View key={h} style={{ flex: 1, backgroundColor: t.surface, borderRadius: 18, padding: 12, gap: 6, borderWidth: 1, borderColor: t.line }}>
           <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' }}>
             <View style={{ width: 34, height: 34, borderRadius: 11, backgroundColor: t.accentSoft, alignItems: 'center', justifyContent: 'center' }}>
               <Ionicons name={ic} size={18} color={t.accent} />
             </View>
-            <Text style={{ ...FONT.display, fontSize: 18, color: t.dark ? '#3A3A3C' : '#D1D1D6' }}>{i + 1}</Text>
+            <Text style={{ fontFamily: FONT.display, fontSize: 18, color: t.line }}>{i + 1}</Text>
           </View>
           <Text style={{ color: t.ink, fontWeight: '800', fontSize: 14 }}>{h}</Text>
           <Text style={{ color: t.muted, fontSize: 11.5, lineHeight: 15 }}>{d}</Text>
@@ -199,9 +199,11 @@ export function TopCreators({ people, onOpen }) {
     <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={{ gap: 14, paddingRight: 16 }} style={{ marginHorizontal: -16, paddingLeft: 16 }}>
       {people.map((p) => (
         <Pressable key={p.id} onPress={() => onOpen(p)} style={{ width: 74, alignItems: 'center', gap: 6 }}>
-          <View style={{ padding: 3, borderRadius: 22, backgroundColor: t.surface, ...cardShadow(t) }}>
-            <Avatar profile={p} name={p.name} size={60} />
-          </View>
+          <LinearGradient colors={['#FFC43D', '#FF77AE', '#6A8BFF']} start={{ x: 0, y: 0 }} end={{ x: 1, y: 1 }} style={{ padding: 2.5, borderRadius: 24 }}>
+            <View style={{ backgroundColor: t.bg, padding: 2, borderRadius: 22 }}>
+              <Avatar profile={p} name={p.name} size={60} />
+            </View>
+          </LinearGradient>
           <Text style={{ color: t.ink, fontSize: 12, fontWeight: '700', textAlign: 'center' }} numberOfLines={1}>{(p.name || '').split(' ')[0]}</Text>
           <Text style={{ color: t.muted, fontSize: 10.5, marginTop: -4 }} numberOfLines={1}>{adsCount(p.n)}</Text>
         </Pressable>
@@ -265,7 +267,7 @@ export function PromoCarousel({ width, slides }) {
               </View>
               {s.tag ? <View style={{ alignSelf: 'flex-start', backgroundColor: 'rgba(255,255,255,0.22)', borderRadius: 999, paddingHorizontal: 9, paddingVertical: 3 }}><Text style={{ color: '#fff', fontSize: 11, fontWeight: '800' }}>{s.tag}</Text></View> : <View />}
               <View style={{ maxWidth: W - 150 }}>
-                <Text style={{ ...FONT.display, fontSize: 19, color: '#fff', lineHeight: 24 }}>{s.title}</Text>
+                <Text style={{ fontFamily: FONT.display, fontSize: 19, color: '#fff', lineHeight: 24 }}>{s.title}</Text>
                 <Text style={{ color: 'rgba(255,255,255,0.88)', fontSize: 12.5, marginTop: 4 }} numberOfLines={2}>{s.text}</Text>
               </View>
               <View style={{ alignSelf: 'flex-start', backgroundColor: '#fff', borderRadius: 12, paddingHorizontal: 12, paddingVertical: 6 }}>
@@ -291,60 +293,11 @@ export function StatStrip({ stats }) {
         <View key={l} style={{ flex: 1, flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: 8, borderLeftWidth: k ? 1 : 0, borderColor: t.line }}>
           <Ionicons name={ic} size={18} color={c} />
           <View>
-            <CountUp value={v} style={{ ...FONT.display, fontSize: 16, color: t.ink }} />
+            <CountUp value={v} style={{ fontFamily: FONT.display, fontSize: 16, color: t.ink }} />
             <Text style={{ color: t.muted, fontSize: 10.5, fontWeight: '600' }}>{l}</Text>
           </View>
         </View>
       ))}
-    </View>
-  );
-}
-
-// Kategoriyalar: oq yumaloq kvadratlarda rangli belgilar (App Store uslubida), bitta qator
-export function CategoryStrip({ counts, onPick }) {
-  const t = useT();
-  return (
-    <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={{ gap: 6, paddingRight: 16, paddingTop: 6, paddingBottom: 14 }} style={{ marginHorizontal: -16, paddingLeft: 12 }}>
-      {CATS.map((c) => (
-        <Press key={c.id} onPress={() => onPick(c.id)} haptic={false} style={{ width: 78, alignItems: 'center', gap: 7 }} accessibilityLabel={c.n}>
-          <View style={{ width: 60, height: 60, borderRadius: 19, backgroundColor: t.surface, alignItems: 'center', justifyContent: 'center', ...cardShadow(t) }}>
-            <Ionicons name={c.icon.replace('-outline', '')} size={27} color={CAT_COLORS[c.c % CAT_COLORS.length]} />
-          </View>
-          <Text style={{ fontSize: 11.5, fontWeight: '600', color: t.ink, textAlign: 'center', lineHeight: 14 }} numberOfLines={2}>{c.n}</Text>
-        </Press>
-      ))}
-    </ScrollView>
-  );
-}
-
-// Bosh sahifadagi asosiy banner: toza, bir xil rang oilasida (jimjimadorliksiz)
-export function HomeHero({ onPost, onBrowse }) {
-  const t = useT();
-  const chip = (icon, top, right, size) => (
-    <View pointerEvents="none" style={{ position: 'absolute', top, right, width: size, height: size, borderRadius: size * 0.3, backgroundColor: 'rgba(255,255,255,0.14)', borderWidth: 1, borderColor: 'rgba(255,255,255,0.18)', alignItems: 'center', justifyContent: 'center' }}>
-      <Ionicons name={icon} size={size * 0.48} color="rgba(255,255,255,0.92)" />
-    </View>
-  );
-  return (
-    <View style={{ borderRadius: 26, overflow: 'hidden', ...cardShadow(t) }}>
-      <LinearGradient colors={t.dark ? ['#1F3BB3', '#14267E', '#0B1446'] : ['#3060FF', '#1E43D6', '#142C9E']} start={{ x: 0, y: 0 }} end={{ x: 1, y: 1 }} style={{ padding: 20, paddingRight: 22 }}>
-        {chip('film', 18, 18, 46)}
-        {chip('camera', 74, 62, 36)}
-        {chip('color-palette', 112, 14, 40)}
-        <Text style={{ color: 'rgba(255,255,255,0.72)', fontSize: 12, fontWeight: '700', letterSpacing: 1.2 }}>{tr("IJODKORLAR BOZORI")}</Text>
-        <Text style={{ ...FONT.display, color: '#fff', fontSize: 25, lineHeight: 30, marginTop: 8, maxWidth: 228, letterSpacing: -0.8 }}>{tr("O'zbekistondagi eng yaxshi ijodkorlar")}</Text>
-        <Text style={{ color: 'rgba(255,255,255,0.82)', fontSize: 14.5, lineHeight: 20, marginTop: 8, maxWidth: 236 }}>{tr("SMM, montaj, dizayn va target — narxlarni solishtiring, ilova ichida yozing.")}</Text>
-        <View style={{ flexDirection: 'row', gap: 10, marginTop: 18 }}>
-          <Press onPress={onPost} style={{ backgroundColor: '#fff', borderRadius: 14, paddingHorizontal: 16, height: 44, flexDirection: 'row', alignItems: 'center', gap: 6 }}>
-            <Ionicons name="add" size={19} color="#1E43D6" />
-            <Text style={{ color: '#1E43D6', fontWeight: '700', fontSize: 15 }}>{tr("E'lon joylash")}</Text>
-          </Press>
-          <Press onPress={onBrowse} style={{ backgroundColor: 'rgba(255,255,255,0.16)', borderRadius: 14, paddingHorizontal: 16, height: 44, flexDirection: 'row', alignItems: 'center', gap: 6, borderWidth: 1, borderColor: 'rgba(255,255,255,0.22)' }}>
-            <Text style={{ color: '#fff', fontWeight: '700', fontSize: 15 }}>{tr("Xizmatlar")}</Text>
-            <Ionicons name="arrow-forward" size={16} color="#fff" />
-          </Press>
-        </View>
-      </LinearGradient>
     </View>
   );
 }

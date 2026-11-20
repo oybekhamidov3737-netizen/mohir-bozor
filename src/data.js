@@ -19,8 +19,6 @@ export const GRAD = [
   ['#FF77AE', '#D8246C'], ['#AE8CFF', '#6A3FE0'], ['#FFCF55', '#F08A00'],
 ];
 export const gradOf = (id) => GRAD[(CATS.find((c) => c.id === id) || CATS[0]).c];
-// Kategoriya belgisi uchun bitta tekis rang (Apple tizim ranglari uslubida)
-export const CAT_COLORS = ['#2453E6', '#FF7A00', '#1FA855', '#E5307A', '#7A4CF0', '#F5A300'];
 // Kategoriya nomlari tanlangan tilda (getter orqali)
 export const CATS = RAW_CATS.map((c) => {
   const o = { ...c };

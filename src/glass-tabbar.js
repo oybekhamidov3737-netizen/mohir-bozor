@@ -129,8 +129,8 @@ export function GlassTabBar({ state, descriptors, navigation }) {
   const lensTransform = [{ translateX: lensX }, { scale }, { scaleX }];
 
   // Ranglar (Apple: tanlanmagan belgi — asosiy matn rangi, tanlangan — aksent)
-  const baseInk = t.ink;
-  const pillFill = dark ? '#34393E' : '#E6E8EE';
+  const baseInk = t.muted;
+  const pillFill = t.accentSoft;
   const dropFill = dark ? '#43494F' : '#FFFFFF';
   const barBg = dark ? 'rgba(28,32,34,0.55)' : 'rgba(255,255,255,0.5)';
 
@@ -140,10 +140,10 @@ export function GlassTabBar({ state, descriptors, navigation }) {
     if (i === center) {
       return (
         <View key={route.key + tone} style={{ width: itemW, height: BAR_H, alignItems: 'center', justifyContent: 'center' }}>
-          <View style={{ width: 46, height: 46, borderRadius: 23, backgroundColor: t.accent, alignItems: 'center', justifyContent: 'center',
-            ...(WEB ? { boxShadow: `0 4px 14px ${dark ? 'rgba(0,0,0,0.45)' : 'rgba(30,72,214,0.35)'}` } : { shadowColor: t.accent, shadowOpacity: 0.35, shadowRadius: 8, shadowOffset: { width: 0, height: 4 } }) }}>
-            <Ionicons name="add" size={28} color={t.accentInk} />
-          </View>
+          <LinearGradient colors={['#5A7BFF', '#2747D6']} start={{ x: 0, y: 0 }} end={{ x: 1, y: 1 }} style={{ width: 48, height: 48, borderRadius: 24, alignItems: 'center', justifyContent: 'center',
+            ...(WEB ? { boxShadow: '0 6px 16px rgba(39,71,214,0.45)' } : { shadowColor: '#2747D6', shadowOpacity: 0.45, shadowRadius: 10, shadowOffset: { width: 0, height: 6 } }) }}>
+            <Ionicons name="add" size={28} color="#fff" />
+          </LinearGradient>
         </View>
       );
     }

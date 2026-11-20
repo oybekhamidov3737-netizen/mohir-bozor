@@ -38,7 +38,7 @@ export function BalanceCard() {
     <View style={{ marginTop: 12, backgroundColor: t.accent, borderRadius: 18, padding: 16, gap: 10, overflow: 'hidden' }}>
       <Ionicons name="wallet" size={96} color={t.accentInk} style={{ position: 'absolute', right: -10, top: -14, opacity: 0.12 }} />
       <Text style={{ color: t.accentInk, opacity: 0.85, fontSize: 13, fontWeight: '700' }}>{tr("UMUMIY BALANS")}</Text>
-      <Text style={{ color: t.accentInk, ...FONT.display, fontSize: 32 }}>{bal === null ? '…' : fmtNum(main + bal)} <Text style={{ fontSize: 16 }}>{tr("so'm")}</Text></Text>
+      <Text style={{ color: t.accentInk, fontFamily: FONT.display, fontSize: 32 }}>{bal === null ? '…' : fmtNum(main + bal)} <Text style={{ fontSize: 16 }}>{tr("so'm")}</Text></Text>
       <View style={{ flexDirection: 'row', gap: 8 }}>
         <View style={{ flex: 1, backgroundColor: 'rgba(255,255,255,0.16)', borderRadius: 12, padding: 10 }}>
           <Text style={{ color: t.accentInk, opacity: 0.8, fontSize: 11, fontWeight: '700' }}>{tr("ASOSIY HISOB")}</Text>

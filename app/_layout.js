@@ -5,6 +5,7 @@ import { Stack, useRouter } from 'expo-router';
 import { StatusBar } from 'expo-status-bar';
 import * as SplashScreen from 'expo-splash-screen';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
+import { useFonts, Unbounded_500Medium, Unbounded_700Bold } from '@expo-google-fonts/unbounded';
 import { AppProvider } from '../src/app-context';
 import * as Linking from 'expo-linking';
 import { captureRef } from '../src/referral';
@@ -62,14 +63,19 @@ export default function Root() {
 function RootInner() {
   const t = useT();
   const [intro, setIntro] = useState(shouldShowIntro);
-  // Tizim shrifti ishlatiladi — shrift yuklanishini kutmasdan darhol ochiladi
-  useEffect(() => { SplashScreen.hideAsync().catch(() => {}); }, []);
+  const [loaded0, err] = useFonts({ Unbounded_500Medium, Unbounded_700Bold });
+  // Shrift sekin yuklansa ham ilova 1.2 soniyada ochiladi (shrift keyin o'zi almashadi)
+  const [fontWait, setFontWait] = useState(true);
+  useEffect(() => { const id = setTimeout(() => setFontWait(false), 1200); return () => clearTimeout(id); }, []);
+  const loaded = loaded0 || !fontWait;
+  useEffect(() => { if (loaded || err) SplashScreen.hideAsync().catch(() => {}); }, [loaded, err]);
   useAutoUpdate();
   const url = Linking.useURL();
   useEffect(() => {
     if (typeof window !== 'undefined' && window.location) captureRef(window.location.href);
     if (url) captureRef(url);
   }, [url]);
+  if (!loaded && !err) return null;
 
   if (!isConfigured()) {
     return (

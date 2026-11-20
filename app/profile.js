@@ -82,7 +82,7 @@ export default function ProfileScreen() {
       <ScrollView contentContainerStyle={{ padding: 16, gap: 16, paddingBottom: 30, maxWidth: 560, width: '100%', alignSelf: 'center' }} keyboardShouldPersistTaps="handled">
         {isNew ? (
           <View style={{ gap: 8 }}>
-            <Text style={{ ...FONT.display, fontSize: 24, color: t.ink }}>{tr("Kabinetingizni oching")}</Text>
+            <Text style={{ fontFamily: FONT.display, fontSize: 24, color: t.ink }}>{tr("Kabinetingizni oching")}</Text>
             <Text style={{ color: t.muted, lineHeight: 20 }}>{tr("Bir daqiqada profil yarating: rasmli e'lonlar joylaysiz, mijozlar bilan ilova ichida yozishasiz.")}</Text>
           </View>
         ) : null}

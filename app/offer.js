@@ -19,7 +19,7 @@ export default function Offer() {
   const priced = ['top', 'vip', 'bump', 'extend', 'restore', 'slots'];
   const prices = priced.map((k) => `${SVC[k]} — ${fmtNum(c.prices?.[k])} ${tr("so'm")}`).join('; ');
 
-  const H = ({ children }) => <Text style={{ ...FONT.displayM, fontSize: 14.5, color: t.ink, marginTop: 14 }}>{children}</Text>;
+  const H = ({ children }) => <Text style={{ fontFamily: FONT.displayM, fontSize: 14.5, color: t.ink, marginTop: 14 }}>{children}</Text>;
   const P = ({ children }) => <Text style={{ color: t.muted, lineHeight: 20, fontSize: 13.5 }}>{children}</Text>;
 
   const S = [
@@ -81,7 +81,7 @@ export default function Offer() {
   return (
     <ScrollView style={{ flex: 1, backgroundColor: t.bg }} contentContainerStyle={{ padding: 18, gap: 6, maxWidth: 680, width: '100%', alignSelf: 'center', paddingBottom: 48 }}>
       <Stack.Screen options={{ title: tr('Ommaviy oferta') }} />
-      <Text style={{ ...FONT.display, fontSize: 20, color: t.ink }}>{tr('Ommaviy oferta')}</Text>
+      <Text style={{ fontFamily: FONT.display, fontSize: 20, color: t.ink }}>{tr('Ommaviy oferta')}</Text>
       <Text style={{ color: t.muted, fontSize: 12.5 }}>{tr("Pullik xizmatlar ko'rsatish shartnomasi · 2026-yil 2-oktabr")}</Text>
       {S.map(([h, ps]) => (
         <View key={h} style={{ gap: 6 }}>

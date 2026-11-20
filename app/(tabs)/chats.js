@@ -47,7 +47,7 @@ export default function Chats() {
   if (!uid) {
     return (
       <View style={{ flex: 1, backgroundColor: t.bg, paddingTop: ins.top + 16, paddingHorizontal: 16 }}>
-        <Text style={{ ...FONT.displayM, fontSize: 20, color: t.ink, marginBottom: 12 }}>{tr("Xabarlar")}</Text>
+        <Text style={{ fontFamily: FONT.displayM, fontSize: 20, color: t.ink, marginBottom: 12 }}>{tr("Xabarlar")}</Text>
         <Empty title={tr("Hisobingizga kiring")} text={tr("Sotuvchi va xaridorlar bilan yozishish uchun kiring.")} action={tr("Kirish")} onAction={() => router.push('/login')} />
       </View>
     );
@@ -59,7 +59,7 @@ export default function Chats() {
         data={rows || []}
         keyExtractor={(x) => x.id}
         contentContainerStyle={{ padding: 16, paddingBottom: tabSpace, gap: 10, maxWidth: 760, width: '100%', alignSelf: 'center' }}
-        ListHeaderComponent={<Text style={{ ...FONT.display, fontSize: 24, color: t.ink, paddingBottom: 8 }}>{tr("Xabarlar")}</Text>}
+        ListHeaderComponent={<Text style={{ fontFamily: FONT.display, fontSize: 24, color: t.ink, paddingBottom: 8 }}>{tr("Xabarlar")}</Text>}
         renderItem={({ item }) => {
           const img = adPhoto(item.ads);
           return (

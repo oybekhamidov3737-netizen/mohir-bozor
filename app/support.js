@@ -50,7 +50,7 @@ export default function Support() {
     <ScrollView style={{ flex: 1, backgroundColor: t.bg }} contentContainerStyle={{ padding: 16, gap: 12, paddingBottom: 40, maxWidth: 640, width: '100%', alignSelf: 'center' }}>
       <View style={{ backgroundColor: t.accent, borderRadius: 20, padding: 20, gap: 8 }}>
         <Ionicons name="headset-outline" size={34} color={t.accentInk} />
-        <Text style={{ ...FONT.display, fontSize: 22, color: t.accentInk }}>{tr("Sizga qanday yordam beraylik?")}</Text>
+        <Text style={{ fontFamily: FONT.display, fontSize: 22, color: t.accentInk }}>{tr("Sizga qanday yordam beraylik?")}</Text>
         <Text style={{ color: t.accentInk, opacity: 0.85, lineHeight: 20 }}>{tr("Telegram botimiz savollarga darhol javob beradi. Murakkab masalalar uchun ilovada yozing.")}</Text>
       </View>
 

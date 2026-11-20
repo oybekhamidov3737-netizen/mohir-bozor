@@ -4,7 +4,7 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useFocusEffect, useRouter } from 'expo-router';
 import { Image } from 'expo-image';
 import { Ionicons } from '@expo/vector-icons';
-import { useT, FONT, cardShadow } from '../../src/theme';
+import { useT, FONT } from '../../src/theme';
 import { useApp } from '../../src/app-context';
 import { supabase, adPhoto, errText } from '../../src/supabase';
 import { CATS, ONLINE, SVC, catOf } from '../../src/data';
@@ -32,9 +32,9 @@ function Onboard({ onOpen }) {
     </View>
   );
   return (
-    <View style={{ backgroundColor: t.surface, borderRadius: 24, padding: 22, gap: 14, marginTop: 16, ...cardShadow(t) }}>
+    <View style={{ backgroundColor: t.surface, borderWidth: 1, borderColor: t.line, borderRadius: 22, padding: 22, gap: 14, marginTop: 16 }}>
       <View style={{ width: 84, height: 84, borderRadius: 26, backgroundColor: t.accentSoft, alignItems: 'center', justifyContent: 'center' }}><Ionicons name="person-add-outline" size={38} color={t.accent} /></View>
-      <Text style={{ ...FONT.display, fontSize: 24, color: t.ink }}>{tr("Kabinetingizni oching")}</Text>
+      <Text style={{ fontFamily: FONT.display, fontSize: 24, color: t.ink }}>{tr("Kabinetingizni oching")}</Text>
       <Text style={{ color: t.muted, lineHeight: 20 }}>{tr("Bir daqiqada profil yarating va ijodkorlar bozoriga qo'shiling.")}</Text>
       {item('images-outline', tr("Rasmli e'lonlar joylash"))}
       {item('chatbubbles-outline', tr("Mijozlar bilan ilova ichida yozishish"))}
@@ -106,7 +106,7 @@ export default function Cabinet() {
 
   if (!session) return wrap(
     <>
-      <Text style={{ ...FONT.display, fontSize: 24, color: t.ink }}>{tr("Kabinet")}</Text>
+      <Text style={{ fontFamily: FONT.display, fontSize: 24, color: t.ink }}>{tr("Kabinet")}</Text>
       <Onboard onOpen={() => router.push('/login')} />
       {others}
     </>
@@ -120,15 +120,15 @@ export default function Cabinet() {
   const tile = (colors, icon, title, sub, onPress, badge) => (
     <View key={title} style={{ width: '48.5%' }}>
     <Press onPress={onPress} style={{ width: '100%' }}>
-      <View style={{ backgroundColor: t.surface, borderRadius: 22, padding: 14, width: '100%', height: 138, justifyContent: 'space-between', ...cardShadow(t) }}>
+      <View style={{ backgroundColor: t.surface, borderRadius: 22, padding: 14, width: '100%', height: 142, justifyContent: 'space-between' }}>
         <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'flex-start' }}>
-          <View style={{ width: 42, height: 42, borderRadius: 13, backgroundColor: colors[1], alignItems: 'center', justifyContent: 'center' }}>
-            <Ionicons name={icon} size={21} color="#fff" />
-          </View>
+          <LinearGradient colors={colors} start={{ x: 0, y: 0 }} end={{ x: 1, y: 1 }} style={{ width: 44, height: 44, borderRadius: 15, alignItems: 'center', justifyContent: 'center' }}>
+            <Ionicons name={icon} size={22} color="#fff" />
+          </LinearGradient>
           {badge ? <View style={{ minWidth: 26, height: 26, borderRadius: 13, paddingHorizontal: 7, backgroundColor: t.accentSoft, alignItems: 'center', justifyContent: 'center' }}><Text style={{ color: t.accent, fontWeight: '900', fontSize: 13 }}>{badge}</Text></View> : null}
         </View>
         <View>
-          <Text style={{ color: t.ink, fontWeight: '700', fontSize: 16, letterSpacing: -0.3 }} numberOfLines={1}>{title}</Text>
+          <Text style={{ color: t.ink, fontWeight: '800', fontSize: 15 }} numberOfLines={1}>{title}</Text>
           <Text style={{ color: t.muted, fontSize: 12, marginTop: 2, lineHeight: 16, height: 32 }} numberOfLines={2}>{sub}</Text>
         </View>
       </View>
@@ -138,12 +138,14 @@ export default function Cabinet() {
 
   return wrap(
     <>
-      {/* Sarlavha: profil kartasi */}
-      <LinearGradient colors={t.dark ? ['#1F3BB3', '#14267E', '#0B1446'] : ['#3060FF', '#1E43D6', '#142C9E']} start={{ x: 0, y: 0 }} end={{ x: 1, y: 1 }} style={{ borderRadius: 26, padding: 18, overflow: 'hidden', ...cardShadow(t) }}>
+      {/* Sarlavha: o'zimizning gradient karta */}
+      <LinearGradient colors={['#4A6CFF', '#2747D6', '#1631B8']} start={{ x: 0, y: 0 }} end={{ x: 1, y: 1 }} style={{ borderRadius: 28, padding: 18, overflow: 'hidden' }}>
+        <View pointerEvents="none" style={{ position: 'absolute', right: -50, top: -50, width: 180, height: 180, borderRadius: 90, backgroundColor: 'rgba(255,255,255,0.1)' }} />
+        <View pointerEvents="none" style={{ position: 'absolute', left: -30, bottom: -70, width: 160, height: 160, borderRadius: 80, backgroundColor: 'rgba(255,196,61,0.18)' }} />
         <View style={{ flexDirection: 'row', gap: 14, alignItems: 'center' }}>
           <Pressable onPress={() => router.push(`/u/${uid}`)} style={{ padding: 3, borderRadius: 24, backgroundColor: 'rgba(255,255,255,0.35)' }}><Avatar profile={profile} size={66} /></Pressable>
           <View style={{ flex: 1, gap: 3 }}>
-            <Text style={{ ...FONT.display, fontSize: 19, color: '#fff' }} numberOfLines={1}>{profile.name}</Text>
+            <Text style={{ fontFamily: FONT.display, fontSize: 19, color: '#fff' }} numberOfLines={1}>{profile.name}</Text>
             <Text style={{ fontSize: 13, color: 'rgba(255,255,255,0.85)' }} numberOfLines={1}>{[profile.cat ? catOf(profile.cat).n : tr('Buyurtmachi'), loc].filter(Boolean).join(' · ')}</Text>
             <Pressable onPress={() => { copyText(String(profile.public_id)); toast(tr("ID nusxalandi: ") + profile.public_id); }} accessibilityLabel={tr("ID ni nusxalash")}
               style={{ flexDirection: 'row', alignItems: 'center', gap: 5, alignSelf: 'flex-start', backgroundColor: 'rgba(255,255,255,0.2)', borderRadius: 999, paddingHorizontal: 9, paddingVertical: 3, marginTop: 2 }}>
@@ -162,7 +164,7 @@ export default function Cabinet() {
             [profile.rating_count ? '★ ' + Number(profile.rating).toFixed(1) : '—', profile.rating_count ? tr('{0} ta baho', profile.rating_count) : tr('baho yo\'q'), () => router.push({ pathname: `/u/${uid}`, params: { tab: 'reviews' } })],
           ].map(([v, l, go], i) => (
             <Pressable key={i} onPress={go} style={{ flex: 1, alignItems: 'center', borderLeftWidth: i ? 1 : 0, borderColor: 'rgba(255,255,255,0.15)' }}>
-              <Text style={{ ...FONT.display, fontSize: 18, color: i === 2 && profile.rating_count ? '#FFC43D' : '#fff' }}>{v}</Text>
+              <Text style={{ fontFamily: FONT.display, fontSize: 18, color: i === 2 && profile.rating_count ? '#FFC43D' : '#fff' }}>{v}</Text>
               <Text style={{ color: 'rgba(255,255,255,0.75)', fontSize: 11.5, fontWeight: '600' }}>{l}</Text>
             </Pressable>
           ))}
@@ -170,18 +172,23 @@ export default function Cabinet() {
       </LinearGradient>
 
       {PAYMENTS_IN_APP ? (
-        <View style={{ marginTop: 12, backgroundColor: t.surface, borderRadius: 22, padding: 14, flexDirection: 'row', alignItems: 'center', gap: 12, ...cardShadow(t) }}>
-          <View style={{ width: 42, height: 42, borderRadius: 13, backgroundColor: '#1FA855', alignItems: 'center', justifyContent: 'center' }}><Ionicons name="wallet" size={21} color="#fff" /></View>
+        <View style={{ marginTop: 12, backgroundColor: t.surface, borderRadius: 22, padding: 14, flexDirection: 'row', alignItems: 'center', gap: 12 }}>
+          <LinearGradient colors={['#34DBA5', '#0C9A6A']} style={{ width: 44, height: 44, borderRadius: 15, alignItems: 'center', justifyContent: 'center' }}><Ionicons name="wallet" size={22} color="#fff" /></LinearGradient>
           <Pressable onPress={() => router.push('/wallet')} style={{ flex: 1 }}>
             <Text style={{ color: t.muted, fontSize: 12, fontWeight: '700' }}>{tr('Balans')}</Text>
-            <Text style={{ color: t.ink, ...FONT.display, fontSize: 16 }} numberOfLines={1}>{fmtNum(bal + bon)} {tr("so'm")}</Text>
+            <Text style={{ color: t.ink, fontFamily: FONT.display, fontSize: 16 }} numberOfLines={1}>{fmtNum(bal + bon)} {tr("so'm")}</Text>
             {bon ? <Text style={{ color: t.muted, fontSize: 11.5 }}>{tr('shundan bonus: {0}', fmtNum(bon))}</Text> : null}
           </Pressable>
           <Btn small title={tr("To'ldirish")} icon="add" onPress={() => router.push('/topup')} />
         </View>
       ) : null}
 
-      <Btn style={{ marginTop: 12 }} icon="add-circle" title={tr("E'lon joylash")} onPress={() => router.push('/post')} />
+      <Press onPress={() => router.push('/post')} style={{ marginTop: 12 }}>
+        <LinearGradient colors={['#FFB347', '#FF5E8A', '#7B5CFF']} start={{ x: 0, y: 0 }} end={{ x: 1, y: 1 }} style={{ height: 60, borderRadius: 20, flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: 10 }}>
+          <Ionicons name="add-circle" size={24} color="#fff" />
+          <Text style={{ fontFamily: FONT.display, fontSize: 17, color: '#fff' }}>{tr("E'lon joylash")}</Text>
+        </LinearGradient>
+      </Press>
 
       {mfaNeed ? <MfaChallenge onDone={recheckMfa} /> : null}
       {isAdmin ? <Btn style={{ marginTop: 12 }} kind="gold" icon="speedometer-outline" title={tr("Boshqaruv paneli (to'lovlar, e'lonlar, suhbatlar)")} onPress={() => router.push('/admin')} /> : null}
@@ -193,10 +200,10 @@ export default function Cabinet() {
       ) : null}
 
       <View style={{ flexDirection: 'row', flexWrap: 'wrap', justifyContent: 'space-between', rowGap: 10, marginTop: 16 }}>
-        {tile(['#6A8BFF', '#2453E6'], 'albums', tr("E'lonlarim"), tr('Faol, tugagan va arxiv'), () => router.push('/my-ads'), c.live || null)}
-        {tile(['#AE8CFF', '#7A4CF0'], 'mail-open', tr('Takliflar'), tr('Buyurtmalaringizga yozganlar'), () => router.push({ pathname: '/offers', params: { mode: 'offers' } }), c.offers || null)}
-        {tile(['#34DBA5', '#1FA855'], 'sparkles', tr('Siz uchun'), tr("Yo'nalishingizga mos buyurtmalar"), () => router.push('/jobs'))}
-        {tile(['#FFA155', '#FF7A00'], 'paper-plane', tr('Murojaatlarim'), tr('Siz yozgan buyurtmalar'), () => router.push({ pathname: '/offers', params: { mode: 'applications' } }), c.apps || null)}
+        {tile(['#6A8BFF', '#2D46E0'], 'albums', tr("E'lonlarim"), tr('Faol, tugagan va arxiv'), () => router.push('/my-ads'), c.live || null)}
+        {tile(['#AE8CFF', '#6A3FE0'], 'mail-open', tr('Takliflar'), tr('Buyurtmalaringizga yozganlar'), () => router.push({ pathname: '/offers', params: { mode: 'offers' } }), c.offers || null)}
+        {tile(['#34DBA5', '#0C9A6A'], 'sparkles', tr('Siz uchun'), tr("Yo'nalishingizga mos buyurtmalar"), () => router.push('/jobs'))}
+        {tile(['#FFA155', '#F0532E'], 'paper-plane', tr('Murojaatlarim'), tr('Siz yozgan buyurtmalar'), () => router.push({ pathname: '/offers', params: { mode: 'applications' } }), c.apps || null)}
       </View>
 
       <H>{tr('Ijodkor sifatida')}</H>

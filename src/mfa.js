@@ -52,7 +52,7 @@ export function MfaChallenge({ onDone }) {
     <View style={[card(t), { borderWidth: 2, borderColor: t.accent }]}>
       <View style={{ flexDirection: 'row', gap: 10, alignItems: 'center' }}>
         <Ionicons name="shield-checkmark" size={22} color={t.accent} />
-        <Text style={{ ...FONT.displayM, fontSize: 16, color: t.ink, flex: 1 }}>{tr("Ikki bosqichli tasdiq")}</Text>
+        <Text style={{ fontFamily: FONT.displayM, fontSize: 16, color: t.ink, flex: 1 }}>{tr("Ikki bosqichli tasdiq")}</Text>
       </View>
       <Text style={{ color: t.muted, lineHeight: 20 }}>{tr("Telefoningizdagi \"Parollar\" ilovasida Mohir bozor uchun 6 xonali kodni oching va shu yerga yozing.")}</Text>
       <Field value={code} onChangeText={(v) => setCode(v.replace(/\D/g, '').slice(0, 6))} placeholder="123456" keyboardType="number-pad"
@@ -135,7 +135,7 @@ export function MfaSetup() {
       <View style={[card(t), { borderWidth: 1.5, borderColor: t.gold }]}>
         <View style={{ flexDirection: 'row', gap: 10, alignItems: 'center' }}>
           <Ionicons name="warning" size={22} color={t.gold} />
-          <Text style={{ ...FONT.displayM, fontSize: 16, color: t.ink, flex: 1 }}>{tr("Admin hisobini himoyalang")}</Text>
+          <Text style={{ fontFamily: FONT.displayM, fontSize: 16, color: t.ink, flex: 1 }}>{tr("Admin hisobini himoyalang")}</Text>
         </View>
         <Text style={{ color: t.muted, lineHeight: 20 }}>{tr("Hozir admin panelga faqat pochta kodi bilan kiriladi. Ikki bosqichli himoyani yoqing: kimdir pochtangizga kirib olsa ham, telefoningizdagi koddan boshqa yo'l bilan to'lovlar va pullarni boshqara olmaydi.")}</Text>
         {err ? <Note kind="bad">{err}</Note> : null}
@@ -145,7 +145,7 @@ export function MfaSetup() {
   }
   return (
     <View style={[card(t), { borderWidth: 1.5, borderColor: t.accent }]}>
-      <Text style={{ ...FONT.displayM, fontSize: 16, color: t.ink }}>{tr("Himoyani sozlash")}</Text>
+      <Text style={{ fontFamily: FONT.displayM, fontSize: 16, color: t.ink }}>{tr("Himoyani sozlash")}</Text>
       <Text style={{ color: t.ink, lineHeight: 21 }}>{tr("1. Pastdagi tugmani bosing — iPhone \"Parollar\" ilovasi ochilib, kod qo'shishni taklif qiladi. \"Saqlash\"ni bosing.")}</Text>
       <Btn kind="sec" icon="key-outline" title={tr("Parollar ilovasiga qo'shish")} onPress={() => Linking.openURL(state.uri).catch(() => toast(tr("Ochilmadi — pastdagi kalitni qo'lda kiriting")))} />
       <Text style={{ color: t.muted, fontSize: 12.5, lineHeight: 18 }}>{tr("Agar ochilmasa: Parollar → Mohir bozor (yoki yangi yozuv) → \"Tasdiqlash kodini sozlash\" → \"Sozlash kalitini kiritish\" va shu kalitni joylang:")}</Text>

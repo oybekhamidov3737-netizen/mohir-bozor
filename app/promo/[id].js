@@ -123,7 +123,7 @@ function Promo() {
       {PAYMENTS_IN_APP && !(isAdmin && ad) && (hasPayme || hasClick) ? (
         <View style={{ backgroundColor: t.surface, borderWidth: 1, borderColor: t.line, borderRadius: 16, padding: 14, gap: 10 }}>
           <Text style={{ fontWeight: '800', color: t.ink }}>{tr("Tez to'lov · xizmat darhol yoqiladi")}</Text>
-          <Text style={{ ...FONT.display, fontSize: 24, color: t.ink }}>{fmtNum(price)} {tr("so'm")}</Text>
+          <Text style={{ fontFamily: FONT.display, fontSize: 24, color: t.ink }}>{fmtNum(price)} {tr("so'm")}</Text>
           {hasPayme ? <PaymeButton label={tr("{0} so'm", fmtNum(price))} onPress={() => payOnline('payme')} loading={busy} /> : null}
           {hasClick ? <ClickButton label={tr("{0} so'm", fmtNum(price))} onPress={() => payOnline('click')} loading={busy} /> : null}
           <Text style={{ color: t.muted, fontSize: 12 }}>{tr("Humo va Uzcard kartalari qabul qilinadi. To'lov qilish orqali")}{' '}<Text style={{ color: t.accent }} onPress={() => router.push('/offer')}>{tr("ommaviy oferta")}</Text> {tr("shartlariga rozilik bildirasiz.")}</Text>

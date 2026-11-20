@@ -2,34 +2,31 @@ import React, { createContext, useContext, useEffect, useMemo, useState } from '
 import { Platform, useColorScheme } from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 
-// Apple uslubidagi neytral palitra: oq/kulrang sirtlar, bitta aksent rang, toza tipografiya
 const base = {
   light: {
     dark: false,
-    bg: '#F2F2F7', surface: '#FFFFFF', ink: '#0B0B0F', muted: '#6E6E73', line: '#E5E5EA', chip: '#EFEFF4',
-    price: '#1A8F3C', danger: '#D70015', dangerSoft: '#FFECEC',
-    gold: '#B8860B', goldSoft: '#FFF6DD', goldInk: '#2A1F00',
-    cover: ['#E8EEFF', '#FFEFE2', '#E3F6EC', '#FCE8F1', '#EFE9FF', '#FFF5D6'], coverInk: '#0B0B0F',
-    card: '0 1px 2px rgba(0,0,0,0.04), 0 6px 20px rgba(0,0,0,0.06)',
+    bg: '#F2F3EE', surface: '#FFFFFF', ink: '#141D19', muted: '#5C6862', line: '#DADED4', chip: '#E6E9E0',
+    price: '#0C7148', danger: '#B42318', dangerSoft: '#FDECEA',
+    gold: '#C99500', goldSoft: '#FFF4CF', goldInk: '#2A1F00',
+    cover: ['#DCE6FF', '#FFE7C7', '#D6F2E3', '#F7DCEB', '#E9E1FF', '#FFF1B8'], coverInk: '#141D19',
   },
   dark: {
     dark: true,
-    bg: '#000000', surface: '#1C1C1E', ink: '#F5F5F7', muted: '#8E8E93', line: '#2C2C2E', chip: '#2C2C2E',
-    price: '#30D158', danger: '#FF453A', dangerSoft: '#3A1414',
-    gold: '#FFC94A', goldSoft: '#33290F', goldInk: '#1A1405',
-    cover: ['#1C2547', '#3A2614', '#123323', '#3A1A2B', '#261F45', '#3A3210'], coverInk: '#F5F5F7',
-    card: 'none',
+    bg: '#0E1311', surface: '#171E1B', ink: '#E9EFEA', muted: '#9AA69F', line: '#28322D', chip: '#212A26',
+    price: '#5BD49A', danger: '#FF8A7A', dangerSoft: '#3A1D1A',
+    gold: '#F2C440', goldSoft: '#3A2F0E', goldInk: '#1A1405',
+    cover: ['#24305A', '#4A3518', '#173D2B', '#45213A', '#2F2557', '#433A10'], coverInk: '#F1F4F1',
   },
 };
 
 // Ilova rangi: har biri kunduzgi va tungi rejim uchun alohida moslangan
 export const ACCENTS = {
-  blue:   { name: "Ko'k",       light: ['#2453E6', '#FFFFFF', '#EAF0FF'], dark: ['#4D7CFF', '#FFFFFF', '#1A2547'] },
-  green:  { name: 'Yashil',     light: ['#1A8F3C', '#FFFFFF', '#E3F6EA'], dark: ['#2EA44F', '#FFFFFF', '#12321D'] },
-  violet: { name: 'Binafsha',   light: ['#6E44D8', '#FFFFFF', '#F0EAFF'], dark: ['#8E6BFF', '#FFFFFF', '#2A2050'] },
-  orange: { name: "To'q sariq", light: ['#E0620B', '#FFFFFF', '#FFEFE2'], dark: ['#F28A12', '#FFFFFF', '#3D2508'] },
-  pink:   { name: 'Pushti',     light: ['#D1205F', '#FFFFFF', '#FDE6EF'], dark: ['#F0508A', '#FFFFFF', '#45172C'] },
-  teal:   { name: 'Feruza',     light: ['#0A8A96', '#FFFFFF', '#DDF4F6'], dark: ['#1BA3B5', '#FFFFFF', '#0E3540'] },
+  blue:   { name: "Ko'k",       light: ['#1E48D6', '#FFFFFF', '#E3E9FF'], dark: ['#7E9BFF', '#0E1311', '#1F2950'] },
+  green:  { name: 'Yashil',     light: ['#0B7A4B', '#FFFFFF', '#DDF3E8'], dark: ['#4FD49A', '#0E1311', '#143A2A'] },
+  violet: { name: 'Binafsha',   light: ['#6D3FD6', '#FFFFFF', '#ECE4FF'], dark: ['#B39BFF', '#0E1311', '#2D2350'] },
+  orange: { name: "To'q sariq", light: ['#D45A0A', '#FFFFFF', '#FFEADB'], dark: ['#FF9D57', '#0E1311', '#43260F'] },
+  pink:   { name: 'Pushti',     light: ['#C2185B', '#FFFFFF', '#FCE1EC'], dark: ['#FF7EB2', '#0E1311', '#4A1A2E'] },
+  teal:   { name: 'Feruza',     light: ['#00838F', '#FFFFFF', '#D8F3F5'], dark: ['#4DD6E0', '#0E1311', '#0F3A3E'] },
 };
 export const MODES = [['system', 'Tizim'], ['light', 'Kunduzgi'], ['dark', 'Tungi']]; // nomlari tr() orqali ko'rsatiladi
 
@@ -73,15 +70,7 @@ export function ThemeProvider({ children }) {
 export const useT = () => useContext(Ctx).t;
 export const useThemeSettings = () => useContext(Ctx);
 
-// Tizim shrifti (iPhone'da SF Pro, Android'da Roboto) — yuklab olish shart emas, tez ochiladi
-const SYS = Platform.select({ web: '-apple-system, BlinkMacSystemFont, "SF Pro Display", "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif', default: undefined });
 export const FONT = {
-  sys: SYS,
-  display: { fontFamily: SYS, fontWeight: '800', letterSpacing: -0.5 },
-  displayM: { fontFamily: SYS, fontWeight: '700', letterSpacing: -0.3 },
+  display: 'Unbounded_700Bold',
+  displayM: 'Unbounded_500Medium',
 };
-
-// Kartochka soyasi (sayt va telefon uchun)
-export const cardShadow = (t) => (Platform.OS === 'web'
-  ? (t.dark ? {} : { boxShadow: t.card })
-  : (t.dark ? {} : { shadowColor: '#000', shadowOpacity: 0.06, shadowRadius: 14, shadowOffset: { width: 0, height: 4 }, elevation: 2 }));
