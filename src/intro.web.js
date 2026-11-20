@@ -167,6 +167,7 @@ export function Intro({ onDone }) {
     const a = audio.current; a.off = true;
     a.sources.forEach((x) => { try { x.stop(); } catch (e) {} });
     a.sources = [];
+    Object.values(a.els || {}).forEach((el) => { try { el.pause(); } catch (e) {} });
     const c = a.ctx; a.ctx = null;
     if (c) setTimeout(() => { try { c.close(); } catch (e) {} }, 50);
   };
@@ -210,13 +211,28 @@ export function Intro({ onDone }) {
     };
     raf = requestAnimationFrame(waitBase);
 
+    // Web Audio ishlamasa (eski brauzer yoki ruxsat yo'q): oddiy <audio>, vaqtlar baribir animatsiya boshlanishiga bog'langan
+    const fallback = () => {
+      const a = audio.current;
+      if (!active || a.off) return;
+      const els = {};
+      Object.keys(SOUNDS).forEach((k) => { try { const el = new Audio(srcOf(SOUNDS[k])); el.preload = 'auto'; el.volume = VOL[k]; els[k] = el; } catch (e) {} });
+      a.els = els;
+      plan.forEach(([k, ms]) => atAbs(base + ms, () => {
+        const el = els[k];
+        if (!el || audio.current.off) return;
+        try { el.currentTime = 0; const r = el.play(); if (r && typeof r.catch === 'function') r.catch(() => {}); } catch (e) {}
+      }));
+    };
+
     async function startAudio() {
       const a = audio.current;
       const ctx = makeCtx();
-      if (!ctx) return;
+      if (!ctx) { fallback(); return; }
       a.ctx = ctx;
       const [ok, list] = await Promise.all([canPlay(ctx), prefetch() || Promise.resolve([])]);
-      if (!ok || a.off || a.ctx !== ctx) { if (a.ctx === ctx) { a.ctx = null; try { ctx.close(); } catch (e) {} } return; }
+      if (a.off || a.ctx !== ctx) return;
+      if (!ok) { a.ctx = null; try { ctx.close(); } catch (e) {} fallback(); return; }
       const bufs = {};
       await Promise.all(list.map(async ([k, ab]) => { bufs[k] = await decode(ctx, ab); }));
       if (a.off || a.ctx !== ctx) return;

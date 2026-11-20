@@ -11,19 +11,22 @@ const KEY = (u) => (/chime/.test(u) ? 'chime' : (u.match(/hop\d/) || ['?'])[0]);
 (async () => {
   const b = await chromium.launch({ args: ['--autoplay-policy=no-user-gesture-required'] });
   for (const [label, url] of [['YANGI', NEW], ['ESKI', OLD]]) {
-    for (const [name, cpu, jank] of [['oddiy', 1, 0], ['sekin telefon (CPU x4)', 4, 0], ['CPU x4 + sahifa qotishi 2x400ms', 4, 400]]) {
+    const cases = [['oddiy', 1, 0], ['sekin telefon (CPU x4)', 4, 0], ['CPU x4 + sahifa qotishi 2x400ms', 4, 400]];
+    if (label === 'YANGI') cases.push(['Web Audio yo\'q (zaxira <audio>)', 1, 0, true]);
+    for (const [name, cpu, jank, noWA] of cases) {
       const ctx = await b.newContext({ viewport: { width: 393, height: 852 }, deviceScaleFactor: 3, isMobile: true, hasTouch: true });
       const p = await ctx.newPage();
       const errs = [];
       p.on('pageerror', (e) => errs.push(String(e).slice(0, 200)));
       const cdp = await ctx.newCDPSession(p);
       await cdp.send('Emulation.setCPUThrottlingRate', { rate: cpu });
-      await p.addInitScript(({ jank }) => {
+      await p.addInitScript(({ jank, noWA }) => {
+        if (noWA) { try { window.AudioContext = undefined; window.webkitAudioContext = undefined; } catch (e) {} }
         // foydalanuvchi sahifaga tekkan deb hisoblanadi (eski kod faqat shunda ovoz chaladi)
         try { Object.defineProperty(navigator, 'userActivation', { configurable: true, value: { hasBeenActive: true, isActive: true } }); } catch (e) {}
         window.__ev = []; window.__base = null;
-        const S = AudioBufferSourceNode.prototype.start;
-        AudioBufferSourceNode.prototype.start = function (when = 0, ...r) {
+        const S = window.AudioBufferSourceNode ? AudioBufferSourceNode.prototype.start : null;
+        if (S) AudioBufferSourceNode.prototype.start = function (when = 0, ...r) {
           try {
             const c = this.context;
             const ts = c.getOutputTimestamp ? c.getOutputTimestamp() : null;
@@ -49,7 +52,7 @@ const KEY = (u) => (/chime/.test(u) ? 'chime' : (u.match(/hop\d/) || ['?'])[0]);
           }
         };
         requestAnimationFrame(poll);
-      }, { jank });
+      }, { jank, noWA: !!noWA });
       await p.goto(url + '/?_=' + Date.now(), { waitUntil: 'domcontentloaded' }).catch(() => {});
       await p.waitForTimeout(7000);
       const r = await p.evaluate(() => ({ ev: window.__ev, base: window.__base }));
