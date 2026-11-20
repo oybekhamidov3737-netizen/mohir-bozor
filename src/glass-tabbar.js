@@ -115,7 +115,7 @@ export function GlassTabBar({ state, descriptors, navigation }) {
       <View style={{ width: barW, height: BAR_H, borderRadius: BAR_H / 2, ...outerShadow }}>
         <Glass dark={dark} dataSet={{ glassTabbar: '1' }} style={{ flex: 1, borderRadius: BAR_H / 2 }} {...pan.panHandlers}>
           {/* Shisha yuzasidagi yorug' aks */}
-          <LinearGradient pointerEvents="none" colors={dark ? ['rgba(255,255,255,0.10)', 'rgba(255,255,255,0)'] : ['rgba(255,255,255,0.75)', 'rgba(255,255,255,0)']}
+          <LinearGradient pointerEvents="none" colors={dark ? ['rgba(255,255,255,0.10)', 'rgba(255,255,255,0)'] : ['rgba(255,255,255,0.6)', 'rgba(255,255,255,0)']}
             style={{ position: 'absolute', left: 0, right: 0, top: 0, height: BAR_H * 0.55 }} />
 
           {/* Linza (tanlangan bo'lim) */}

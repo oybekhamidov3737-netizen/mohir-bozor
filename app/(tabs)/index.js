@@ -16,6 +16,7 @@ import { RegionPicker, ListPicker } from '../../src/pickers';
 import { AdCard, Empty, FadeIn, H, Pill, Skeleton } from '../../src/ui';
 import { tr, LANGS, setLang, useLang } from '../../src/i18n';
 import { useTabBarSpace } from '../../src/glass-tabbar';
+import { Glass } from '../../src/glass';
 
 export default function Home() {
   const t = useT();
@@ -49,6 +50,8 @@ export default function Home() {
   const reqId = useRef(0);
   const stats = useStats();
   const [people, setPeople] = useState([]);
+  // Yuqori shisha panel balandligi (kontent uning ostidan o'tadi)
+  const [headH, setHeadH] = useState(ins.top + 110);
 
   useEffect(() => { AsyncStorage.getItem('loc').then((v) => { try { if (v) setLoc(JSON.parse(v)); } catch (e) {} }); }, []);
   useEffect(() => { const id = setTimeout(() => setSq(search), 300); return () => clearTimeout(id); }, [search]);
@@ -146,7 +149,34 @@ export default function Home() {
 
   return (
     <View style={{ flex: 1, backgroundColor: t.bg }}>
-      <View style={{ paddingTop: ins.top + 8, paddingHorizontal: 16, paddingBottom: 10, backgroundColor: t.bg, borderBottomWidth: 1, borderColor: t.line, gap: 10 }}>
+      <FlatList
+        key={'cols' + cols}
+        data={loading ? Array.from({ length: cols * 2 }, (_, i) => ({ id: 'sk' + i, _sk: true })) : items}
+        numColumns={cols}
+        keyExtractor={(a) => a.id}
+        columnWrapperStyle={{ gap }}
+        contentContainerStyle={{ paddingHorizontal: 16, paddingTop: headH, paddingBottom: tabSpace, gap, maxWidth: 1100, width: '100%', alignSelf: 'center' }}
+        scrollIndicatorInsets={{ top: headH }}
+        ListHeaderComponent={header}
+        renderItem={({ item, index }) => item._sk ? <Skeleton width={cardW} /> : (
+          <FadeIn index={index % (cols * 4)}>
+            <AdCard ad={item} width={cardW} onPress={() => open(item)} fav={fav.includes(item.id)} onFav={() => toggleFav(item.id)} />
+          </FadeIn>
+        )}
+        ListEmptyComponent={loading || err ? null : (
+          <Empty title={active || loc.region ? tr("Hech narsa topilmadi") : tr("Hozircha e'lonlar yo'q")}
+            text={active || loc.region ? tr("Boshqa so'z bilan qidiring yoki hududni kengaytiring.") : tr("Birinchi bo'lib xizmatingizni joylang: mijozlar sizni shu yerdan topadi.")}
+            action={active ? tr("Filtrlarni tozalash") : tr("E'lon joylash")}
+            onAction={() => { if (active) { setCat(null); setKind(null); setSearch(''); } else if (need('/post')) router.push('/post'); }} />
+        )}
+        onEndReachedThreshold={0.5}
+        onEndReached={() => { if (more && !loading && items.length) load(false); }}
+        refreshControl={<RefreshControl refreshing={refreshing} tintColor={t.accent} progressViewOffset={headH} onRefresh={() => { setRefreshing(true); load(true); fetchVip(loc.region).then(setVip).catch(() => {}); }} />}
+      />
+
+      <Glass dark={t.dark} shadow={false} onLayout={(e) => { const h = Math.round(e.nativeEvent.layout.height); if (h && Math.abs(h - headH) > 1) setHeadH(h); }}
+        style={{ position: 'absolute', top: 0, left: 0, right: 0, borderRadius: 0, borderWidth: 0, borderBottomWidth: 1, borderColor: t.dark ? 'rgba(255,255,255,0.08)' : 'rgba(20,29,25,0.08)',
+          paddingTop: ins.top + 8, paddingHorizontal: 16, paddingBottom: 10, gap: 10 }}>
         <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', maxWidth: 1068, width: '100%', alignSelf: 'center' }}>
           <Pressable onPress={() => { setCat(null); setKind(null); setSearch(''); }} style={{ flexDirection: 'row', alignItems: 'center', gap: 8 }}>
             <Image source={require('../../assets/icon.png')} style={{ width: 30, height: 30, borderRadius: 9 }} />
@@ -172,31 +202,7 @@ export default function Home() {
             style={{ flex: 1, fontSize: 16, color: t.ink, height: '100%', outlineStyle: 'none', outlineWidth: 0 }} returnKeyType="search" autoCorrect={false} />
           {search ? <Pressable onPress={() => setSearch('')} hitSlop={10}><Ionicons name="close-circle" size={19} color={t.muted} /></Pressable> : null}
         </View>
-      </View>
-
-      <FlatList
-        key={'cols' + cols}
-        data={loading ? Array.from({ length: cols * 2 }, (_, i) => ({ id: 'sk' + i, _sk: true })) : items}
-        numColumns={cols}
-        keyExtractor={(a) => a.id}
-        columnWrapperStyle={{ gap }}
-        contentContainerStyle={{ paddingHorizontal: 16, paddingBottom: tabSpace, gap, maxWidth: 1100, width: '100%', alignSelf: 'center' }}
-        ListHeaderComponent={header}
-        renderItem={({ item, index }) => item._sk ? <Skeleton width={cardW} /> : (
-          <FadeIn index={index % (cols * 4)}>
-            <AdCard ad={item} width={cardW} onPress={() => open(item)} fav={fav.includes(item.id)} onFav={() => toggleFav(item.id)} />
-          </FadeIn>
-        )}
-        ListEmptyComponent={loading || err ? null : (
-          <Empty title={active || loc.region ? tr("Hech narsa topilmadi") : tr("Hozircha e'lonlar yo'q")}
-            text={active || loc.region ? tr("Boshqa so'z bilan qidiring yoki hududni kengaytiring.") : tr("Birinchi bo'lib xizmatingizni joylang: mijozlar sizni shu yerdan topadi.")}
-            action={active ? tr("Filtrlarni tozalash") : tr("E'lon joylash")}
-            onAction={() => { if (active) { setCat(null); setKind(null); setSearch(''); } else if (need('/post')) router.push('/post'); }} />
-        )}
-        onEndReachedThreshold={0.5}
-        onEndReached={() => { if (more && !loading && items.length) load(false); }}
-        refreshControl={<RefreshControl refreshing={refreshing} tintColor={t.accent} onRefresh={() => { setRefreshing(true); load(true); fetchVip(loc.region).then(setVip).catch(() => {}); }} />}
-      />
+      </Glass>
 
       <RegionPicker visible={regOpen} onClose={() => setRegOpen(false)} onPick={pickLoc} allowAll current={loc} />
       <ListPicker visible={langOpen} onClose={() => setLangOpen(false)} title="Til · Язык · Language" value={lang} onPick={(l) => { setLangOpen(false); setLang(l); }}

@@ -25,7 +25,7 @@ export function glassColors(dark, tone = 'regular') {
   }
   return dark
     ? { bg: 'rgba(24,30,27,0.6)', border: 'rgba(255,255,255,0.12)', hi: 'rgba(255,255,255,0.08)' }
-    : { bg: 'rgba(255,255,255,0.62)', border: 'rgba(255,255,255,0.85)', hi: 'rgba(255,255,255,0.95)' };
+    : { bg: 'rgba(255,255,255,0.55)', border: 'rgba(255,255,255,0.85)', hi: 'rgba(255,255,255,0.95)' };
 }
 
 export function Glass({ style, children, dark, tone = 'regular', thin, shadow = true, dataSet, ...rest }) {
