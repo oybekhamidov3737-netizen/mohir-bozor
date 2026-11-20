@@ -235,6 +235,18 @@ export function Stories({ onPick }) {
 }
 
 // Avtomatik aylanuvchi reklama bannerlari
+// Banner sarlavhasi: 2 qatorga sig'maguncha shriftni bosqichma-bosqich kichraytiradi (haqiqiy o'lcham bo'yicha, har qanday tilda)
+function FitTitle({ children, max = 19, min = 14.5 }) {
+  const [sz, setSz] = useState(max);
+  const lh = Math.round(sz * 1.26);
+  return (
+    <Text
+      onLayout={(e) => { if (e.nativeEvent.layout.height > lh * 2 + 2 && sz > min) setSz((x) => Math.max(min, x - 1.5)); }}
+      style={{ fontFamily: FONT.display, fontSize: sz, color: '#fff', lineHeight: lh }}
+      numberOfLines={sz <= min ? 2 : undefined}>{children}</Text>
+  );
+}
+
 export function PromoCarousel({ width, slides }) {
   const t = useT();
   const ref = useRef(null);
@@ -281,7 +293,7 @@ export function PromoCarousel({ width, slides }) {
               </View>
               {s.tag ? <View style={{ alignSelf: 'flex-start', backgroundColor: 'rgba(255,255,255,0.22)', borderRadius: 999, paddingHorizontal: 9, paddingVertical: 3 }}><Text style={{ color: '#fff', fontSize: 11, fontWeight: '800' }}>{s.tag}</Text></View> : <View />}
               <View style={{ maxWidth: W - 158 }}>
-                <Text style={{ fontFamily: FONT.display, fontSize: 19, color: '#fff', lineHeight: 24 }} numberOfLines={2}>{s.title}</Text>
+                <FitTitle key={s.title}>{s.title}</FitTitle>
                 <Text style={{ color: 'rgba(255,255,255,0.88)', fontSize: 12.5, marginTop: 4 }} numberOfLines={2}>{s.text}</Text>
               </View>
               <View style={{ alignSelf: 'flex-start', backgroundColor: '#fff', borderRadius: 12, paddingHorizontal: 12, paddingVertical: 6 }}>

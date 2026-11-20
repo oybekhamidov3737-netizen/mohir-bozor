@@ -21,6 +21,16 @@ const scrollMain = (p, y) => p.evaluate((y) => {
       p.on('console', (m) => { if (m.type() === 'error') errs.push('console: ' + m.text().slice(0, 200)); });
       await p.goto(`${BASE}/?v=${v}`, { waitUntil: 'networkidle' }).catch(() => {});
       await p.waitForTimeout(6000);
+      // Bannerni birinchi slaydga qaytarish (variantlar bir xil holatda solishtirilsin)
+      const slide = (k) => p.evaluate((k) => {
+        const el = [...document.querySelectorAll('div')].find((e) => { const s = getComputedStyle(e); return /(auto|scroll)/.test(s.overflowX) && e.scrollWidth > e.clientWidth * 3 && e.clientWidth > 250; });
+        if (el) { el.style.scrollBehavior = 'auto'; el.scrollLeft = k * el.clientWidth; }
+        return !!el;
+      }, k);
+      if (v === 'a' && scheme === 'light') {
+        for (const k of [2, 1, 3, 4]) { await slide(k); await p.waitForTimeout(700); await p.screenshot({ path: `preview/${v}-${scheme}-slide${k}.png`, clip: { x: 0, y: 200, width: 393, height: 330 } }); }
+      }
+      await slide(0); await p.waitForTimeout(700);
       await p.screenshot({ path: `preview/${v}-${scheme}-home.png` });
       await scrollMain(p, 640); await p.waitForTimeout(900);
       await p.screenshot({ path: `preview/${v}-${scheme}-home2.png` });
