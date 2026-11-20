@@ -16,7 +16,7 @@ export function SignInCard({ text }) {
   return (
     <View style={{ flex: 1, backgroundColor: t.bg, padding: 16 }}>
       <View style={{ maxWidth: 640, width: '100%', alignSelf: 'center' }}>
-        <Empty title={tr("Hisobingizga kiring")} text={text || tr("Bu bo'limdan foydalanish uchun hisobingizga kiring.")}
+        <Empty icon="person-circle" title={tr("Hisobingizga kiring")} text={text || tr("Bu bo'limdan foydalanish uchun hisobingizga kiring.")}
           action={tr("Kirish")} onAction={() => router.push({ pathname: '/login', params: { next: path } })} />
       </View>
     </View>

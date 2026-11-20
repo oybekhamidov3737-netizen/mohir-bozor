@@ -8,7 +8,7 @@ import { useT, FONT } from './theme';
 import { CATS, GRAD, REG_NAMES } from './data';
 import { supabase } from './supabase';
 import { fmtNum } from './format';
-import { Avatar, Press } from './ui';
+import { Avatar, Press, Sheen, glow, soft } from './ui';
 import { tr, adsCount } from './i18n';
 
 // Tor kartochkada uzun so'z (masalan, «Мобилография») bo'linib ketmasligi uchun
@@ -149,9 +149,10 @@ export function CatRow({ counts, onPick }) {
   return (
     <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={{ gap: 10, paddingRight: 16 }} style={{ marginHorizontal: -16, paddingLeft: 16 }}>
       {CATS.map((c) => (
-        <Press key={c.id} onPress={() => onPick(c.id)} style={{ width: 118 }}>
+        <Press key={c.id} onPress={() => onPick(c.id)} style={{ width: 118, borderRadius: 20, ...(t.dark ? {} : glow(GRAD[c.c][1], 0.28)) }}>
           <LinearGradient colors={GRAD[c.c]} start={{ x: 0, y: 0 }} end={{ x: 1, y: 1 }}
             style={{ height: 120, borderRadius: 20, padding: 12, justifyContent: 'space-between', overflow: 'hidden' }}>
+            <Sheen radius={20} />
             <View pointerEvents="none" style={{ position: 'absolute', right: -24, bottom: -24, width: 90, height: 90, borderRadius: 45, backgroundColor: 'rgba(255,255,255,0.16)' }} />
             <View style={{ width: 40, height: 40, borderRadius: 13, backgroundColor: 'rgba(255,255,255,0.22)', alignItems: 'center', justifyContent: 'center' }}>
               <Ionicons name={c.icon.replace('-outline', '')} size={22} color="#fff" />
@@ -177,12 +178,12 @@ export function HowItWorks() {
   return (
     <View style={{ flexDirection: 'row', gap: 8 }}>
       {steps.map(([ic, h, d], i) => (
-        <View key={h} style={{ flex: 1, backgroundColor: t.surface, borderRadius: 18, padding: 12, gap: 6, borderWidth: 1, borderColor: t.line }}>
+        <View key={h} style={{ flex: 1, backgroundColor: t.surface, borderRadius: 20, padding: 12, gap: 6, borderWidth: t.dark ? 1 : 0, borderColor: t.line, ...soft(t) }}>
           <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' }}>
             <View style={{ width: 34, height: 34, borderRadius: 11, backgroundColor: t.accentSoft, alignItems: 'center', justifyContent: 'center' }}>
               <Ionicons name={ic} size={18} color={t.accent} />
             </View>
-            <Text style={{ fontFamily: FONT.display, fontSize: 18, color: t.line }}>{i + 1}</Text>
+            <Text style={{ fontFamily: FONT.display, fontSize: 18, color: t.accent, opacity: 0.28 }}>{i + 1}</Text>
           </View>
           <Text style={{ color: t.ink, fontWeight: '800', fontSize: 14 }}>{h}</Text>
           <Text style={{ color: t.muted, fontSize: 11.5, lineHeight: 15 }}>{d}</Text>
@@ -199,7 +200,7 @@ export function TopCreators({ people, onOpen }) {
     <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={{ gap: 14, paddingRight: 16 }} style={{ marginHorizontal: -16, paddingLeft: 16 }}>
       {people.map((p) => (
         <Pressable key={p.id} onPress={() => onOpen(p)} style={{ width: 74, alignItems: 'center', gap: 6 }}>
-          <LinearGradient colors={['#FFC43D', '#FF77AE', '#6A8BFF']} start={{ x: 0, y: 0 }} end={{ x: 1, y: 1 }} style={{ padding: 2.5, borderRadius: 24 }}>
+          <LinearGradient colors={['#FFC43D', '#FF77AE', '#6A8BFF']} start={{ x: 0, y: 0 }} end={{ x: 1, y: 1 }} style={{ padding: 2.5, borderRadius: 24, ...(t.dark ? {} : glow('#FF77AE', 0.22)) }}>
             <View style={{ backgroundColor: t.bg, padding: 2, borderRadius: 22 }}>
               <Avatar profile={p} name={p.name} size={60} />
             </View>
@@ -219,7 +220,7 @@ export function Stories({ onPick }) {
     <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={{ gap: 12, paddingRight: 16, paddingVertical: 12 }} style={{ marginHorizontal: -16, paddingLeft: 16 }}>
       {CATS.map((c) => (
         <Press key={c.id} onPress={() => onPick(c.id)} style={{ width: 70, alignItems: 'center', gap: 6 }}>
-          <LinearGradient colors={['#FFC43D', '#FF5E8A', '#7B5CFF']} start={{ x: 0, y: 1 }} end={{ x: 1, y: 0 }} style={{ padding: 2.5, borderRadius: 999 }}>
+          <LinearGradient colors={['#FFC43D', '#FF5E8A', '#7B5CFF']} start={{ x: 0, y: 1 }} end={{ x: 1, y: 0 }} style={{ padding: 2.5, borderRadius: 999, ...(t.dark ? {} : glow('#FF5E8A', 0.22)) }}>
             <View style={{ backgroundColor: t.bg, padding: 2.5, borderRadius: 999 }}>
               <LinearGradient colors={GRAD[c.c]} start={{ x: 0, y: 0 }} end={{ x: 1, y: 1 }} style={{ width: 58, height: 58, borderRadius: 29, alignItems: 'center', justifyContent: 'center' }}>
                 <Ionicons name={c.icon.replace('-outline', '')} size={26} color="#fff" />
@@ -253,13 +254,14 @@ export function PromoCarousel({ width, slides }) {
   }, [W, slides.length]);
   return (
     <View style={{ marginTop: 4 }}>
-      <ScrollView ref={ref} horizontal pagingEnabled showsHorizontalScrollIndicator={false} style={{ width: W, borderRadius: 24 }}
+      <ScrollView ref={ref} horizontal pagingEnabled showsHorizontalScrollIndicator={false} style={{ width: W, borderRadius: 24, ...soft(t, 1.3) }}
         onTouchStart={() => { touching.current = true; }} onTouchEnd={() => { touching.current = false; }}
         onMomentumScrollEnd={(e) => setI(Math.round(e.nativeEvent.contentOffset.x / W))}
         onScroll={Platform.OS === 'web' ? (e) => { const n = Math.round(e.nativeEvent.contentOffset.x / W); if (n !== i) setI(n); } : undefined} scrollEventThrottle={64}>
         {slides.map((s, k) => (
           <Pressable key={k} onPress={s.onPress} style={{ width: W }}>
             <LinearGradient colors={s.colors} start={{ x: 0, y: 0 }} end={{ x: 1, y: 1 }} style={{ height: 168, borderRadius: 24, padding: 18, overflow: 'hidden', justifyContent: 'space-between' }}>
+              <Sheen radius={24} strength={0.22} />
               <View pointerEvents="none" style={{ position: 'absolute', right: -40, top: -40, width: 200, height: 200, borderRadius: 100, backgroundColor: 'rgba(255,255,255,0.12)' }} />
               <View pointerEvents="none" style={{ position: 'absolute', right: 30, bottom: -70, width: 150, height: 150, borderRadius: 75, backgroundColor: 'rgba(255,255,255,0.08)' }} />
               <View pointerEvents="none" style={{ position: 'absolute', right: 18, top: 26, width: 96, height: 96, borderRadius: 30, backgroundColor: 'rgba(255,255,255,0.2)', alignItems: 'center', justifyContent: 'center', transform: [{ rotate: '-10deg' }] }}>
@@ -288,7 +290,7 @@ export function PromoCarousel({ width, slides }) {
 export function StatStrip({ stats }) {
   const t = useT();
   return (
-    <View style={{ flexDirection: 'row', backgroundColor: t.surface, borderRadius: 18, paddingVertical: 12, marginTop: 12 }}>
+    <View style={{ flexDirection: 'row', backgroundColor: t.surface, borderRadius: 20, paddingVertical: 13, marginTop: 14, ...soft(t) }}>
       {[[stats.ads, tr("faol e'lon"), 'megaphone', '#2747D6'], [stats.users, tr('ijodkor'), 'people', '#0C9A6A'], [12, tr('viloyat'), 'map', '#F0532E']].map(([v, l, ic, c], k) => (
         <View key={l} style={{ flex: 1, flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: 8, borderLeftWidth: k ? 1 : 0, borderColor: t.line }}>
           <Ionicons name={ic} size={18} color={c} />

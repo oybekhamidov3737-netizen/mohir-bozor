@@ -48,7 +48,7 @@ export default function Chats() {
     return (
       <View style={{ flex: 1, backgroundColor: t.bg, paddingTop: ins.top + 16, paddingHorizontal: 16 }}>
         <Text style={{ fontFamily: FONT.displayM, fontSize: 20, color: t.ink, marginBottom: 12 }}>{tr("Xabarlar")}</Text>
-        <Empty title={tr("Hisobingizga kiring")} text={tr("Sotuvchi va xaridorlar bilan yozishish uchun kiring.")} action={tr("Kirish")} onAction={() => router.push('/login')} />
+        <Empty icon="chatbubbles" title={tr("Hisobingizga kiring")} text={tr("Sotuvchi va xaridorlar bilan yozishish uchun kiring.")} action={tr("Kirish")} onAction={() => router.push('/login')} />
       </View>
     );
   }

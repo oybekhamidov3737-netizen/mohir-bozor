@@ -44,7 +44,7 @@ export default function Favorites() {
         ListHeaderComponent={<Text style={{ fontFamily: FONT.displayM, fontSize: 20, color: t.ink, paddingBottom: 6 }}>{tr("Saralangan e'lonlar")}</Text>}
         renderItem={({ item }) => <AdCard ad={item} width={cardW} onPress={() => router.push(`/ad/${item.id}`)} fav onFav={() => toggleFav(item.id)} />}
         ListEmptyComponent={items === null ? <Loading /> : (
-          <Empty title={tr("Saralanganlar bo'sh")} text={tr("Yoqqan e'londagi yurakcha belgisini bosing, u shu yerda saqlanadi.")} action={tr("E'lonlarga o'tish")} onAction={() => router.push('/')} />
+          <Empty icon="heart" title={tr("Saralanganlar bo'sh")} text={tr("Yoqqan e'londagi yurakcha belgisini bosing, u shu yerda saqlanadi.")} action={tr("E'lonlarga o'tish")} onAction={() => router.push('/')} />
         )}
       />
     </View>

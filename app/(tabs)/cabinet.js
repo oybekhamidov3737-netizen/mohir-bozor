@@ -9,7 +9,7 @@ import { useApp } from '../../src/app-context';
 import { supabase, adPhoto, errText } from '../../src/supabase';
 import { CATS, ONLINE, SVC, catOf } from '../../src/data';
 import { adState, ago, fmtNum, isTop, isVip, priceText, shortDate, shortReg, since } from '../../src/format';
-import { Avatar, Badge, Btn, Cover, Empty, H, Loading, MenuGroup, Note, Press, Seg } from '../../src/ui';
+import { Avatar, Badge, Btn, Cover, Empty, H, Loading, MenuGroup, Note, Press, Seg, soft, glow, Sheen } from '../../src/ui';
 import { LinearGradient } from 'expo-linear-gradient';
 import { InviteCard } from '../../src/invite';
 import { BalanceCard } from '../../src/balance';
@@ -32,7 +32,7 @@ function Onboard({ onOpen }) {
     </View>
   );
   return (
-    <View style={{ backgroundColor: t.surface, borderWidth: 1, borderColor: t.line, borderRadius: 22, padding: 22, gap: 14, marginTop: 16 }}>
+    <View style={{ backgroundColor: t.surface, borderWidth: t.dark ? 1 : 0, borderColor: t.line, borderRadius: 24, padding: 22, gap: 14, marginTop: 16, ...soft(t) }}>
       <View style={{ width: 84, height: 84, borderRadius: 26, backgroundColor: t.accentSoft, alignItems: 'center', justifyContent: 'center' }}><Ionicons name="person-add-outline" size={38} color={t.accent} /></View>
       <Text style={{ fontFamily: FONT.display, fontSize: 24, color: t.ink }}>{tr("Kabinetingizni oching")}</Text>
       <Text style={{ color: t.muted, lineHeight: 20 }}>{tr("Bir daqiqada profil yarating va ijodkorlar bozoriga qo'shiling.")}</Text>
@@ -120,9 +120,10 @@ export default function Cabinet() {
   const tile = (colors, icon, title, sub, onPress, badge) => (
     <View key={title} style={{ width: '48.5%' }}>
     <Press onPress={onPress} style={{ width: '100%' }}>
-      <View style={{ backgroundColor: t.surface, borderRadius: 22, padding: 14, width: '100%', height: 142, justifyContent: 'space-between' }}>
+      <View style={{ backgroundColor: t.surface, borderRadius: 22, padding: 14, width: '100%', height: 142, justifyContent: 'space-between', ...soft(t) }}>
         <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'flex-start' }}>
-          <LinearGradient colors={colors} start={{ x: 0, y: 0 }} end={{ x: 1, y: 1 }} style={{ width: 44, height: 44, borderRadius: 15, alignItems: 'center', justifyContent: 'center' }}>
+          <LinearGradient colors={colors} start={{ x: 0, y: 0 }} end={{ x: 1, y: 1 }} style={{ width: 44, height: 44, borderRadius: 15, alignItems: 'center', justifyContent: 'center', ...(t.dark ? {} : glow(colors[1], 0.3)) }}>
+            <Sheen radius={15} strength={0.25} />
             <Ionicons name={icon} size={22} color="#fff" />
           </LinearGradient>
           {badge ? <View style={{ minWidth: 26, height: 26, borderRadius: 13, paddingHorizontal: 7, backgroundColor: t.accentSoft, alignItems: 'center', justifyContent: 'center' }}><Text style={{ color: t.accent, fontWeight: '900', fontSize: 13 }}>{badge}</Text></View> : null}
@@ -139,7 +140,8 @@ export default function Cabinet() {
   return wrap(
     <>
       {/* Sarlavha: o'zimizning gradient karta */}
-      <LinearGradient colors={['#4A6CFF', '#2747D6', '#1631B8']} start={{ x: 0, y: 0 }} end={{ x: 1, y: 1 }} style={{ borderRadius: 28, padding: 18, overflow: 'hidden' }}>
+      <LinearGradient colors={['#4A6CFF', '#2747D6', '#1631B8']} start={{ x: 0, y: 0 }} end={{ x: 1, y: 1 }} style={{ borderRadius: 28, padding: 18, overflow: 'hidden', ...(t.dark ? {} : glow('#2747D6', 0.3)) }}>
+        <Sheen radius={28} strength={0.16} />
         <View pointerEvents="none" style={{ position: 'absolute', right: -50, top: -50, width: 180, height: 180, borderRadius: 90, backgroundColor: 'rgba(255,255,255,0.1)' }} />
         <View pointerEvents="none" style={{ position: 'absolute', left: -30, bottom: -70, width: 160, height: 160, borderRadius: 80, backgroundColor: 'rgba(255,196,61,0.18)' }} />
         <View style={{ flexDirection: 'row', gap: 14, alignItems: 'center' }}>
@@ -172,7 +174,7 @@ export default function Cabinet() {
       </LinearGradient>
 
       {PAYMENTS_IN_APP ? (
-        <View style={{ marginTop: 12, backgroundColor: t.surface, borderRadius: 22, padding: 14, flexDirection: 'row', alignItems: 'center', gap: 12 }}>
+        <View style={{ marginTop: 12, backgroundColor: t.surface, borderRadius: 22, padding: 14, flexDirection: 'row', alignItems: 'center', gap: 12, ...soft(t) }}>
           <LinearGradient colors={['#34DBA5', '#0C9A6A']} style={{ width: 44, height: 44, borderRadius: 15, alignItems: 'center', justifyContent: 'center' }}><Ionicons name="wallet" size={22} color="#fff" /></LinearGradient>
           <Pressable onPress={() => router.push('/wallet')} style={{ flex: 1 }}>
             <Text style={{ color: t.muted, fontSize: 12, fontWeight: '700' }}>{tr('Balans')}</Text>
@@ -184,7 +186,8 @@ export default function Cabinet() {
       ) : null}
 
       <Press onPress={() => router.push('/post')} style={{ marginTop: 12 }}>
-        <LinearGradient colors={['#FFB347', '#FF5E8A', '#7B5CFF']} start={{ x: 0, y: 0 }} end={{ x: 1, y: 1 }} style={{ height: 60, borderRadius: 20, flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: 10 }}>
+        <LinearGradient colors={['#FFB347', '#FF5E8A', '#7B5CFF']} start={{ x: 0, y: 0 }} end={{ x: 1, y: 1 }} style={{ height: 60, borderRadius: 20, flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: 10, ...(t.dark ? {} : glow('#FF5E8A', 0.3)) }}>
+          <Sheen radius={20} strength={0.22} />
           <Ionicons name="add-circle" size={24} color="#fff" />
           <Text style={{ fontFamily: FONT.display, fontSize: 17, color: '#fff' }}>{tr("E'lon joylash")}</Text>
         </LinearGradient>

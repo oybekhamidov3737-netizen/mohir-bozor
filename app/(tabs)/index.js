@@ -13,7 +13,7 @@ import { supabase } from '../../src/supabase';
 import { fetchFeed, fetchVip, fetchProfiles, PAGE } from '../../src/api';
 import { CatRow, HowItWorks, TopCreators, useStats, Stories, PromoCarousel, StatStrip } from '../../src/home';
 import { RegionPicker, ListPicker } from '../../src/pickers';
-import { AdCard, Empty, FadeIn, H, Pill, Skeleton } from '../../src/ui';
+import { AdCard, Empty, FadeIn, H, Pill, Skeleton, soft } from '../../src/ui';
 import { tr, LANGS, setLang, useLang } from '../../src/i18n';
 import { useTabBarSpace } from '../../src/glass-tabbar';
 
@@ -153,20 +153,20 @@ export default function Home() {
             <Text style={{ fontFamily: FONT.display, fontSize: 20, color: t.ink }}>mohir</Text>
           </Pressable>
           <View style={{ flexDirection: 'row', gap: 8, alignItems: 'center', maxWidth: '62%' }}>
-            <Pressable onPress={() => setRegOpen(true)} style={{ flexDirection: 'row', alignItems: 'center', gap: 5, borderWidth: 1, borderColor: t.line, backgroundColor: t.surface, borderRadius: 999, height: 34, paddingHorizontal: 11, flexShrink: 1 }}>
+            <Pressable onPress={() => setRegOpen(true)} style={{ flexDirection: 'row', alignItems: 'center', gap: 5, borderWidth: t.dark ? 1 : 0, borderColor: t.line, backgroundColor: t.surface, borderRadius: 999, height: 34, paddingHorizontal: 11, flexShrink: 1, ...soft(t, 0.8) }}>
               <Ionicons name="location-outline" size={16} color={t.accent} />
               <Text style={{ fontSize: 13, fontWeight: '600', color: t.ink }} numberOfLines={1}>{locText}</Text>
             </Pressable>
-            <Pressable onPress={() => setLangOpen(true)} accessibilityLabel="Til / Язык / Language" style={{ height: 34, minWidth: 34, paddingHorizontal: 8, borderRadius: 17, borderWidth: 1, borderColor: t.line, backgroundColor: t.surface, alignItems: 'center', justifyContent: 'center', flexDirection: 'row', gap: 3 }}>
+            <Pressable onPress={() => setLangOpen(true)} accessibilityLabel="Til / Язык / Language" style={{ height: 34, minWidth: 34, paddingHorizontal: 8, borderRadius: 17, borderWidth: t.dark ? 1 : 0, borderColor: t.line, backgroundColor: t.surface, alignItems: 'center', justifyContent: 'center', flexDirection: 'row', gap: 3, ...soft(t, 0.8) }}>
               <Ionicons name="globe-outline" size={16} color={t.ink} />
               <Text style={{ fontSize: 11, fontWeight: '800', color: t.ink }}>{lang.toUpperCase()}</Text>
             </Pressable>
-            <Pressable onPress={() => router.push('/support')} accessibilityLabel={tr("Qo'llab-quvvatlash")} style={{ width: 34, height: 34, borderRadius: 17, borderWidth: 1, borderColor: t.line, backgroundColor: t.surface, alignItems: 'center', justifyContent: 'center' }}>
+            <Pressable onPress={() => router.push('/support')} accessibilityLabel={tr("Qo'llab-quvvatlash")} style={{ width: 34, height: 34, borderRadius: 17, borderWidth: t.dark ? 1 : 0, borderColor: t.line, backgroundColor: t.surface, alignItems: 'center', justifyContent: 'center', ...soft(t, 0.8) }}>
               <Ionicons name="headset-outline" size={17} color={t.ink} />
             </Pressable>
           </View>
         </View>
-        <View style={{ flexDirection: 'row', alignItems: 'center', gap: 8, backgroundColor: t.surface, borderWidth: 1, borderColor: t.line, borderRadius: 12, paddingHorizontal: 12, height: 46, maxWidth: 1068, width: '100%', alignSelf: 'center' }}>
+        <View style={{ flexDirection: 'row', alignItems: 'center', gap: 8, backgroundColor: t.surface, borderWidth: t.dark ? 1 : 0, borderColor: t.line, borderRadius: 14, paddingHorizontal: 13, height: 46, maxWidth: 1068, width: '100%', alignSelf: 'center', ...soft(t, 0.9) }}>
           <Ionicons name="search" size={19} color={t.muted} />
           <TextInput value={search} onChangeText={setSearch} placeholder={tr("Xizmat, tuman yoki foydalanuvchi ID…")} placeholderTextColor={t.muted}
             style={{ flex: 1, fontSize: 16, color: t.ink, height: '100%', outlineStyle: 'none', outlineWidth: 0 }} returnKeyType="search" autoCorrect={false} />
@@ -188,7 +188,7 @@ export default function Home() {
           </FadeIn>
         )}
         ListEmptyComponent={loading || err ? null : (
-          <Empty title={active || loc.region ? tr("Hech narsa topilmadi") : tr("Hozircha e'lonlar yo'q")}
+          <Empty icon={active || loc.region ? 'search' : 'megaphone'} title={active || loc.region ? tr("Hech narsa topilmadi") : tr("Hozircha e'lonlar yo'q")}
             text={active || loc.region ? tr("Boshqa so'z bilan qidiring yoki hududni kengaytiring.") : tr("Birinchi bo'lib xizmatingizni joylang: mijozlar sizni shu yerdan topadi.")}
             action={active ? tr("Filtrlarni tozalash") : tr("E'lon joylash")}
             onAction={() => { if (active) { setCat(null); setKind(null); setSearch(''); } else if (need('/post')) router.push('/post'); }} />

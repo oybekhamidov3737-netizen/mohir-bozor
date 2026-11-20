@@ -10,7 +10,7 @@ import { supabase } from '../../src/supabase';
 import { fetchFeed, fetchProfiles } from '../../src/api';
 import { catOf, ONLINE } from '../../src/data';
 import { ago, isOnline, seenText, shortReg, since } from '../../src/format';
-import { AdCard, Avatar, Btn, Empty, H, Loading, Press } from '../../src/ui';
+import { AdCard, Avatar, Btn, Empty, H, Loading, Press, Sheen, glow } from '../../src/ui';
 import { RatingLine, Stars } from '../../src/lists';
 import { WEB_URL } from '../../src/config';
 import { tr, adsCount } from '../../src/i18n';
@@ -56,7 +56,8 @@ export default function PublicProfile() {
 
   const header = (
     <View style={{ gap: 12, marginBottom: 6 }}>
-      <LinearGradient colors={['#4A6CFF', '#2747D6', '#1631B8']} start={{ x: 0, y: 0 }} end={{ x: 1, y: 1 }} style={{ borderRadius: 26, padding: 18, gap: 12, overflow: 'hidden' }}>
+      <LinearGradient colors={['#4A6CFF', '#2747D6', '#1631B8']} start={{ x: 0, y: 0 }} end={{ x: 1, y: 1 }} style={{ borderRadius: 26, padding: 18, gap: 12, overflow: 'hidden', ...(t.dark ? {} : glow('#2747D6', 0.3)) }}>
+        <Sheen radius={26} strength={0.16} />
         <View pointerEvents="none" style={{ position: 'absolute', right: -50, top: -50, width: 180, height: 180, borderRadius: 90, backgroundColor: 'rgba(255,255,255,0.1)' }} />
         <View style={{ flexDirection: 'row', gap: 14, alignItems: 'center' }}>
           <View>

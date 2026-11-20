@@ -14,7 +14,7 @@ import { LinearGradient } from 'expo-linear-gradient';
 import { ago, adState, isTop, isVip, locLabel, priceText, since, seenText, isOnline } from '../../src/format';
 import { fetchFeed } from '../../src/api';
 import { WEB_URL } from '../../src/config';
-import { AdCard, Avatar, Badge, Btn, Cover, Empty, H, Loading, Note, Press } from '../../src/ui';
+import { AdCard, Avatar, Badge, Btn, Cover, Empty, H, Loading, Note, Press, Sheen, glow, soft } from '../../src/ui';
 import { RatingLine } from '../../src/lists';
 import { tr, yearsText } from '../../src/i18n';
 
@@ -96,7 +96,8 @@ export default function AdPage() {
   const isLong = (ad.description || '').length > 260;
   const tile = (icon, k, v, i) => (
     <View key={k} style={{ width: '48.5%', flexDirection: 'row', gap: 10, alignItems: 'center', backgroundColor: t.bg, borderRadius: 16, padding: 10 }}>
-      <LinearGradient colors={GRAD[i % GRAD.length]} start={{ x: 0, y: 0 }} end={{ x: 1, y: 1 }} style={{ width: 36, height: 36, borderRadius: 12, alignItems: 'center', justifyContent: 'center' }}>
+      <LinearGradient colors={GRAD[i % GRAD.length]} start={{ x: 0, y: 0 }} end={{ x: 1, y: 1 }} style={{ width: 36, height: 36, borderRadius: 12, alignItems: 'center', justifyContent: 'center', ...(t.dark ? {} : glow(GRAD[i % GRAD.length][1], 0.28)) }}>
+        <Sheen radius={12} strength={0.25} />
         <Ionicons name={icon} size={18} color="#fff" />
       </LinearGradient>
       <View style={{ flex: 1 }}>
@@ -168,13 +169,13 @@ export default function AdPage() {
         </View>
 
         <View style={{ paddingHorizontal: 16, gap: 10 }}>
-          <View style={{ backgroundColor: t.surface, borderRadius: 22, padding: 16, marginTop: 10, gap: 8 }}>
+          <View style={{ backgroundColor: t.surface, borderRadius: 22, padding: 16, marginTop: 10, gap: 8, ...soft(t) }}>
             <Text style={{ fontFamily: FONT.displayM, fontSize: 17, color: t.ink }}>{tr("Tavsif")}</Text>
             <Text selectable style={{ color: t.ink, fontSize: 15, lineHeight: 23 }} numberOfLines={isLong && !more ? 7 : undefined}>{ad.description}</Text>
             {isLong ? <Pressable onPress={() => setMore(!more)}><Text style={{ color: t.accent, fontWeight: '800' }}>{more ? tr("Yigʻish") : tr("To'liq o'qish")}</Text></Pressable> : null}
           </View>
 
-          <View style={{ backgroundColor: t.surface, borderRadius: 22, padding: 16, gap: 12 }}>
+          <View style={{ backgroundColor: t.surface, borderRadius: 22, padding: 16, gap: 12, ...soft(t) }}>
             <Text style={{ fontFamily: FONT.displayM, fontSize: 17, color: t.ink }}>{ad.kind === 'buyurtma' ? tr("Buyurtmachi") : tr("Ijrochi")}</Text>
             <View style={{ flexDirection: 'row', gap: 12, alignItems: 'center' }}>
               <View>

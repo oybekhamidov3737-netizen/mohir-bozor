@@ -129,7 +129,7 @@ function MyAds() {
               {paid && live.length >= lim - 1 ? <View style={{ alignSelf: 'flex-start' }}><Btn small kind="sec" title={tr('Limitni oshirish')} onPress={() => router.push('/promo/slots')} /></View> : null}
             </View>
           ) : null}
-          {live.length ? live.map(adCard) : <Empty title={tr("Faol e'lonlar yo'q")} text={tr("Xizmatingizni rasmlar bilan joylang yoki buyurtma e'lonini bering.")} action={tr("E'lon joylash")} onAction={() => router.push('/post')} />}
+          {live.length ? live.map(adCard) : <Empty icon="albums" title={tr("Faol e'lonlar yo'q")} text={tr("Xizmatingizni rasmlar bilan joylang yoki buyurtma e'lonini bering.")} action={tr("E'lon joylash")} onAction={() => router.push('/post')} />}
         </>
       ) : (
         done.length ? done.map(adCard) : <Empty title={tr("Yakunlangan e'lonlar yo'q")} text={tr("Muddati tugagan va o'chirilgan e'lonlar shu yerda saqlanadi.")} />
