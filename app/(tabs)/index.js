@@ -15,10 +15,12 @@ import { CatRow, HowItWorks, TopCreators, useStats, Stories, PromoCarousel, Stat
 import { RegionPicker, ListPicker } from '../../src/pickers';
 import { AdCard, Empty, FadeIn, H, Pill, Skeleton } from '../../src/ui';
 import { tr, LANGS, setLang, useLang } from '../../src/i18n';
+import { useTabBarSpace } from '../../src/glass-tabbar';
 
 export default function Home() {
   const t = useT();
   const ins = useSafeAreaInsets();
+  const tabSpace = useTabBarSpace();
   const router = useRouter();
   const need = useRequire();
   const { fav, toggleFav } = useApp();
@@ -178,7 +180,7 @@ export default function Home() {
         numColumns={cols}
         keyExtractor={(a) => a.id}
         columnWrapperStyle={{ gap }}
-        contentContainerStyle={{ paddingHorizontal: 16, paddingBottom: 30, gap, maxWidth: 1100, width: '100%', alignSelf: 'center' }}
+        contentContainerStyle={{ paddingHorizontal: 16, paddingBottom: tabSpace, gap, maxWidth: 1100, width: '100%', alignSelf: 'center' }}
         ListHeaderComponent={header}
         renderItem={({ item, index }) => item._sk ? <Skeleton width={cardW} /> : (
           <FadeIn index={index % (cols * 4)}>

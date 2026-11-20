@@ -16,6 +16,7 @@ import { fetchFeed } from '../../src/api';
 import { WEB_URL } from '../../src/config';
 import { AdCard, Avatar, Badge, Btn, Cover, Empty, H, Loading, Note, Press } from '../../src/ui';
 import { RatingLine } from '../../src/lists';
+import { Glass } from '../../src/glass';
 import { tr, yearsText } from '../../src/i18n';
 
 export default function AdPage() {
@@ -105,9 +106,12 @@ export default function AdPage() {
       </View>
     </View>
   );
+  // Rasm ustidagi tugmalar — shaffof shisha doirachalar
   const roundBtn = (icon, onPress, label, color) => (
-    <Press onPress={onPress} accessibilityLabel={label} haptic={false} style={{ width: 42, height: 42, borderRadius: 21, backgroundColor: 'rgba(255,255,255,0.94)', alignItems: 'center', justifyContent: 'center' }}>
-      <Ionicons name={icon} size={21} color={color || '#141D19'} />
+    <Press onPress={onPress} accessibilityLabel={label} haptic={false} style={{ width: 42, height: 42, borderRadius: 21 }}>
+      <Glass tone="clear" thin style={{ flex: 1, borderRadius: 21, alignItems: 'center', justifyContent: 'center' }}>
+        <Ionicons name={icon} size={21} color={color || '#141D19'} />
+      </Glass>
     </Press>
   );
   const back = () => { if (router.canGoBack()) router.back(); else router.replace('/'); };
@@ -240,27 +244,30 @@ export default function AdPage() {
 
       <ListPicker visible={reportOpen} onClose={() => setReportOpen(false)} title={tr("Shikoyat sababi")} value={null} items={REASONS} onPick={sendReport} />
       {!mine && st === 'live' ? (
-        <View style={{ position: 'absolute', left: 0, right: 0, bottom: 0, backgroundColor: t.surface, borderTopLeftRadius: 24, borderTopRightRadius: 24, paddingHorizontal: 16, paddingTop: 12, paddingBottom: ins.bottom + 12,
-          ...(Platform.OS === 'web' ? { boxShadow: '0 -8px 24px rgba(0,0,0,0.10)' } : { shadowColor: '#000', shadowOpacity: 0.1, shadowRadius: 16, shadowOffset: { width: 0, height: -4 }, elevation: 12 }) }}>
-          <View style={{ flexDirection: 'row', gap: 10, alignItems: 'center', maxWidth: 728, width: '100%', alignSelf: 'center' }}>
+        // Pastdagi suzuvchi shisha panel: narx, qo'ng'iroq va "Yozish"
+        <View pointerEvents="box-none" style={{ position: 'absolute', left: 0, right: 0, bottom: 0, alignItems: 'center', paddingHorizontal: 12, paddingBottom: Math.max(10, ins.bottom - 4) }}>
+          <Glass dark={t.dark} style={{ width: '100%', maxWidth: 728, borderRadius: 30, paddingLeft: 18, paddingRight: 8, paddingVertical: 8,
+            ...(Platform.OS === 'web' ? {} : { shadowColor: '#0B1640', shadowOpacity: 0.18, shadowRadius: 20, shadowOffset: { width: 0, height: 8 }, elevation: 12 }) }}>
+          <View style={{ flexDirection: 'row', gap: 10, alignItems: 'center', width: '100%' }}>
             <View style={{ flex: 1 }}>
               <Text style={{ color: t.muted, fontSize: 11, fontWeight: '600' }}>{tr("Narx")}</Text>
               <Text style={{ color: t.ink, fontWeight: '900', fontSize: 15 }} numberOfLines={1}>{priceText(ad)}</Text>
             </View>
             {ad.phone ? (
               <Press onPress={() => { if (!phone) setPhone(true); else Linking.openURL('tel:' + ad.phone.replace(/[^\d+]/g, '')).catch(() => {}); }}
-                accessibilityLabel={tr("Qo'ng'iroq")} style={{ height: 52, minWidth: 52, paddingHorizontal: phone ? 14 : 0, borderRadius: 18, backgroundColor: t.accentSoft, alignItems: 'center', justifyContent: 'center', flexDirection: 'row', gap: 6 }}>
+                accessibilityLabel={tr("Qo'ng'iroq")} style={{ height: 52, minWidth: 52, paddingHorizontal: phone ? 14 : 0, borderRadius: 26, backgroundColor: t.accentSoft, alignItems: 'center', justifyContent: 'center', flexDirection: 'row', gap: 6 }}>
                 <Ionicons name="call" size={20} color={t.accent} />
                 {phone ? <Text style={{ color: t.accent, fontWeight: '800' }}>{ad.phone}</Text> : null}
               </Press>
             ) : null}
             <Press onPress={write} disabled={busy} accessibilityLabel={tr("Yozish")}>
-              <LinearGradient colors={['#5A7BFF', '#2747D6']} start={{ x: 0, y: 0 }} end={{ x: 1, y: 1 }} style={{ height: 52, paddingHorizontal: 24, borderRadius: 18, flexDirection: 'row', alignItems: 'center', gap: 8 }}>
+              <LinearGradient colors={['#5A7BFF', '#2747D6']} start={{ x: 0, y: 0 }} end={{ x: 1, y: 1 }} style={{ height: 52, paddingHorizontal: 24, borderRadius: 26, flexDirection: 'row', alignItems: 'center', gap: 8 }}>
                 <Ionicons name="chatbubble-ellipses" size={20} color="#fff" />
                 <Text style={{ color: '#fff', fontWeight: '800', fontSize: 16 }}>{busy ? '...' : tr("Yozish")}</Text>
               </LinearGradient>
             </Press>
           </View>
+          </Glass>
         </View>
       ) : null}
     </View>

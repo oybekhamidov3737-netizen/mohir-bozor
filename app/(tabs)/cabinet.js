@@ -19,6 +19,7 @@ import { BUILD_ID } from '../../src/updater';
 import { copyText } from '../../src/copy';
 import { MfaChallenge, useMfaNeeded } from '../../src/mfa';
 import { tr } from '../../src/i18n';
+import { useTabBarSpace } from '../../src/glass-tabbar';
 
 const EV = { top: 'TOP', vip: 'VIP', bump: "ko'tarildi", extend: 'uzaytirildi', restore: 'tiklandi', moderator: "moderator o'chirdi" };
 
@@ -47,6 +48,7 @@ function Onboard({ onOpen }) {
 export default function Cabinet() {
   const t = useT();
   const ins = useSafeAreaInsets();
+  const tabSpace = useTabBarSpace();
   const router = useRouter();
   const { uid, session, profile, isAdmin, config, loadProfile, toast } = useApp();
   const [c, setC] = useState({ live: 0, done: 0, offers: 0, apps: 0, bal: null });
@@ -83,7 +85,7 @@ export default function Cabinet() {
   };
 
   const wrap = (children) => (
-    <ScrollView style={{ flex: 1, backgroundColor: t.bg }} contentContainerStyle={{ paddingTop: ins.top + 12, paddingHorizontal: 16, paddingBottom: 40, maxWidth: 760, width: '100%', alignSelf: 'center' }}
+    <ScrollView style={{ flex: 1, backgroundColor: t.bg }} contentContainerStyle={{ paddingTop: ins.top + 12, paddingHorizontal: 16, paddingBottom: tabSpace, maxWidth: 760, width: '100%', alignSelf: 'center' }}
       refreshControl={<RefreshControl refreshing={refreshing} tintColor={t.accent} onRefresh={() => { setRefreshing(true); load(); }} />}>
       {children}
     </ScrollView>

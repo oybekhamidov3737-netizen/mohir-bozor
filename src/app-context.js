@@ -7,6 +7,7 @@ import { DEF_CFG } from './data';
 import { isConfigured } from './config';
 import { useT } from './theme';
 import { tr } from './i18n';
+import { Glass } from './glass';
 
 const Ctx = createContext(null);
 export const useApp = () => useContext(Ctx);
@@ -126,9 +127,9 @@ export function AppProvider({ children }) {
         opacity: toastAnim, transform: [{ translateY: toastAnim.interpolate({ inputRange: [0, 1], outputRange: [20, 0] }) }],
       }}>
         {toastMsg ? (
-          <View style={{ backgroundColor: t.ink, paddingHorizontal: 16, paddingVertical: 11, borderRadius: 12, maxWidth: 520 }}>
-            <Text style={{ color: t.bg, fontSize: 14, fontWeight: '600' }}>{toastMsg}</Text>
-          </View>
+          <Glass dark style={{ paddingHorizontal: 16, paddingVertical: 11, borderRadius: 16, maxWidth: 520 }}>
+            <Text style={{ color: '#FFFFFF', fontSize: 14, fontWeight: '600' }}>{toastMsg}</Text>
+          </Glass>
         ) : null}
       </Animated.View>
     </Ctx.Provider>

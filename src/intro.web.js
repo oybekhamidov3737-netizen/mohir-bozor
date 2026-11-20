@@ -232,9 +232,20 @@ export function Intro({ onDone }) {
 let shown = false;
 // Har safar ilova ochilganda bir marta ko'rsatiladi. Qaror sahifa yuklanganda bir marta qabul qilinadi,
 // shuning uchun til yuklanib ildiz komponent qayta chizilganda ham animatsiya yo'qolmaydi.
+// Saytda: faqat bosh sahifa ochilganda va brauzer oynasida bir marta (sahifa yangilansa yoki
+// ulashilgan e'lon havolasi ochilsa — kutib o'tirmasdan darhol kontent ko'rinadi).
 let decision = null;
+const SEEN_KEY = 'mb_intro_seen';
 export function shouldShowIntro() {
-  if (decision === null) decision = !shown;
+  if (decision === null) {
+    let seen = false;
+    try { seen = sessionStorage.getItem(SEEN_KEY) === '1'; } catch (e) {}
+    const home = typeof location === 'undefined' || location.pathname === '/' || location.pathname === '';
+    decision = !shown && !seen && home;
+  }
   return decision;
 }
-export function introDone() { decision = false; shown = true; }
+export function introDone() {
+  decision = false; shown = true;
+  try { sessionStorage.setItem(SEEN_KEY, '1'); } catch (e) {}
+}

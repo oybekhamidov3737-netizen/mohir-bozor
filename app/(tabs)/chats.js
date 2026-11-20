@@ -11,10 +11,12 @@ import { fetchProfiles } from '../../src/api';
 import { ago, isOnline } from '../../src/format';
 import { Avatar, Btn, Cover, Empty, Loading } from '../../src/ui';
 import { tr } from '../../src/i18n';
+import { useTabBarSpace } from '../../src/glass-tabbar';
 
 export default function Chats() {
   const t = useT();
   const ins = useSafeAreaInsets();
+  const tabSpace = useTabBarSpace();
   const router = useRouter();
   const { uid, loadUnread } = useApp();
   const [rows, setRows] = useState(null);
@@ -56,7 +58,7 @@ export default function Chats() {
       <FlatList
         data={rows || []}
         keyExtractor={(x) => x.id}
-        contentContainerStyle={{ padding: 16, gap: 10, maxWidth: 760, width: '100%', alignSelf: 'center' }}
+        contentContainerStyle={{ padding: 16, paddingBottom: tabSpace, gap: 10, maxWidth: 760, width: '100%', alignSelf: 'center' }}
         ListHeaderComponent={<Text style={{ fontFamily: FONT.display, fontSize: 24, color: t.ink, paddingBottom: 8 }}>{tr("Xabarlar")}</Text>}
         renderItem={({ item }) => {
           const img = adPhoto(item.ads);
