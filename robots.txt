@@ -1,0 +1,22 @@
+User-agent: *
+Allow: /
+Disallow: /login
+Disallow: /favorites
+Disallow: /chats
+Disallow: /new
+Disallow: /post
+Disallow: /cabinet
+Disallow: /settings
+Disallow: /prefs
+Disallow: /my-ads
+Disallow: /orders
+Disallow: /offers
+Disallow: /wallet
+Disallow: /topup
+Disallow: /profile
+Disallow: /feedback
+Disallow: /admin
+Disallow: /chat/
+Disallow: /promo/
+
+Sitemap: https://mohirbozor.uz/sitemap.xml
