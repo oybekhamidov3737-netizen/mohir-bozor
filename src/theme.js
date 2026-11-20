@@ -24,12 +24,12 @@ const base = {
 
 // Ilova rangi: har biri kunduzgi va tungi rejim uchun alohida moslangan
 export const ACCENTS = {
-  blue:   { name: "Ko'k",       light: ['#2453E6', '#FFFFFF', '#EAF0FF'], dark: ['#6F92FF', '#000000', '#1A2547'] },
-  green:  { name: 'Yashil',     light: ['#1A8F3C', '#FFFFFF', '#E3F6EA'], dark: ['#30D158', '#000000', '#12321D'] },
-  violet: { name: 'Binafsha',   light: ['#6E44D8', '#FFFFFF', '#F0EAFF'], dark: ['#B69CFF', '#000000', '#2A2050'] },
-  orange: { name: "To'q sariq", light: ['#E0620B', '#FFFFFF', '#FFEFE2'], dark: ['#FF9F0A', '#000000', '#3D2508'] },
-  pink:   { name: 'Pushti',     light: ['#D1205F', '#FFFFFF', '#FDE6EF'], dark: ['#FF6FA5', '#000000', '#45172C'] },
-  teal:   { name: 'Feruza',     light: ['#0A8A96', '#FFFFFF', '#DDF4F6'], dark: ['#40C8E0', '#000000', '#0E3540'] },
+  blue:   { name: "Ko'k",       light: ['#2453E6', '#FFFFFF', '#EAF0FF'], dark: ['#4D7CFF', '#FFFFFF', '#1A2547'] },
+  green:  { name: 'Yashil',     light: ['#1A8F3C', '#FFFFFF', '#E3F6EA'], dark: ['#2EA44F', '#FFFFFF', '#12321D'] },
+  violet: { name: 'Binafsha',   light: ['#6E44D8', '#FFFFFF', '#F0EAFF'], dark: ['#8E6BFF', '#FFFFFF', '#2A2050'] },
+  orange: { name: "To'q sariq", light: ['#E0620B', '#FFFFFF', '#FFEFE2'], dark: ['#F28A12', '#FFFFFF', '#3D2508'] },
+  pink:   { name: 'Pushti',     light: ['#D1205F', '#FFFFFF', '#FDE6EF'], dark: ['#F0508A', '#FFFFFF', '#45172C'] },
+  teal:   { name: 'Feruza',     light: ['#0A8A96', '#FFFFFF', '#DDF4F6'], dark: ['#1BA3B5', '#FFFFFF', '#0E3540'] },
 };
 export const MODES = [['system', 'Tizim'], ['light', 'Kunduzgi'], ['dark', 'Tungi']]; // nomlari tr() orqali ko'rsatiladi
 
