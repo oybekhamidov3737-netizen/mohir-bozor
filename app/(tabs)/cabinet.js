@@ -20,27 +20,40 @@ import { copyText } from '../../src/copy';
 import { MfaChallenge, useMfaNeeded } from '../../src/mfa';
 import { tr } from '../../src/i18n';
 import { useTabBarSpace } from '../../src/glass-tabbar';
+import { Icon3D } from '../../src/icons3d';
 
 const EV = { top: 'TOP', vip: 'VIP', bump: "ko'tarildi", extend: 'uzaytirildi', restore: 'tiklandi', moderator: "moderator o'chirdi" };
 
 function Onboard({ onOpen }) {
   const t = useT();
-  const item = (icon, text) => (
-    <View style={{ flexDirection: 'row', gap: 10, alignItems: 'center' }}>
-      <View style={{ width: 36, height: 36, borderRadius: 11, backgroundColor: t.accentSoft, alignItems: 'center', justifyContent: 'center' }}><Ionicons name={icon} size={18} color={t.accent} /></View>
-      <Text style={{ color: t.ink, fontSize: 14, flex: 1 }}>{text}</Text>
+  const item = (i3d, text) => (
+    <View style={{ flexDirection: 'row', gap: 12, alignItems: 'center' }}>
+      <View style={{ width: 42, height: 42, borderRadius: 14, backgroundColor: t.accentSoft, alignItems: 'center', justifyContent: 'center' }}><Icon3D name={i3d} size={30} /></View>
+      <Text style={{ color: t.ink, fontSize: 14.5, fontWeight: '600', flex: 1 }}>{text}</Text>
     </View>
   );
   return (
-    <View style={{ backgroundColor: t.surface, borderWidth: t.dark ? 1 : 0, borderColor: t.line, borderRadius: 24, padding: 22, gap: 14, marginTop: 16, ...soft(t) }}>
-      <View style={{ width: 84, height: 84, borderRadius: 26, backgroundColor: t.accentSoft, alignItems: 'center', justifyContent: 'center' }}><Ionicons name="person-add-outline" size={38} color={t.accent} /></View>
-      <Text style={{ fontFamily: FONT.display, fontSize: 24, color: t.ink }}>{tr("Kabinetingizni oching")}</Text>
-      <Text style={{ color: t.muted, lineHeight: 20 }}>{tr("Bir daqiqada profil yarating va ijodkorlar bozoriga qo'shiling.")}</Text>
-      {item('images-outline', tr("Rasmli e'lonlar joylash"))}
-      {item('chatbubbles-outline', tr("Mijozlar bilan ilova ichida yozishish"))}
-      {item('rocket-outline', tr("TOP va VIP bilan ko'proq mijoz topish"))}
-      {item('shield-checkmark-outline', tr("Email orqali tasdiqlangan ishonchli profil"))}
-      <Btn title={tr("Kabinet ochish")} onPress={onOpen} />
+    <View style={{ backgroundColor: t.surface, borderWidth: t.dark ? 1 : 0, borderColor: t.line, borderRadius: 26, overflow: 'hidden', marginTop: 16, ...soft(t, 1.2) }}>
+      <LinearGradient colors={['#4A6CFF', '#2747D6', '#1631B8']} start={{ x: 0, y: 0 }} end={{ x: 1, y: 1 }} style={{ padding: 22, paddingBottom: 20, overflow: 'hidden' }}>
+        <LinearGradient pointerEvents="none" colors={['rgba(255,255,255,0.16)', 'rgba(255,255,255,0)']} style={{ position: 'absolute', left: 0, right: 0, top: 0, height: '60%' }} />
+        <View pointerEvents="none" style={{ position: 'absolute', right: -40, top: -50, width: 190, height: 190, borderRadius: 95, backgroundColor: 'rgba(255,255,255,0.1)' }} />
+        <Icon3D name="wave" size={76} style={{ position: 'absolute', right: 18, top: 18, transform: [{ rotate: '-6deg' }] }} />
+        <Text style={{ fontFamily: FONT.display, fontSize: 24, lineHeight: 30, color: '#fff', maxWidth: '72%' }}>{tr("Kabinetingizni oching")}</Text>
+        <Text style={{ color: 'rgba(255,255,255,0.88)', lineHeight: 20, marginTop: 8, maxWidth: '78%' }}>{tr("Bir daqiqada profil yarating va ijodkorlar bozoriga qo'shiling.")}</Text>
+      </LinearGradient>
+      <View style={{ padding: 20, paddingTop: 18, gap: 14 }}>
+        {item('picture', tr("Rasmli e'lonlar joylash"))}
+        {item('chat', tr("Mijozlar bilan ilova ichida yozishish"))}
+        {item('rocket', tr("TOP va VIP bilan ko'proq mijoz topish"))}
+        {item('shield', tr("Email orqali tasdiqlangan ishonchli profil"))}
+        <Press onPress={onOpen} style={{ marginTop: 4, borderRadius: 16, ...(t.dark ? {} : glow('#2747D6', 0.3)) }}>
+          <LinearGradient colors={['#5A7BFF', '#2747D6']} start={{ x: 0, y: 0 }} end={{ x: 1, y: 1 }} style={{ height: 52, borderRadius: 16, alignItems: 'center', justifyContent: 'center', flexDirection: 'row', gap: 8, overflow: 'hidden' }}>
+            <Sheen radius={16} strength={0.18} />
+            <Text style={{ color: '#fff', fontWeight: '800', fontSize: 16 }}>{tr("Kabinet ochish")}</Text>
+            <Ionicons name="arrow-forward" size={18} color="#fff" />
+          </LinearGradient>
+        </Press>
+      </View>
     </View>
   );
 }

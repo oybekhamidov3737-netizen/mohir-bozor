@@ -1,0 +1,37 @@
+name: Dizayn sinovi
+# preview/* tarmog'iga yuborilgan dizayn saytga chiqmaydi: runner ichida yig'iladi va iPhone o'lchamida rasmga olinadi.
+on:
+  push:
+    branches: ['preview/**']
+permissions:
+  contents: write
+jobs:
+  shots:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+      - name: Paketlar
+        run: |
+          npm install --no-audit --no-fund
+          npx expo install --fix || true
+      - name: Yig'ish
+        run: |
+          set -o pipefail
+          npx expo export -p web 2>&1 | tail -40
+          cp -n public/* dist/ 2>/dev/null || true
+      - name: Skrinshotlar
+        run: |
+          set +e
+          npx -y serve@14 -s dist -l 8080 >/dev/null 2>&1 &
+          mkdir -p out && cd out
+          npm i -s playwright@1.48.2 >/dev/null 2>&1 && npx -y playwright@1.48.2 install --with-deps chromium >/dev/null 2>&1
+          for i in 1 2 3 4 5 6 7 8 9 10; do curl -s -o /dev/null http://localhost:8080/ && break; sleep 2; done
+          cp ../.github/audit/preview.js . && node preview.js > shots.txt 2>&1; cat shots.txt
+          rm -rf node_modules package*.json preview.js
+      - if: always()
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: bash .github/scripts/push-results.sh preview-shots out

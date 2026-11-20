@@ -1,17 +1,17 @@
 import { tr } from './i18n';
 const RAW_CATS = [
-  { id: 'smm', n: 'SMM', big: 'SMM', c: 0, icon: 'phone-portrait-outline' },
-  { id: 'montaj', n: 'Video montaj', big: 'MONTAJ', c: 1, icon: 'film-outline' },
-  { id: 'mobilo', n: 'Mobilografiya', big: 'MOBILOGRAFIYA', c: 2, icon: 'videocam-outline' },
-  { id: 'target', n: 'Target reklama', big: 'TARGET', c: 3, icon: 'locate-outline' },
-  { id: 'dizayn', n: 'Grafik dizayn', big: 'DIZAYN', c: 4, icon: 'color-palette-outline' },
-  { id: 'motion', n: 'Motion dizayn', big: 'MOTION', c: 5, icon: 'play-circle-outline' },
-  { id: 'kopi', n: 'Kopirayting', big: 'MATN', c: 0, icon: 'document-text-outline' },
-  { id: 'foto', n: 'Fotograf', big: 'FOTO', c: 2, icon: 'camera-outline' },
-  { id: 'strat', n: 'Marketing', big: 'MARKETING', c: 1, icon: 'trending-up-outline' },
-  { id: 'sayt', n: 'Veb-sayt', big: 'SAYT', c: 4, icon: 'globe-outline' },
-  { id: 'ovoz', n: 'Ovoz, dublyaj', big: 'OVOZ', c: 3, icon: 'mic-outline' },
-  { id: 'bloger', n: 'Bloger, reklama', big: 'BLOGER', c: 5, icon: 'star-outline' },
+  { id: 'smm', n: 'SMM', s: 'SMM', big: 'SMM', c: 0, icon: 'phone-portrait-outline' },
+  { id: 'montaj', n: 'Video montaj', s: 'Montaj', big: 'MONTAJ', c: 1, icon: 'film-outline' },
+  { id: 'mobilo', n: 'Mobilografiya', s: 'Mobilograf', big: 'MOBILOGRAFIYA', c: 2, icon: 'videocam-outline' },
+  { id: 'target', n: 'Target reklama', s: 'Target', big: 'TARGET', c: 3, icon: 'locate-outline' },
+  { id: 'dizayn', n: 'Grafik dizayn', s: 'Dizayn', big: 'DIZAYN', c: 4, icon: 'color-palette-outline' },
+  { id: 'motion', n: 'Motion dizayn', s: 'Motion', big: 'MOTION', c: 5, icon: 'play-circle-outline' },
+  { id: 'kopi', n: 'Kopirayting', s: 'Matn', big: 'MATN', c: 0, icon: 'document-text-outline' },
+  { id: 'foto', n: 'Fotograf', s: 'Foto', big: 'FOTO', c: 2, icon: 'camera-outline' },
+  { id: 'strat', n: 'Marketing', s: 'Marketing', big: 'MARKETING', c: 1, icon: 'trending-up-outline' },
+  { id: 'sayt', n: 'Veb-sayt', s: 'Sayt', big: 'SAYT', c: 4, icon: 'globe-outline' },
+  { id: 'ovoz', n: 'Ovoz, dublyaj', s: 'Ovoz', big: 'OVOZ', c: 3, icon: 'mic-outline' },
+  { id: 'bloger', n: 'Bloger, reklama', s: 'Bloger', big: 'BLOGER', c: 5, icon: 'star-outline' },
 ];
 // Har bir kategoriya rangi uchun yorqin gradient (kartochka va muqovalarda)
 export const GRAD = [
@@ -24,6 +24,7 @@ export const CATS = RAW_CATS.map((c) => {
   const o = { ...c };
   Object.defineProperty(o, 'n', { get: () => tr(c.n), enumerable: true });
   Object.defineProperty(o, 'big', { get: () => tr(c.big), enumerable: true });
+  Object.defineProperty(o, 's', { get: () => tr(c.s || c.n), enumerable: true });
   return o;
 });
 const trProxy = (o) => new Proxy(o, { get: (x, k) => (typeof x[k] === 'string' ? tr(x[k]) : x[k]) });

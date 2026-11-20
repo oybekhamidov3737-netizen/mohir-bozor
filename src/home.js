@@ -8,7 +8,8 @@ import { useT, FONT } from './theme';
 import { CATS, GRAD, REG_NAMES } from './data';
 import { supabase } from './supabase';
 import { fmtNum } from './format';
-import { Avatar, Press, Sheen, glow, soft } from './ui';
+import { Avatar, Press, Sheen, glow, soft, mix } from './ui';
+import { Icon3D, CAT3D } from './icons3d';
 import { tr, adsCount } from './i18n';
 
 // Tor kartochkada uzun so'z (masalan, «Мобилография») bo'linib ketmasligi uchun
@@ -147,20 +148,16 @@ export function Hero({ stats, onPost, onRegion }) {
 export function CatRow({ counts, onPick }) {
   const t = useT();
   return (
-    <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={{ gap: 10, paddingRight: 16 }} style={{ marginHorizontal: -16, paddingLeft: 16 }}>
+    <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={{ gap: 10, paddingRight: 16, paddingBottom: 6 }} style={{ marginHorizontal: -16, paddingLeft: 16 }}>
       {CATS.map((c) => (
-        <Press key={c.id} onPress={() => onPick(c.id)} style={{ width: 118, borderRadius: 20, ...(t.dark ? {} : glow(GRAD[c.c][1], 0.28)) }}>
+        <Press key={c.id} onPress={() => onPick(c.id)} style={{ width: 124, borderRadius: 22, ...(t.dark ? {} : glow(GRAD[c.c][1], 0.3)) }}>
           <LinearGradient colors={GRAD[c.c]} start={{ x: 0, y: 0 }} end={{ x: 1, y: 1 }}
-            style={{ height: 120, borderRadius: 20, padding: 12, justifyContent: 'space-between', overflow: 'hidden' }}>
-            <Sheen radius={20} />
-            <View pointerEvents="none" style={{ position: 'absolute', right: -24, bottom: -24, width: 90, height: 90, borderRadius: 45, backgroundColor: 'rgba(255,255,255,0.16)' }} />
-            <View style={{ width: 40, height: 40, borderRadius: 13, backgroundColor: 'rgba(255,255,255,0.22)', alignItems: 'center', justifyContent: 'center' }}>
-              <Ionicons name={c.icon.replace('-outline', '')} size={22} color="#fff" />
-            </View>
-            <View>
-              <Text style={{ color: '#fff', fontWeight: '800', fontSize: longestWord(c.n) > 11 ? 11 : 12.5 }} numberOfLines={2}>{c.n}</Text>
-              <Text style={{ color: 'rgba(255,255,255,0.8)', fontSize: 11, fontWeight: '600' }}>{counts[c.id] ? adsCount(counts[c.id]) : tr("Yangi")}</Text>
-            </View>
+            style={{ height: 136, borderRadius: 22, padding: 12, overflow: 'hidden' }}>
+            <Sheen radius={22} />
+            <View pointerEvents="none" style={{ position: 'absolute', right: -22, bottom: -22, width: 104, height: 104, borderRadius: 52, backgroundColor: 'rgba(255,255,255,0.2)' }} />
+            <Icon3D name={CAT3D[c.id]} size={66} style={{ position: 'absolute', right: 6, bottom: 6, transform: [{ rotate: '-8deg' }] }} />
+            <Text style={{ color: '#fff', fontWeight: '800', fontSize: longestWord(c.n) > 11 ? 12 : 13.5, lineHeight: 17 }} numberOfLines={2}>{c.n}</Text>
+            <Text style={{ color: 'rgba(255,255,255,0.85)', fontSize: 11, fontWeight: '700', marginTop: 3 }}>{counts[c.id] ? adsCount(counts[c.id]) : tr("Yangi")}</Text>
           </LinearGradient>
         </Press>
       ))}
@@ -172,7 +169,7 @@ export function HowItWorks() {
   const t = useT();
   const steps = [
     ['search', tr("Toping"), tr("Kategoriya va hudud bo'yicha ijodkorni tanlang")],
-    ['chatbubbles', tr("Yozing"), tr("Ilova ichidagi chatda narx va muddatni kelishing")],
+    ['chat', tr("Yozing"), tr("Ilova ichidagi chatda narx va muddatni kelishing")],
     ['rocket', tr("Natija"), tr("Ishni oling, keyingi safar yana shu yerdan toping")],
   ];
   return (
@@ -180,8 +177,8 @@ export function HowItWorks() {
       {steps.map(([ic, h, d], i) => (
         <View key={h} style={{ flex: 1, backgroundColor: t.surface, borderRadius: 20, padding: 12, gap: 6, borderWidth: t.dark ? 1 : 0, borderColor: t.line, ...soft(t) }}>
           <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' }}>
-            <View style={{ width: 34, height: 34, borderRadius: 11, backgroundColor: t.accentSoft, alignItems: 'center', justifyContent: 'center' }}>
-              <Ionicons name={ic} size={18} color={t.accent} />
+            <View style={{ width: 40, height: 40, borderRadius: 13, backgroundColor: t.accentSoft, alignItems: 'center', justifyContent: 'center' }}>
+              <Icon3D name={ic} size={30} />
             </View>
             <Text style={{ fontFamily: FONT.display, fontSize: 18, color: t.accent, opacity: 0.28 }}>{i + 1}</Text>
           </View>
@@ -198,8 +195,9 @@ export function TopCreators({ people, onOpen }) {
   if (!people.length) return null;
   return (
     <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={{ gap: 14, paddingRight: 16 }} style={{ marginHorizontal: -16, paddingLeft: 16 }}>
-      {people.map((p) => (
+      {people.map((p, i) => (
         <Pressable key={p.id} onPress={() => onOpen(p)} style={{ width: 74, alignItems: 'center', gap: 6 }}>
+          {i === 0 ? <Icon3D name="crown" size={26} style={{ position: 'absolute', right: -2, top: -10, zIndex: 2, transform: [{ rotate: '18deg' }] }} /> : null}
           <LinearGradient colors={['#FFC43D', '#FF77AE', '#6A8BFF']} start={{ x: 0, y: 0 }} end={{ x: 1, y: 1 }} style={{ padding: 2.5, borderRadius: 24, ...(t.dark ? {} : glow('#FF77AE', 0.22)) }}>
             <View style={{ backgroundColor: t.bg, padding: 2, borderRadius: 22 }}>
               <Avatar profile={p} name={p.name} size={60} />
@@ -213,21 +211,23 @@ export function TopCreators({ people, onOpen }) {
   );
 }
 
-// Uzum uslubidagi "stories" doirachalari (kategoriyalar)
+// Uzum uslubidagi "stories" doirachalari (kategoriyalar): rangli halqa ichida 3D belgi
 export function Stories({ onPick }) {
   const t = useT();
+  const base = t.dark ? t.surface : '#FFFFFF';
   return (
     <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={{ gap: 12, paddingRight: 16, paddingVertical: 12 }} style={{ marginHorizontal: -16, paddingLeft: 16 }}>
       {CATS.map((c) => (
         <Press key={c.id} onPress={() => onPick(c.id)} style={{ width: 70, alignItems: 'center', gap: 6 }}>
-          <LinearGradient colors={['#FFC43D', '#FF5E8A', '#7B5CFF']} start={{ x: 0, y: 1 }} end={{ x: 1, y: 0 }} style={{ padding: 2.5, borderRadius: 999, ...(t.dark ? {} : glow('#FF5E8A', 0.22)) }}>
+          <LinearGradient colors={['#FFC43D', '#FF5E8A', '#7B5CFF']} start={{ x: 0, y: 1 }} end={{ x: 1, y: 0 }} style={{ padding: 2.5, borderRadius: 999, ...(t.dark ? {} : glow('#FF5E8A', 0.2)) }}>
             <View style={{ backgroundColor: t.bg, padding: 2.5, borderRadius: 999 }}>
-              <LinearGradient colors={GRAD[c.c]} start={{ x: 0, y: 0 }} end={{ x: 1, y: 1 }} style={{ width: 58, height: 58, borderRadius: 29, alignItems: 'center', justifyContent: 'center' }}>
-                <Ionicons name={c.icon.replace('-outline', '')} size={26} color="#fff" />
+              <LinearGradient colors={[mix(GRAD[c.c][0], base, t.dark ? 0.2 : 0.1), mix(GRAD[c.c][1], base, t.dark ? 0.34 : 0.26)]} start={{ x: 0.2, y: 0 }} end={{ x: 0.8, y: 1 }}
+                style={{ width: 58, height: 58, borderRadius: 29, alignItems: 'center', justifyContent: 'center' }}>
+                <Icon3D name={CAT3D[c.id]} size={38} />
               </LinearGradient>
             </View>
           </LinearGradient>
-          <Text style={{ fontSize: 11, fontWeight: '600', color: t.ink, textAlign: 'center' }} numberOfLines={1}>{c.n.split(',')[0]}</Text>
+          <Text style={{ fontSize: 11.5, fontWeight: '600', color: t.ink, textAlign: 'center' }} numberOfLines={1}>{c.s}</Text>
         </Press>
       ))}
     </ScrollView>
@@ -241,6 +241,15 @@ export function PromoCarousel({ width, slides }) {
   const [i, setI] = useState(0);
   const touching = useRef(false);
   const W = width;
+  const fl = useRef(new Animated.Value(0)).current;
+  useEffect(() => {
+    const l = Animated.loop(Animated.sequence([
+      Animated.timing(fl, { toValue: 1, duration: 1800, easing: Easing.inOut(Easing.sin), useNativeDriver: ND }),
+      Animated.timing(fl, { toValue: 0, duration: 1800, easing: Easing.inOut(Easing.sin), useNativeDriver: ND }),
+    ]));
+    l.start();
+    return () => l.stop();
+  }, [fl]);
   useEffect(() => {
     const id = setInterval(() => {
       if (touching.current) return;
@@ -260,16 +269,19 @@ export function PromoCarousel({ width, slides }) {
         onScroll={Platform.OS === 'web' ? (e) => { const n = Math.round(e.nativeEvent.contentOffset.x / W); if (n !== i) setI(n); } : undefined} scrollEventThrottle={64}>
         {slides.map((s, k) => (
           <Pressable key={k} onPress={s.onPress} style={{ width: W }}>
-            <LinearGradient colors={s.colors} start={{ x: 0, y: 0 }} end={{ x: 1, y: 1 }} style={{ height: 168, borderRadius: 24, padding: 18, overflow: 'hidden', justifyContent: 'space-between' }}>
+            <LinearGradient colors={s.colors} start={{ x: 0, y: 0 }} end={{ x: 1, y: 1 }} style={{ height: 176, borderRadius: 24, padding: 18, overflow: 'hidden', justifyContent: 'space-between' }}>
               <Sheen radius={24} strength={0.22} />
               <View pointerEvents="none" style={{ position: 'absolute', right: -40, top: -40, width: 200, height: 200, borderRadius: 100, backgroundColor: 'rgba(255,255,255,0.12)' }} />
               <View pointerEvents="none" style={{ position: 'absolute', right: 30, bottom: -70, width: 150, height: 150, borderRadius: 75, backgroundColor: 'rgba(255,255,255,0.08)' }} />
-              <View pointerEvents="none" style={{ position: 'absolute', right: 18, top: 26, width: 96, height: 96, borderRadius: 30, backgroundColor: 'rgba(255,255,255,0.2)', alignItems: 'center', justifyContent: 'center', transform: [{ rotate: '-10deg' }] }}>
-                <Ionicons name={s.icon} size={52} color="#fff" />
+              <View pointerEvents="none" style={{ position: 'absolute', right: 8, top: 28, width: 120, height: 120, alignItems: 'center', justifyContent: 'center' }}>
+                <View style={{ position: 'absolute', width: 108, height: 108, borderRadius: 54, backgroundColor: 'rgba(255,255,255,0.2)' }} />
+                <Animated.View style={{ transform: [{ translateY: fl.interpolate({ inputRange: [0, 1], outputRange: [3, -5] }) }, { rotate: '-8deg' }] }}>
+                  {s.i3d ? <Icon3D name={s.i3d} size={100} /> : <Ionicons name={s.icon} size={56} color="#fff" />}
+                </Animated.View>
               </View>
               {s.tag ? <View style={{ alignSelf: 'flex-start', backgroundColor: 'rgba(255,255,255,0.22)', borderRadius: 999, paddingHorizontal: 9, paddingVertical: 3 }}><Text style={{ color: '#fff', fontSize: 11, fontWeight: '800' }}>{s.tag}</Text></View> : <View />}
-              <View style={{ maxWidth: W - 150 }}>
-                <Text style={{ fontFamily: FONT.display, fontSize: 19, color: '#fff', lineHeight: 24 }}>{s.title}</Text>
+              <View style={{ maxWidth: W - 158 }}>
+                <Text style={{ fontFamily: FONT.display, fontSize: 19, color: '#fff', lineHeight: 24 }} numberOfLines={2}>{s.title}</Text>
                 <Text style={{ color: 'rgba(255,255,255,0.88)', fontSize: 12.5, marginTop: 4 }} numberOfLines={2}>{s.text}</Text>
               </View>
               <View style={{ alignSelf: 'flex-start', backgroundColor: '#fff', borderRadius: 12, paddingHorizontal: 12, paddingVertical: 6 }}>
@@ -286,17 +298,22 @@ export function PromoCarousel({ width, slides }) {
   );
 }
 
-// Banner ostidagi kichik statistika qatori
+// Banner ostidagi kichik qator: e'lonlar hali kam bo'lsa — bozor afzalliklari, ko'payganda — jonli raqamlar
 export function StatStrip({ stats }) {
   const t = useT();
+  const low = (stats.ads || 0) < 30;
+  const items = low
+    ? [['gift', tr("Bepul"), tr("e'lon joylash")], ['chat', tr("Chat"), tr("ilova ichida")], ['map', 12, tr('viloyat')]]
+    : [['megaphone', stats.ads, tr("faol e'lon")], ['handshake', stats.users, tr('ijodkor')], ['map', 12, tr('viloyat')]];
   return (
-    <View style={{ flexDirection: 'row', backgroundColor: t.surface, borderRadius: 20, paddingVertical: 13, marginTop: 14, ...soft(t) }}>
-      {[[stats.ads, tr("faol e'lon"), 'megaphone', '#2747D6'], [stats.users, tr('ijodkor'), 'people', '#0C9A6A'], [12, tr('viloyat'), 'map', '#F0532E']].map(([v, l, ic, c], k) => (
-        <View key={l} style={{ flex: 1, flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: 8, borderLeftWidth: k ? 1 : 0, borderColor: t.line }}>
-          <Ionicons name={ic} size={18} color={c} />
-          <View>
-            <CountUp value={v} style={{ fontFamily: FONT.display, fontSize: 16, color: t.ink }} />
-            <Text style={{ color: t.muted, fontSize: 10.5, fontWeight: '600' }}>{l}</Text>
+    <View style={{ flexDirection: 'row', backgroundColor: t.surface, borderRadius: 22, paddingVertical: 12, marginTop: 14, borderWidth: t.dark ? 1 : 0, borderColor: t.line, ...soft(t) }}>
+      {items.map(([ic, v, l], k) => (
+        <View key={ic} style={{ flex: 1, flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: 7, borderLeftWidth: k ? 1 : 0, borderColor: t.line }}>
+          <Icon3D name={ic} size={30} />
+          <View style={{ flexShrink: 1 }}>
+            {typeof v === 'number' ? <CountUp value={v} style={{ fontFamily: FONT.display, fontSize: 15, color: t.ink }} />
+              : <Text style={{ fontFamily: FONT.display, fontSize: 14, color: t.ink }} numberOfLines={1}>{v}</Text>}
+            <Text style={{ color: t.muted, fontSize: 10.5, fontWeight: '600' }} numberOfLines={1}>{l}</Text>
           </View>
         </View>
       ))}

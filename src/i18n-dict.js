@@ -3783,5 +3783,49 @@ export default {
 "Google Gemini (bepul, aistudio.google.com) yoki Claude kaliti. Saqlash tugmasi bilan saqlanadi.": [
 "Ключ Google Gemini (бесплатно, aistudio.google.com) или Claude. Сохраняется кнопкой «Сохранить».",
 "Google Gemini key (free, aistudio.google.com) or Claude key. Saved with the Save button."
+],
+"Montaj": [
+"Монтаж",
+"Editing"
+],
+"Target": [
+"Таргет",
+"Targeting"
+],
+"Motion": [
+"Моушн",
+"Motion"
+],
+"Matn": [
+"Тексты",
+"Copywriting"
+],
+"Foto": [
+"Фото",
+"Photo"
+],
+"Ovoz": [
+"Озвучка",
+"Voice-over"
+],
+"Bloger": [
+"Блогеры",
+"Bloggers"
+],
+"Mobilograf": [
+"Мобилограф",
+"Mobile video"
+],
+"ilova ichida": [
+"в приложении",
+"in the app"
+],
+"e'lon joylash": [
+"размещение",
+"listings"
+],
+"O'zbekiston": [
+"Узбекистан",
+"Uzbekistan"
 ]
 };

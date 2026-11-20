@@ -9,6 +9,7 @@ import { LinearGradient } from 'expo-linear-gradient';
 import { adPhoto, publicUrl } from './supabase';
 import { initials, isTop, isVip, locLabel, priceText, ago } from './format';
 import { tr } from './i18n';
+import { Icon3D, ION3D } from './icons3d';
 
 const ND = Platform.OS !== 'web';
 
@@ -22,6 +23,13 @@ const hexA = (hex, a) => {
   const n = parseInt(h.length === 3 ? h.split('').map((c) => c + c).join('') : h, 16);
   return `rgba(${(n >> 16) & 255},${(n >> 8) & 255},${n & 255},${a})`;
 };
+// Ikki rangni aralashtirish: mix('#FF0000', '#FFFFFF', 0.2) — oq fonda 20% qizil (yaxlit rang)
+export const mix = (hex, base, a) => {
+  const p = (h) => { h = String(h).replace('#', ''); const n = parseInt(h.length === 3 ? h.split('').map((c) => c + c).join('') : h, 16); return [(n >> 16) & 255, (n >> 8) & 255, n & 255]; };
+  const x = p(hex), y = p(base);
+  return '#' + x.map((v, i) => Math.round(y[i] + (v - y[i]) * a).toString(16).padStart(2, '0')).join('');
+};
+
 // Gradient kartalar ostidagi rangli yumshoq nur
 export const glow = (hex, a = 0.32) => (Platform.OS === 'web'
   ? { boxShadow: `0 10px 24px ${hexA(hex, a)}` }
@@ -213,9 +221,11 @@ export function Empty({ title, text, action, onAction, icon = 'sparkles' }) {
   const t = useT();
   return (
     <View style={{ borderRadius: 22, padding: 20, gap: 10, backgroundColor: t.surface, borderWidth: t.dark ? 1 : 0, borderColor: t.line, ...soft(t) }}>
-      <View style={{ width: 44, height: 44, borderRadius: 14, backgroundColor: t.accentSoft, alignItems: 'center', justifyContent: 'center' }}>
-        <Ionicons name={icon} size={22} color={t.accent} />
-      </View>
+      {ION3D[icon] ? <Icon3D name={ION3D[icon]} size={54} style={{ marginLeft: -4 }} /> : (
+        <View style={{ width: 44, height: 44, borderRadius: 14, backgroundColor: t.accentSoft, alignItems: 'center', justifyContent: 'center' }}>
+          <Ionicons name={icon} size={22} color={t.accent} />
+        </View>
+      )}
       <Text style={{ fontFamily: FONT.displayM, fontSize: 16, color: t.ink }}>{title}</Text>
       {text ? <Text style={{ color: t.muted, lineHeight: 20 }}>{text}</Text> : null}
       {action ? <View style={{ alignSelf: 'flex-start', marginTop: 2 }}><Btn small title={action} onPress={onAction} /></View> : null}
@@ -262,19 +272,22 @@ export function Badge({ kind, children }) {
   );
 }
 
-export function AdCard({ ad, onPress, fav, onFav, width, row }) {
+export function AdCard({ ad, onPress, fav, onFav, width, row, wide }) {
   const t = useT();
   const img = adPhoto(ad);
+  const price = priceText(ad);
+  // Narx hech qachon "…" bilan kesilmasin: uzun bo'lsa shrift kichrayadi
+  const pf = wide ? 19 : row ? 15 : price.length > 16 ? 13 : price.length > 13 ? 14 : 15.5;
   const vip = isVip(ad), top = isTop(ad);
   const shadow = t.dark
     ? (Platform.OS === 'web' ? { boxShadow: '0 6px 18px rgba(0,0,0,.35)' } : { shadowColor: '#000', shadowOpacity: 0.35, shadowRadius: 12, shadowOffset: { width: 0, height: 6 }, elevation: 3 })
     : soft(t, 1.15);
   return (
     <Press onPress={onPress} style={[{
-      width, backgroundColor: t.surface, borderRadius: 20, overflow: 'hidden',
-      borderWidth: vip ? 2 : 0, borderColor: t.gold, flexDirection: row ? 'row' : 'column',
+      width, backgroundColor: t.surface, borderRadius: wide ? 26 : 22, overflow: 'hidden',
+      borderWidth: vip ? 2 : t.dark ? 1 : 0, borderColor: vip ? t.gold : t.line, flexDirection: row ? 'row' : 'column',
     }, shadow]}>
-      <View style={{ width: row ? 120 : '100%', aspectRatio: row ? 1 : 4 / 3, backgroundColor: t.chip }}>
+      <View style={{ width: row ? 120 : '100%', aspectRatio: row ? 1 : wide ? 16 / 10 : 4 / 3, backgroundColor: t.chip }}>
         {img ? <Image source={{ uri: img }} style={StyleSheet.absoluteFill} contentFit="cover" transition={300} /> : <Cover cat={ad.cat} />}
         {img ? <LinearGradient colors={['transparent', 'rgba(0,0,0,0.32)']} style={{ position: 'absolute', left: 0, right: 0, bottom: 0, height: '42%' }} /> : null}
         <View style={{ position: 'absolute', left: 8, top: 8, flexDirection: 'row', gap: 4 }}>
@@ -288,12 +301,12 @@ export function AdCard({ ad, onPress, fav, onFav, width, row }) {
         ) : null}
         {onFav ? <HeartBtn on={fav} onPress={onFav} /> : null}
       </View>
-      <View style={{ padding: 11, gap: 5, flex: 1 }}>
-        <Text style={{ color: t.ink, fontWeight: '700', fontSize: 14, lineHeight: 18, minHeight: row ? 0 : 36 }} numberOfLines={2}>{ad.title}</Text>
-        <Text style={{ fontFamily: FONT.displayM, color: t.price, fontSize: 15 }} numberOfLines={1}>{priceText(ad)}</Text>
+      <View style={{ padding: wide ? 16 : 12, gap: wide ? 7 : 5, flex: 1 }}>
+        <Text style={{ color: t.ink, fontWeight: '700', fontSize: wide ? 17 : 14, lineHeight: wide ? 22 : 18, minHeight: row || wide ? 0 : 36 }} numberOfLines={2}>{ad.title}</Text>
+        <Text style={{ fontFamily: FONT.displayM, color: t.price, fontSize: pf, lineHeight: pf * 1.3 }} numberOfLines={price.length > 20 && !wide ? 2 : 1}>{price}</Text>
         <View style={{ flexDirection: 'row', alignItems: 'center', gap: 4 }}>
-          <Ionicons name="location" size={11} color={t.muted} />
-          <Text style={{ color: t.muted, fontSize: 11.5, flex: 1 }} numberOfLines={1}>{locLabel(ad)} · {ago(ad.sort_at || ad.created_at)}</Text>
+          <Ionicons name="location" size={wide ? 13 : 11} color={t.muted} />
+          <Text style={{ color: t.muted, fontSize: wide ? 13 : 11.5, flex: 1 }} numberOfLines={1}>{locLabel(ad)} · {ago(ad.sort_at || ad.created_at)}</Text>
         </View>
       </View>
     </Press>
@@ -315,7 +328,7 @@ export function Skeleton({ width }) {
   const op = a.interpolate({ inputRange: [0, 1], outputRange: [0.55, 1] });
   const bar = (w, h = 12) => <Animated.View style={{ width: w, height: h, borderRadius: 6, backgroundColor: t.chip, opacity: op }} />;
   return (
-    <View style={{ width, backgroundColor: t.surface, borderRadius: 20, overflow: 'hidden' }}>
+    <View style={{ width, backgroundColor: t.surface, borderRadius: 22, overflow: 'hidden' }}>
       <Animated.View style={{ width: '100%', aspectRatio: 4 / 3, backgroundColor: t.chip, opacity: op }} />
       <View style={{ padding: 11, gap: 8 }}>{bar('90%')}{bar('60%')}{bar('45%', 14)}</View>
     </View>
