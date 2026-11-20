@@ -1,8 +1,9 @@
-// v5: sayqallangan oldingi dizayn
+// v6: A variant (brend rangli tepa qism, 3D belgilar); CDN keshini chetlab o'tish uchun ?_= qo'shiladi
 // Dizayn skrinshotlari: bosh sahifa, kabinet, e'lon, pastki menyu (bosilgan / surilgan holat)
 const { chromium } = require('playwright');
 const fs = require('fs');
 const BASE = 'https://mohirbozor.uz';
+const NC = (u) => u + (u.includes('?') ? '&' : '?') + '_=' + Date.now();
 const AD = '132b5e9e-706c-41a0-a78e-db4ce50a8a06';
 const scrollMain = (p, y) => p.evaluate((y) => {
   const els = [...document.querySelectorAll('div')].filter((e) => { const s = getComputedStyle(e); return /(auto|scroll)/.test(s.overflowY) && e.scrollHeight > e.clientHeight + 50; });
@@ -19,7 +20,7 @@ const scrollMain = (p, y) => p.evaluate((y) => {
     const errs = [];
     p.on('pageerror', (e) => errs.push(String(e).slice(0, 200)));
     const t0 = Date.now();
-    await p.goto(BASE + '/', { waitUntil: 'networkidle' }).catch(() => {});
+    await p.goto(NC(BASE + '/'), { waitUntil: 'networkidle' }).catch(() => {});
     console.log(scheme, 'home networkidle ms', Date.now() - t0);
     await p.waitForTimeout(5200);
     await p.screenshot({ path: `design/${scheme}-home.png` });
@@ -40,7 +41,7 @@ const scrollMain = (p, y) => p.evaluate((y) => {
     } else console.log('tab not found');
     await p.screenshot({ path: `design/${scheme}-after.png` });
     for (const [n, u] of [['cabinet', '/cabinet'], ['ad', `/ad/${AD}`], ['login', '/login']]) {
-      await p.goto(BASE + u, { waitUntil: 'networkidle' }).catch(() => {});
+      await p.goto(NC(BASE + u), { waitUntil: 'networkidle' }).catch(() => {});
       await p.waitForTimeout(2500);
       await p.screenshot({ path: `design/${scheme}-${n}.png` });
     }
