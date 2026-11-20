@@ -1,0 +1,6 @@
+light home networkidle ms 3700
+light after drag url: https://mohirbozor.uz/cabinet
+light errors: yo'q
+dark home networkidle ms 1820
+dark after drag url: https://mohirbozor.uz/cabinet
+dark errors: yo'q
