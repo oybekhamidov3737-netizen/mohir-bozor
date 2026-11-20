@@ -1,0 +1,119 @@
+11-20 07:23:18.227  3609  3609 D AndroidRuntime: >>>>>> START com.android.internal.os.RuntimeInit uid 2000 <<<<<<
+11-20 07:23:18.230  3609  3609 I AndroidRuntime: Using default boot image
+11-20 07:23:18.230  3609  3609 I AndroidRuntime: Leaving lock profiling enabled
+11-20 07:23:18.535  3609  3609 D AndroidRuntime: Calling main entry com.android.commands.monkey.Monkey
+11-20 07:23:19.057  3609  3609 I AndroidRuntime: VM exiting with result code 0.
+11-20 07:23:19.332   522   539 V WindowManager:     startWCT=WindowContainerTransaction { changes = {} hops = [] errorCallbackToken=null taskFragmentOrganizer=null }
+11-20 07:23:20.107  3669  3706 W OpenGLRenderer: Failed to initialize 101010-2 format, error = EGL_SUCCESS
+11-20 07:23:20.420  3669  3731 I ReactNativeJS: Running "main"
+11-20 07:23:20.421  3669  3731 I ReactNativeJS: Running "main"
+11-20 07:23:20.928   336  3796 I resolv  : res_stats_usable_server: too many resolution errors, ignoring server
+11-20 07:23:20.930   336  3798 I resolv  : res_stats_usable_server: too many resolution errors, ignoring server
+11-20 07:23:21.093   336  3815 I resolv  : res_stats_usable_server: too many resolution errors, ignoring server
+11-20 07:23:21.094   336  3816 I resolv  : res_stats_usable_server: too many resolution errors, ignoring server
+11-20 07:23:21.963   522  3208 E TaskPersister: File error accessing recents directory (directory doesn't exist?).
+11-20 07:23:23.498   522   522 E JobServiceContext: Error sending onStart message to 'com.android.email.job.BootCompletedJob$BootCompletedJobService' 
+11-20 07:23:23.816   396   396 W WVCdm   : [oemcrypto_adapter_dynamic.cpp(1549):OEMCrypto_InitializeAndCheckKeybox] Keybox error: 25. Falling back to L3.
+11-20 07:23:30.294  1749  1749 E A       : onError
+11-20 07:23:30.294  1749  1749 E A       : com.google.android.apps.gsa.shared.speech.a.m: errorCode: 65561, engine: 2
+11-20 07:23:30.294  1749  1749 E A       : Caused by: com.google.android.apps.gsa.shared.speech.a.o: errorCode: 65586, engine: 2
+11-20 07:23:30.294  1749  1749 E A       : Caused by: com.google.android.apps.gsa.shared.speech.a.k: errorCode: 401, engine: 2
+11-20 07:23:31.102  1041  1065 W BaseSearchIndex: Error initial controller
+11-20 07:23:32.798  1041  1065 W BaseSearchIndex: Error initial controller
+11-20 07:23:37.152   336  4663 I resolv  : res_stats_usable_server: too many resolution errors, ignoring server
+11-20 07:23:37.163   336  4665 I resolv  : res_stats_usable_server: too many resolution errors, ignoring server
+11-20 07:23:37.163   336  4666 I resolv  : res_stats_usable_server: too many resolution errors, ignoring server
+11-20 07:23:37.179   336  4669 I resolv  : res_stats_usable_server: too many resolution errors, ignoring server
+11-20 07:23:37.666  1634  1670 I AiAiEcho: Settings changed for uri: content://settings/secure/send_action_app_error
+11-20 07:23:38.046   522  2383 E RecoverySnapshotStorage: Error reading snapshot for 10130 from disk
+11-20 07:23:38.242   522  2383 E RecoverySnapshotStorage: Error reading snapshot for 10130 from disk
+11-20 07:23:38.252   159   167 E keystore2: system/security/keystore2/src/error.rs:180 - system/security/keystore2/src/security_level.rs:684
+11-20 07:23:38.252   159   167 E keystore2:     3: Error::Rc(r#SYSTEM_ERROR)
+11-20 07:23:38.863  1634  1670 I AiAiEcho: Settings changed for uri: content://settings/secure/send_action_app_error
+11-20 07:23:39.175   522   536 E RecoverySnapshotStorage: Error reading snapshot for 10130 from disk
+11-20 07:23:39.178   159   167 E keystore2: system/security/keystore2/src/error.rs:180 - system/security/keystore2/src/security_level.rs:684
+11-20 07:23:39.178   159   167 E keystore2:     3: Error::Rc(r#SYSTEM_ERROR)
+11-20 07:23:42.154  1749  2176 W CorpusConfigHelper: 	at android.util.JsonReader.syntaxError(JsonReader.java:1162)
+11-20 07:23:42.313  1638  1638 E VS.BluetoothShim: Error locating SCO method
+11-20 07:23:44.686  1417  3339 E bwfc    : Phenotype API error. Event # edax@3c413a99, EventCode: 5 [CONTEXT service_id=51 ]
+11-20 07:23:44.686  1417  3339 E bwfc    : Phenotype API error. Event # edax@9ae34bd9, EventCode: 5 [CONTEXT service_id=51 ]
+11-20 07:23:44.737  1417  3339 E bwfc    : Phenotype API error. Event # edax@140c4817, EventCode: 5 [CONTEXT service_id=51 ]
+11-20 07:23:44.872  1417  3339 E bwfc    : Phenotype API error. Event # edax@b7bca27b, EventCode: 5 [CONTEXT service_id=51 ]
+11-20 07:23:45.068  1749  2165 W CorpusConfigHelper: 	at android.util.JsonReader.syntaxError(JsonReader.java:1162)
+11-20 07:23:45.413  4429  4542 W RcsClientLib: Error while stopping RCS engine.
+11-20 07:23:45.566  1749  1749 E A       : onError
+11-20 07:23:45.566  1749  1749 E A       : com.google.android.apps.gsa.shared.speech.a.m: errorCode: 65561, engine: 2
+11-20 07:23:45.566  1749  1749 E A       : Caused by: com.google.android.apps.gsa.shared.speech.a.o: errorCode: 65586, engine: 2
+11-20 07:23:45.566  1749  1749 E A       : Caused by: com.google.android.apps.gsa.shared.speech.a.k: errorCode: 401, engine: 2
+11-20 07:23:45.567  1749  2266 E cr_CronetUrlRequestContext: com.google.android.apps.gsa.shared.r.d: Error code: 262182
+11-20 07:23:45.930  1417  3339 E bwfc    : Phenotype API error. Event # edax@8bf67188, EventCode: 5 [CONTEXT service_id=51 ]
+11-20 07:23:45.936  1417  3339 E bwfc    : Phenotype API error. Event # edax@cd952816, EventCode: 5 [CONTEXT service_id=51 ]
+11-20 07:23:46.168  4429  4542 W RcsClientLib: Error while stopping RCS engine.
+11-20 07:23:46.407  1749  2173 W CorpusConfigHelper: 	at android.util.JsonReader.syntaxError(JsonReader.java:1162)
+11-20 07:23:47.626  1749  2174 W CorpusConfigHelper: 	at android.util.JsonReader.syntaxError(JsonReader.java:1162)
+11-20 07:23:47.903  1749  2174 W CorpusConfigHelper: 	at android.util.JsonReader.syntaxError(JsonReader.java:1162)
+11-20 07:23:48.777  4429  4564 W RcsClientLib: Error while stopping RCS engine.
+11-20 07:23:49.413  1749  2173 W CorpusConfigHelper: 	at android.util.JsonReader.syntaxError(JsonReader.java:1162)
+11-20 07:23:49.519  1041  1061 W BaseSearchIndex: Error initial controller
+11-20 07:23:49.756  1041  1061 W BaseSearchIndex: Error initial controller
+11-20 07:23:49.776   522   522 E JobServiceContext: Error sending onStart message to '.modules.routines.impl.RoutinesJobIntentService' 
+11-20 07:23:49.780  1041  1074 W BaseSearchIndex: Error initial controller
+11-20 07:23:49.801  1749  2173 W CorpusConfigHelper: 	at android.util.JsonReader.syntaxError(JsonReader.java:1162)
+11-20 07:23:49.923  4429  4542 W RcsClientLib: Error while stopping RCS engine.
+11-20 07:23:50.744  1749  2173 W CorpusConfigHelper: 	at android.util.JsonReader.syntaxError(JsonReader.java:1162)
+11-20 07:23:50.757  4429  5009 W RcsClientLib: Error while stopping RCS engine.
+11-20 07:23:51.168  1749  2173 W CorpusConfigHelper: 	at android.util.JsonReader.syntaxError(JsonReader.java:1162)
+11-20 07:23:51.241  1041  1074 W BaseSearchIndex: Error initial controller
+11-20 07:23:51.760  1749  2173 W CorpusConfigHelper: 	at android.util.JsonReader.syntaxError(JsonReader.java:1162)
+11-20 07:23:52.372  1749  2173 W CorpusConfigHelper: 	at android.util.JsonReader.syntaxError(JsonReader.java:1162)
+11-20 07:23:52.661  1749  2173 W CorpusConfigHelper: 	at android.util.JsonReader.syntaxError(JsonReader.java:1162)
+11-20 07:23:53.015  1749  2173 W CorpusConfigHelper: 	at android.util.JsonReader.syntaxError(JsonReader.java:1162)
+11-20 07:23:53.776  1749  2173 W CorpusConfigHelper: 	at android.util.JsonReader.syntaxError(JsonReader.java:1162)
+11-20 07:23:54.342  1417  3317 E bwfc    : Phenotype API error. Event # edax@e0b6ddda, EventCode: 5 [CONTEXT service_id=51 ]
+11-20 07:23:54.605  1749  2165 W CorpusConfigHelper: 	at android.util.JsonReader.syntaxError(JsonReader.java:1162)
+11-20 07:23:54.784  1749  2165 W CorpusConfigHelper: 	at android.util.JsonReader.syntaxError(JsonReader.java:1162)
+11-20 07:23:55.002  1749  2165 W CorpusConfigHelper: 	at android.util.JsonReader.syntaxError(JsonReader.java:1162)
+11-20 07:23:55.137  1749  2176 W CorpusConfigHelper: 	at android.util.JsonReader.syntaxError(JsonReader.java:1162)
+11-20 07:23:55.608  1749  2165 W CorpusConfigHelper: 	at android.util.JsonReader.syntaxError(JsonReader.java:1162)
+11-20 07:23:56.139  1749  2165 W CorpusConfigHelper: 	at android.util.JsonReader.syntaxError(JsonReader.java:1162)
+11-20 07:23:57.689  1749  2173 W CorpusConfigHelper: 	at android.util.JsonReader.syntaxError(JsonReader.java:1162)
+11-20 07:23:57.978  1749  2173 W CorpusConfigHelper: 	at android.util.JsonReader.syntaxError(JsonReader.java:1162)
+11-20 07:23:58.033  1749  2165 W CorpusConfigHelper: 	at android.util.JsonReader.syntaxError(JsonReader.java:1162)
+11-20 07:23:59.082  1417  4942 W PhenotypeConfigurationU: Update for unknown DeviceConfig package com.google.android.client_error_logging [CONTEXT service_id=204 ]
+11-20 07:23:59.082  1417  4942 W PhenotypeConfigurationU: bwix: No package exists for config package: com.google.android.client_error_logging
+11-20 07:23:59.088  1466  5237 I MlBenchmarkInstaller: COMMITTED Extra package name: com.google.android.client_error_logging [CONTEXT service_id=340 ]
+11-20 07:23:59.090  1417  5287 I PTCommittedOperation: Receive new configuration for com.google.android.client_error_logging
+11-20 07:23:59.769   522  2011 W BatteryExternalStatsWorker: error reading Bluetooth stats: 11
+11-20 07:24:04.138  5299  5346 E bwfc    : Phenotype API error. Event # edax@5b8d13d9, EventCode: 5 [CONTEXT service_id=51 ]
+11-20 07:24:07.391  5299  5357 E bwfc    : Phenotype API error. Event # edax@b123db94, EventCode: 5 [CONTEXT service_id=51 ]
+11-20 07:24:07.447  5299  5346 E bwfc    : Phenotype API error. Event # edax@b1eca741, EventCode: 5 [CONTEXT service_id=51 ]
+11-20 07:24:07.573   522  1838 E RecoverySnapshotStorage: Error reading snapshot for 10130 from disk
+11-20 07:24:07.577   159   159 E keystore2: system/security/keystore2/src/error.rs:180 - system/security/keystore2/src/security_level.rs:684
+11-20 07:24:07.577   159   159 E keystore2:     3: Error::Rc(r#SYSTEM_ERROR)
+11-20 07:24:09.216   336  5791 I resolv  : res_stats_usable_server: too many resolution errors, ignoring server
+11-20 07:24:09.218   336  5792 I resolv  : res_stats_usable_server: too many resolution errors, ignoring server
+11-20 07:24:09.220   336  5795 I resolv  : res_stats_usable_server: too many resolution errors, ignoring server
+11-20 07:24:09.223   336  5796 I resolv  : res_stats_usable_server: too many resolution errors, ignoring server
+11-20 07:24:09.224   336  5798 I resolv  : res_stats_usable_server: too many resolution errors, ignoring server
+11-20 07:24:12.666  5299  5357 E bwfc    : Phenotype API error. Event # edax@1b7ec886, EventCode: 5 [CONTEXT service_id=51 ]
+11-20 07:24:12.722  5299  5346 E bwfc    : Phenotype API error. Event # edax@ef196b98, EventCode: 5 [CONTEXT service_id=51 ]
+11-20 07:24:12.723  5299  5346 E bwfc    : Phenotype API error. Event # edax@5f9e907e, EventCode: 5 [CONTEXT service_id=51 ]
+11-20 07:24:12.725  5299  5357 E bwfc    : Phenotype API error. Event # edax@c8e4a20a, EventCode: 5 [CONTEXT service_id=51 ]
+11-20 07:24:12.730  5299  5346 E bwfc    : Phenotype API error. Event # edax@49df1324, EventCode: 5 [CONTEXT service_id=51 ]
+11-20 07:24:12.730  5299  5346 E bwfc    : Phenotype API error. Event # edax@cf54758e, EventCode: 5 [CONTEXT service_id=51 ]
+11-20 07:24:12.738  5299  5346 E bwfc    : Phenotype API error. Event # edax@ebbd33a9, EventCode: 5 [CONTEXT service_id=51 ]
+11-20 07:24:12.739  5299  5346 E bwfc    : Phenotype API error. Event # edax@52dfecd5, EventCode: 5 [CONTEXT service_id=51 ]
+11-20 07:24:12.739  5299  5346 E bwfc    : Phenotype API error. Event # edax@78a86ed7, EventCode: 5 [CONTEXT service_id=51 ]
+11-20 07:24:16.093  1749  1749 E A       : onError
+11-20 07:24:16.093  1749  1749 E A       : com.google.android.apps.gsa.shared.speech.a.m: errorCode: 65561, engine: 2
+11-20 07:24:16.093  1749  1749 E A       : Caused by: com.google.android.apps.gsa.shared.speech.a.o: errorCode: 65586, engine: 2
+11-20 07:24:16.093  1749  1749 E A       : Caused by: com.google.android.apps.gsa.shared.speech.a.k: errorCode: 401, engine: 2
+11-20 07:24:16.206  1749  2173 W CorpusConfigHelper: 	at android.util.JsonReader.syntaxError(JsonReader.java:1162)
+11-20 07:24:16.388  1749  2173 W CorpusConfigHelper: 	at android.util.JsonReader.syntaxError(JsonReader.java:1162)
+11-20 07:24:16.638  1749  2165 W CorpusConfigHelper: 	at android.util.JsonReader.syntaxError(JsonReader.java:1162)
+11-20 07:24:17.245  5401  5671 W Vision  : Error loading optional module com.google.android.gms.vision.ocr: ahbb: No acceptable module com.google.android.gms.vision.ocr found. Local version is 0 and remote version is 0.
+11-20 07:24:17.256  5401  5671 W Vision  : Error loading optional module com.google.android.gms.vision.ocr: ahbb: No acceptable module com.google.android.gms.vision.ocr found. Local version is 0 and remote version is 0.
+11-20 07:24:18.738  5401  5832 W Vision  : Error loading optional module com.google.android.gms.vision.ocr: ahbb: No acceptable module com.google.android.gms.vision.ocr found. Local version is 0 and remote version is 0.
+11-20 07:24:18.740  5401  5832 W Vision  : Error loading optional module com.google.android.gms.vision.ocr: ahbb: No acceptable module com.google.android.gms.vision.ocr found. Local version is 0 and remote version is 0.
+11-20 07:24:21.272  1749  2174 W CorpusConfigHelper: 	at android.util.JsonReader.syntaxError(JsonReader.java:1162)
+11-20 07:24:21.491  1749  2165 W CorpusConfigHelper: 	at android.util.JsonReader.syntaxError(JsonReader.java:1162)
