@@ -1,0 +1,7 @@
+YANGI | oddiy | hop1: +0 ms, hop2: +0 ms, hop3: +0 ms, chime: +0 ms
+YANGI | sekin telefon (CPU x4) | hop1: +0 ms, hop2: +0 ms, hop3: +0 ms, chime: +0 ms
+YANGI | CPU x4 + sahifa qotishi 2x400ms | hop1: +0 ms, hop2: +0 ms, hop3: +0 ms, chime: +0 ms
+YANGI | Web Audio yo'q (zaxira <audio>) | hop1: +7 ms, hop2: +0 ms, hop3: +1 ms, chime: +0 ms
+ESKI | oddiy | hop1: +0 ms, hop2: +0 ms, hop3: +0 ms, chime: +0 ms
+ESKI | sekin telefon (CPU x4) | hop1: +0 ms, hop2: +0 ms, hop3: +0 ms, chime: +0 ms
+ESKI | CPU x4 + sahifa qotishi 2x400ms | hop1: +0 ms, hop2: +0 ms, hop3: +0 ms, chime: +0 ms
