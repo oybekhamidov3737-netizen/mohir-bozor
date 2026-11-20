@@ -15,6 +15,7 @@ import { ago, adState, isTop, isVip, locLabel, priceText, since, seenText, isOnl
 import { fetchFeed } from '../../src/api';
 import { WEB_URL } from '../../src/config';
 import { AdCard, Avatar, Badge, Btn, Cover, Empty, H, Loading, Note, Press, Sheen, glow, soft } from '../../src/ui';
+import { Icon3D, CAT3D } from '../../src/icons3d';
 import { RatingLine } from '../../src/lists';
 import { tr, yearsText } from '../../src/i18n';
 
@@ -96,10 +97,9 @@ export default function AdPage() {
   const isLong = (ad.description || '').length > 260;
   const tile = (icon, k, v, i) => (
     <View key={k} style={{ width: '48.5%', flexDirection: 'row', gap: 10, alignItems: 'center', backgroundColor: t.bg, borderRadius: 16, padding: 10 }}>
-      <LinearGradient colors={GRAD[i % GRAD.length]} start={{ x: 0, y: 0 }} end={{ x: 1, y: 1 }} style={{ width: 36, height: 36, borderRadius: 12, alignItems: 'center', justifyContent: 'center', ...(t.dark ? {} : glow(GRAD[i % GRAD.length][1], 0.28)) }}>
-        <Sheen radius={12} strength={0.25} />
-        <Ionicons name={icon} size={18} color="#fff" />
-      </LinearGradient>
+      <View style={{ width: 40, height: 40, borderRadius: 13, backgroundColor: t.surface, alignItems: 'center', justifyContent: 'center', borderWidth: t.dark ? 1 : 0, borderColor: t.line, ...soft(t, 0.7) }}>
+        <Icon3D name={icon} size={28} />
+      </View>
       <View style={{ flex: 1 }}>
         <Text style={{ fontSize: 11, color: t.muted, fontWeight: '600' }}>{k}</Text>
         <Text style={{ fontSize: 13.5, color: t.ink, fontWeight: '700' }} numberOfLines={2}>{v}</Text>
@@ -148,7 +148,7 @@ export default function AdPage() {
             {isVip(ad) ? <Badge kind="vip">{tr("★ VIP")}</Badge> : isTop(ad) ? <Badge kind="top">{tr("TOP")}</Badge> : null}
             {ad.kind === 'buyurtma' ? <Badge kind="req">{tr("BUYURTMA")}</Badge> : null}
             <View style={{ flexDirection: 'row', alignItems: 'center', gap: 4, backgroundColor: t.accentSoft, borderRadius: 999, paddingHorizontal: 9, paddingVertical: 3 }}>
-              <Ionicons name={catOf(ad.cat).icon} size={12} color={t.accent} />
+              <Icon3D name={CAT3D[ad.cat] || 'sparkles'} size={15} />
               <Text style={{ color: t.accent, fontSize: 12, fontWeight: '700' }}>{catOf(ad.cat).n}</Text>
             </View>
             <Text style={{ color: t.muted, fontSize: 12 }}>· {ago(ad.created_at)}</Text>
@@ -162,9 +162,9 @@ export default function AdPage() {
 
           <View style={{ flexDirection: 'row', flexWrap: 'wrap', justifyContent: 'space-between', rowGap: 8, marginTop: 4 }}>
             {tile('briefcase', tr("Turi"), ad.kind === 'buyurtma' ? tr("Buyurtma") : tr("Xizmat taklifi"), 0)}
-            {tile('location', tr("Hudud"), locLabel(ad), 2)}
-            {tile('ribbon', tr("Tajriba"), yearsText(ad.exp_years) || tr("Ko'rsatilmagan"), 4)}
-            {tile('time', tr("Joylangan"), ago(ad.created_at), 1)}
+            {tile('pin', tr("Hudud"), locLabel(ad), 2)}
+            {tile('trophy', tr("Tajriba"), yearsText(ad.exp_years) || tr("Ko'rsatilmagan"), 4)}
+            {tile('calendar', tr("Joylangan"), ago(ad.created_at), 1)}
           </View>
         </View>
 
@@ -198,7 +198,7 @@ export default function AdPage() {
 
           <LinearGradient colors={t.dark ? ['#13261F', '#0F1E19'] : ['#E7F8EF', '#F3FBF7']} style={{ borderRadius: 22, padding: 16, gap: 8 }}>
             <View style={{ flexDirection: 'row', alignItems: 'center', gap: 8 }}>
-              <Ionicons name="shield-checkmark" size={20} color={t.price} />
+              <Icon3D name="shield" size={26} />
               <Text style={{ fontWeight: '800', color: t.ink, fontSize: 15 }}>{tr("Xavfsiz kelishuv")}</Text>
             </View>
             {[tr("Faqat ilova ichidagi chatda yozishing — yozishma saqlanadi"), tr("Oldindan to'liq pul o'tkazmang, ishni bosqichma-bosqich to'lang"), tr("Shubhali bo'lsa, «Shikoyat qilish»ni bosing")].map((x) => (

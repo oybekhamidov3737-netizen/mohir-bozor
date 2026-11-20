@@ -9,7 +9,7 @@ import { useApp } from '../../src/app-context';
 import { supabase, adPhoto, errText } from '../../src/supabase';
 import { CATS, ONLINE, SVC, catOf } from '../../src/data';
 import { adState, ago, fmtNum, isTop, isVip, priceText, shortDate, shortReg, since } from '../../src/format';
-import { Avatar, Badge, Btn, Cover, Empty, H, Loading, MenuGroup, Note, Press, Seg, soft, glow, Sheen } from '../../src/ui';
+import { Avatar, Badge, Btn, Cover, Empty, H, Loading, MenuGroup, Note, Press, Seg, soft, glow, Sheen, mix } from '../../src/ui';
 import { LinearGradient } from 'expo-linear-gradient';
 import { InviteCard } from '../../src/invite';
 import { BalanceCard } from '../../src/balance';
@@ -21,6 +21,8 @@ import { MfaChallenge, useMfaNeeded } from '../../src/mfa';
 import { tr } from '../../src/i18n';
 import { useTabBarSpace } from '../../src/glass-tabbar';
 import { Icon3D } from '../../src/icons3d';
+
+const TILE3D = { albums: 'megaphone', 'mail-open': 'handshake', sparkles: 'sparkles', 'paper-plane': 'memo' };
 
 const EV = { top: 'TOP', vip: 'VIP', bump: "ko'tarildi", extend: 'uzaytirildi', restore: 'tiklandi', moderator: "moderator o'chirdi" };
 
@@ -135,9 +137,8 @@ export default function Cabinet() {
     <Press onPress={onPress} style={{ width: '100%' }}>
       <View style={{ backgroundColor: t.surface, borderRadius: 22, padding: 14, width: '100%', height: 142, justifyContent: 'space-between', ...soft(t) }}>
         <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'flex-start' }}>
-          <LinearGradient colors={colors} start={{ x: 0, y: 0 }} end={{ x: 1, y: 1 }} style={{ width: 44, height: 44, borderRadius: 15, alignItems: 'center', justifyContent: 'center', ...(t.dark ? {} : glow(colors[1], 0.3)) }}>
-            <Sheen radius={15} strength={0.25} />
-            <Ionicons name={icon} size={22} color="#fff" />
+          <LinearGradient colors={[mix(colors[0], t.surface, t.dark ? 0.22 : 0.14), mix(colors[1], t.surface, t.dark ? 0.32 : 0.24)]} start={{ x: 0, y: 0 }} end={{ x: 1, y: 1 }} style={{ width: 50, height: 50, borderRadius: 16, alignItems: 'center', justifyContent: 'center' }}>
+            <Icon3D name={TILE3D[icon] || 'sparkles'} size={34} />
           </LinearGradient>
           {badge ? <View style={{ minWidth: 26, height: 26, borderRadius: 13, paddingHorizontal: 7, backgroundColor: t.accentSoft, alignItems: 'center', justifyContent: 'center' }}><Text style={{ color: t.accent, fontWeight: '900', fontSize: 13 }}>{badge}</Text></View> : null}
         </View>
@@ -188,7 +189,7 @@ export default function Cabinet() {
 
       {PAYMENTS_IN_APP ? (
         <View style={{ marginTop: 12, backgroundColor: t.surface, borderRadius: 22, padding: 14, flexDirection: 'row', alignItems: 'center', gap: 12, ...soft(t) }}>
-          <LinearGradient colors={['#34DBA5', '#0C9A6A']} style={{ width: 44, height: 44, borderRadius: 15, alignItems: 'center', justifyContent: 'center' }}><Ionicons name="wallet" size={22} color="#fff" /></LinearGradient>
+          <View style={{ width: 48, height: 48, borderRadius: 16, backgroundColor: mix('#34DBA5', t.surface, t.dark ? 0.24 : 0.18), alignItems: 'center', justifyContent: 'center' }}><Icon3D name="money" size={34} /></View>
           <Pressable onPress={() => router.push('/wallet')} style={{ flex: 1 }}>
             <Text style={{ color: t.muted, fontSize: 12, fontWeight: '700' }}>{tr('Balans')}</Text>
             <Text style={{ color: t.ink, fontFamily: FONT.display, fontSize: 16 }} numberOfLines={1}>{fmtNum(bal + bon)} {tr("so'm")}</Text>
