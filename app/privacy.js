@@ -9,7 +9,7 @@ const S = () => [
   [tr("Nima uchun ishlatamiz"), tr("Hisobingizni yaratish va himoya qilish, e'lonlaringizni boshqa foydalanuvchilarga ko'rsatish, xaridor va sotuvchini bog'lash, pullik xizmatlarni faollashtirish hamda firibgarlik va qoidabuzarliklarga qarshi kurashish uchun.")],
   [tr("Kim ko'radi"), tr("E'lonlaringiz va profilingiz (ism, rasm, hudud, o'zingiz haqingizda) hammaga ochiq. Telefon raqamingiz faqat e'longa o'zingiz yozgan bo'lsangiz ko'rinadi. Yozishmalarni faqat suhbat ishtirokchilari ko'radi; shikoyat yoki firibgarlikni tekshirish uchun bozor ma'muriyati ham ko'rishi mumkin. To'lovlar tarixi faqat sizga va ma'muriyatga ko'rinadi.")],
   ["Ma'lumotlarni saqlash", tr("Ma'lumotlar Supabase bulut xizmatida shifrlangan aloqa orqali saqlanadi. Biz ma'lumotlaringizni sotmaymiz va reklama kompaniyalariga bermaymiz.")],
-  [tr("Hisobni o'chirish"), tr("Kabinet → Hisob → \"Hisobni o'chirish\" tugmasi orqali hisobingizni va unga bog'liq barcha ma'lumotlarni (profil, e'lonlar, yozishmalar) istalgan vaqtda o'chirishingiz mumkin.")],
+  [tr("Hisobni o'chirish"), tr("Kabinet → Sozlamalar → \"Hisobni o'chirish\" tugmasi orqali hisobingizni va unga bog'liq barcha ma'lumotlarni (profil, e'lonlar, yozishmalar) istalgan vaqtda o'chirishingiz mumkin.")],
   ['Aloqa', tr("Savollar bo'lsa, Telegram'dagi @Mohirbozor_bot qo'llab-quvvatlash boti orqali murojaat qiling.")],
 ];
 

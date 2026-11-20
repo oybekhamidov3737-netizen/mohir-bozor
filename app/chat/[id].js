@@ -9,16 +9,17 @@ import { useApp } from '../../src/app-context';
 import { supabase, adPhoto, errText } from '../../src/supabase';
 import { fetchProfiles } from '../../src/api';
 import { dayLabel, priceText, timeOnly, seenText, isOnline } from '../../src/format';
-import { Cover, FadeIn, Loading, Note } from '../../src/ui';
+import { Cover, Empty, FadeIn, Loading, Note } from '../../src/ui';
 import { Stars } from '../../src/lists';
 import { LinearGradient } from 'expo-linear-gradient';
 import { tr } from '../../src/i18n';
+import { withAuth } from '../../src/gate';
 
 const Bubble = ({ colors, start, end, style, children }) => (colors ? <LinearGradient colors={colors} start={start} end={end} style={style}>{children}</LinearGradient> : <View style={style}>{children}</View>);
 // Til almashganda qayta hisoblanishi uchun funksiya
 const QUICK = () => [tr("Assalomu alaykum! E'loningiz hali dolzarbmi?"), tr("Narxi kelishiladimi?"), tr("Portfolio yubora olasizmi?"), tr("Qachon boshlay olasiz?")];
 
-export default function ChatScreen() {
+function ChatScreen() {
   const { id } = useLocalSearchParams();
   const t = useT();
   const ins = useSafeAreaInsets();
@@ -60,12 +61,13 @@ export default function ChatScreen() {
   useEffect(() => {
     let alive = true;
     (async () => {
-      const { data: tr } = await supabase.from('threads').select('*, ads(id,title,photos,cat,price,cur,unit,price_from,negotiable,user_id)').eq('id', id).maybeSingle();
+      // Diqqat: o'zgaruvchini "tr" deb atamang — u tarjima funksiyasini yopib qo'yadi
+      const { data: row, error: rowErr } = await supabase.from('threads').select('*, ads(id,title,photos,cat,price,cur,unit,price_from,negotiable,user_id)').eq('id', id).maybeSingle();
       if (!alive) return;
-      if (!tr) { toast(tr("Suhbat topilmadi")); router.back(); return; }
-      setTh(tr);
-      setProfs(await fetchProfiles([tr.buyer_id, tr.seller_id]));
-      const oth = uid === tr.buyer_id ? tr.seller_id : tr.buyer_id;
+      if (!row) { setTh(false); if (rowErr && !/uuid/i.test(rowErr.message || '')) toast(errText(rowErr)); return; }
+      setTh(row);
+      setProfs(await fetchProfiles([row.buyer_id, row.seller_id]));
+      const oth = uid === row.buyer_id ? row.seller_id : row.buyer_id;
       if (uid && oth) {
         const { data: b } = await supabase.from('blocks').select('blocked').eq('blocker', uid).eq('blocked', oth).maybeSingle();
         if (alive) setBlocked(!!b);
@@ -86,14 +88,21 @@ export default function ChatScreen() {
       .subscribe();
     // Suhbatdoshning onlayn holatini yangilab turish
     const iv = setInterval(async () => {
-      const { data: tr } = await supabase.from('threads').select('buyer_id,seller_id,buyer_read_at,seller_read_at').eq('id', id).maybeSingle();
-      if (!alive || !tr) return;
-      setTh((cur) => (cur ? { ...cur, buyer_read_at: tr.buyer_read_at, seller_read_at: tr.seller_read_at } : cur));
-      setProfs(await fetchProfiles([tr.buyer_id, tr.seller_id]));
+      const { data: row } = await supabase.from('threads').select('buyer_id,seller_id,buyer_read_at,seller_read_at').eq('id', id).maybeSingle();
+      if (!alive || !row) return;
+      setTh((cur) => (cur ? { ...cur, buyer_read_at: row.buyer_read_at, seller_read_at: row.seller_read_at } : cur));
+      setProfs(await fetchProfiles([row.buyer_id, row.seller_id]));
     }, 30000);
     return () => { alive = false; clearInterval(iv); supabase.removeChannel(ch); };
   }, [id]);
 
+  if (th === false) return (
+    <View style={{ flex: 1, backgroundColor: t.bg, padding: 16 }}>
+      <View style={{ maxWidth: 640, width: '100%', alignSelf: 'center' }}>
+        <Empty title={tr("Suhbat topilmadi")} text={tr("Suhbat o'chirilgan yoki u sizga tegishli emas.")} action={tr("Xabarlar")} onAction={() => router.replace('/chats')} />
+      </View>
+    </View>
+  );
   if (!th || !msgs) return <View style={{ flex: 1, backgroundColor: t.bg }}><Loading /></View>;
 
   const member = uid === th.buyer_id || uid === th.seller_id;
@@ -270,3 +279,5 @@ export default function ChatScreen() {
     </KeyboardAvoidingView>
   );
 }
+
+export default withAuth(ChatScreen, { text: () => tr("Suhbatni ko'rish uchun hisobingizga kiring.") });

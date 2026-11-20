@@ -11,10 +11,11 @@ import { adState, ago, fmtNum, isTop, isVip, priceText, shortDate } from '../src
 import { Badge, Btn, Cover, Empty, Loading, Seg } from '../src/ui';
 import { PAYMENTS_IN_APP } from '../src/pay';
 import { tr } from '../src/i18n';
+import { withAuth } from '../src/gate';
 
 const EV = { top: 'TOP', vip: 'VIP', bump: "ko'tarildi", extend: 'uzaytirildi', restore: 'tiklandi', moderator: "moderator o'chirdi" };
 
-export default function MyAds() {
+function MyAds() {
   const t = useT();
   const router = useRouter();
   const params = useLocalSearchParams();
@@ -136,3 +137,5 @@ export default function MyAds() {
     </ScrollView>
   );
 }
+
+export default withAuth(MyAds, { title: () => tr("Mening e'lonlarim"), text: () => tr("E'lonlaringizni ko'rish va boshqarish uchun hisobingizga kiring.") });

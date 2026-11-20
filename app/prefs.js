@@ -10,8 +10,9 @@ import { CATS, REG_NAMES } from '../src/data';
 import { shortReg } from '../src/format';
 import { Btn, H } from '../src/ui';
 import { tr } from '../src/i18n';
+import { withAuth } from '../src/gate';
 
-export default function Prefs() {
+function Prefs() {
   const t = useT();
   const router = useRouter();
   const { uid, profile, loadProfile, toast } = useApp();
@@ -56,3 +57,5 @@ export default function Prefs() {
     </ScrollView>
   );
 }
+
+export default withAuth(Prefs, { title: () => tr('Istagan ishim') });

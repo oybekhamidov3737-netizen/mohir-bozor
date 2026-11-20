@@ -1,0 +1,26 @@
+name: Bildirishnomalar (kunlik)
+
+# Har kuni ertalab: muddati 3 kun ichida tugaydigan yoki kecha tugagan e'lonlar egalariga xabar
+on:
+  schedule:
+    - cron: '7 5 * * *'   # Toshkent vaqti bilan 10:07
+  workflow_dispatch:
+
+jobs:
+  expiry:
+    runs-on: ubuntu-latest
+    env:
+      PW: ${{ secrets.SUPABASE_DB_PASSWORD }}
+      REF: qtvyjmiqoknpnlilpfpf
+    steps:
+      - name: E'lon muddati eslatmalari
+        run: |
+          sudo apt-get install -y -qq postgresql-client >/dev/null 2>&1 || true
+          S=""
+          for H in aws-0-eu-central-1.pooler.supabase.com aws-1-eu-central-1.pooler.supabase.com; do
+            S=$(PGPASSWORD="$PW" psql "host=$H port=5432 dbname=postgres user=postgres.$REF sslmode=require connect_timeout=15" -tAc "select secret from notify_settings where id = 1 and enabled" 2>/dev/null) && [ -n "$S" ] && break
+          done
+          [ -n "$S" ] || { echo "::warning::Bildirishnomalar o'chirilgan yoki kalit topilmadi"; exit 0; }
+          echo "::add-mask::$S"
+          R=$(curl -sS -m 120 -X POST "https://$REF.supabase.co/functions/v1/notify" -H "Content-Type: application/json" -H "x-notify-secret: $S" -d '{"type":"expiry"}')
+          echo "::notice title=Natija::$R"

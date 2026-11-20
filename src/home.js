@@ -11,6 +11,9 @@ import { fmtNum } from './format';
 import { Avatar, Press } from './ui';
 import { tr, adsCount } from './i18n';
 
+// Tor kartochkada uzun so'z (masalan, «Мобилография») bo'linib ketmasligi uchun
+const longestWord = (s) => String(s || '').split(/\s+/).reduce((m, w) => Math.max(m, w.length), 0);
+
 const ND = Platform.OS !== 'web';
 const WORDS = ['SMMchi', 'montajchi', 'mobilograf', 'targetolog', 'dizayner', 'kopirayter', 'fotograf', 'bloger'];
 
@@ -154,7 +157,7 @@ export function CatRow({ counts, onPick }) {
               <Ionicons name={c.icon.replace('-outline', '')} size={22} color="#fff" />
             </View>
             <View>
-              <Text style={{ color: '#fff', fontWeight: '800', fontSize: 12.5 }} numberOfLines={2}>{c.n}</Text>
+              <Text style={{ color: '#fff', fontWeight: '800', fontSize: longestWord(c.n) > 11 ? 11 : 12.5 }} numberOfLines={2}>{c.n}</Text>
               <Text style={{ color: 'rgba(255,255,255,0.8)', fontSize: 11, fontWeight: '600' }}>{counts[c.id] ? adsCount(counts[c.id]) : tr("Yangi")}</Text>
             </View>
           </LinearGradient>

@@ -61,6 +61,11 @@ export default function PostAd() {
     const price = parseFloat(String(f.price).replace(/[^\d.]/g, '')) || 0;
     if (f.title.trim().length < 5) e.title = "Sarlavha kamida 5 ta belgidan iborat bo'lsin.";
     if (!price && !f.negotiable) e.price = 'Narxni kiriting yoki "Kelishiladi"ni belgilang.';
+    // Aqlga sig'maydigan qiymatlar (masalan, $1 000 000 / soat yoki 99 yil tajriba) e'longa ishonchni yo'qotadi
+    if (f.cur === 'usd' && price > 100000) e.price = "Narx 100 000 $ dan oshmasin.";
+    if (f.cur !== 'usd' && price > 1000000000) e.price = "Narx 1 mlrd so'mdan oshmasin.";
+    const exp = String(f.exp_years || '').trim().replace(',', '.');
+    if (exp && (!/^\d{1,2}(\.\d)?$/.test(exp) || Number(exp) > 50)) e.exp_years = "Tajribani 0 dan 50 gacha raqam bilan kiriting.";
     if (!f.region) e.region = 'Hududni tanlang.';
     if (f.description.trim().length < 20) e.description = 'Tavsifni batafsilroq yozing (kamida 20 ta belgi).';
     if (f.seller_name.trim().length < 2) e.seller_name = 'Ism yoki studiya nomini kiriting.';
@@ -148,7 +153,7 @@ export default function PostAd() {
         </View>
 
         <Select label={tr("Hudud")} value={f.region ? (f.region === ONLINE ? tr("Onlayn (butun O'zbekiston)") : (f.district ? f.district + ', ' : '') + shortReg(f.region)) : ''} placeholder={tr("Viloyat va tumanni tanlang")} onPress={() => setPicker('region')} error={errs.region} />
-        <Field label={tr("Tajriba (yil)")} value={String(f.exp_years || '')} onChangeText={set('exp_years')} keyboardType="decimal-pad" maxLength={4} placeholder={tr("Masalan: 2")} />
+        <Field label={tr("Tajriba (yil)")} value={String(f.exp_years || '')} onChangeText={set('exp_years')} keyboardType="decimal-pad" maxLength={4} placeholder={tr("Masalan: 2")} error={errs.exp_years} />
         <Field label={tr("Tavsif")} value={f.description} onChangeText={set('description')} multiline maxLength={3000}
           placeholder={tr("Nima qilasiz, paketga nima kiradi, muddatlar…")} error={errs.description} hint={`${f.description.length} / 3000`} />
         <Field label={tr("Ism yoki studiya nomi")} value={f.seller_name} onChangeText={set('seller_name')} maxLength={60} error={errs.seller_name} />

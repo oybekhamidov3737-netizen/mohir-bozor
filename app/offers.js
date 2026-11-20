@@ -9,8 +9,9 @@ import { fetchProfiles } from '../src/api';
 import { Empty, Loading } from '../src/ui';
 import { ThreadRow } from '../src/lists';
 import { tr } from '../src/i18n';
+import { withAuth } from '../src/gate';
 
-export default function Offers() {
+function Offers() {
   const t = useT();
   const router = useRouter();
   const { mode } = useLocalSearchParams();
@@ -50,3 +51,5 @@ export default function Offers() {
     </View>
   );
 }
+
+export default withAuth(Offers, { title: () => tr("Takliflar ro'yxati") });

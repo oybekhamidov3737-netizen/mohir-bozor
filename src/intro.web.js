@@ -129,12 +129,25 @@ export function Intro({ onDone }) {
 
   useEffect(() => {
     const players = {};
-    try { Object.keys(SOUNDS).forEach((k) => { players[k] = createAudioPlayer(SOUNDS[k]); try { players[k].volume = k === 'chime' ? 0.55 : 0.45; } catch (e) {} }); } catch (e) {}
-    const play = (k) => { try { players[k].seekTo(0); players[k].play(); } catch (e) {} };
+    // Brauzerlar foydalanuvchi sahifaga tegmaguncha ovoz va tebranishni taqiqlaydi (xato beradi).
+    // Shuning uchun ular faqat foydalanuvchi sahifa bilan ishlagan bo'lsa yoqiladi.
+    const active = typeof navigator !== 'undefined' && !!navigator.userActivation && navigator.userActivation.hasBeenActive;
+    if (active) {
+      try { Object.keys(SOUNDS).forEach((k) => { players[k] = createAudioPlayer(SOUNDS[k]); try { players[k].volume = k === 'chime' ? 0.55 : 0.45; } catch (e) {} }); } catch (e) {}
+    }
+    const play = (k) => {
+      try {
+        const p = players[k];
+        if (!p) return;
+        p.seekTo(0);
+        const r = p.play();
+        if (r && typeof r.catch === 'function') r.catch(() => {});
+      } catch (e) {}
+    };
     const at = (ms, fn) => timers.current.push(setTimeout(fn, ms));
     let st = 0;
     H.forEach((h, i) => { at(STAR0 + st, () => play('hop' + (i + 1))); st = LAND[i]; });
-    LAND.forEach((ms, i) => at(STAR0 + ms, () => haptic(i === 2 ? [20, 40, 30] : 12)));
+    if (active) LAND.forEach((ms, i) => at(STAR0 + ms, () => haptic(i === 2 ? [20, 40, 30] : 12)));
     at(FINAL, () => play('chime'));
     at(DONE, finish);
     return () => {

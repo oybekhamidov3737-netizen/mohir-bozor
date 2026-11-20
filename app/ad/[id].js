@@ -16,7 +16,7 @@ import { fetchFeed } from '../../src/api';
 import { WEB_URL } from '../../src/config';
 import { AdCard, Avatar, Badge, Btn, Cover, Empty, H, Loading, Note, Press } from '../../src/ui';
 import { RatingLine } from '../../src/lists';
-import { tr } from '../../src/i18n';
+import { tr, yearsText } from '../../src/i18n';
 
 export default function AdPage() {
   const { id } = useLocalSearchParams();
@@ -162,7 +162,7 @@ export default function AdPage() {
           <View style={{ flexDirection: 'row', flexWrap: 'wrap', justifyContent: 'space-between', rowGap: 8, marginTop: 4 }}>
             {tile('briefcase', tr("Turi"), ad.kind === 'buyurtma' ? tr("Buyurtma") : tr("Xizmat taklifi"), 0)}
             {tile('location', tr("Hudud"), locLabel(ad), 2)}
-            {tile('ribbon', tr("Tajriba"), ad.exp_years ? ad.exp_years + ' yil' : tr("Ko'rsatilmagan"), 4)}
+            {tile('ribbon', tr("Tajriba"), yearsText(ad.exp_years) || tr("Ko'rsatilmagan"), 4)}
             {tile('time', tr("Joylangan"), ago(ad.created_at), 1)}
           </View>
         </View>

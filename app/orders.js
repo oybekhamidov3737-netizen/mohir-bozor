@@ -10,10 +10,11 @@ import { SVC } from '../src/data';
 import { ago, fmtNum } from '../src/format';
 import { Badge, Empty, Loading } from '../src/ui';
 import { tr } from '../src/i18n';
+import { withAuth } from '../src/gate';
 
 const ICON = { vip: 'diamond', top: 'trending-up', bump: 'arrow-up-circle', extend: 'time', restore: 'refresh', slots: 'albums', topup: 'wallet' };
 
-export default function Orders() {
+function Orders() {
   const t = useT();
   const router = useRouter();
   const { filter } = useLocalSearchParams();
@@ -66,3 +67,5 @@ export default function Orders() {
     </ScrollView>
   );
 }
+
+export default withAuth(Orders, { title: () => tr("To'lovlar tarixi") });

@@ -60,3 +60,18 @@ export function adsCount(n) {
   if (LANG === 'en') return n + (n === 1 ? ' ad' : ' ads');
   return n + " ta e'lon";
 }
+
+// Tajriba: "3 yil" / "3 года" / "3 years" (kasr ham bo'lishi mumkin: 1.5)
+export function yearsText(v) {
+  const raw = String(v ?? '').trim().replace(',', '.');
+  const n = Number(raw);
+  if (!raw || !Number.isFinite(n) || n <= 0) return '';
+  const num = Number.isInteger(n) ? String(n) : String(Math.round(n * 10) / 10);
+  if (LANG === 'ru') {
+    if (!Number.isInteger(n)) return num + ' года';
+    const a = n % 10, b = n % 100;
+    return num + ' ' + (a === 1 && b !== 11 ? 'год' : a >= 2 && a <= 4 && (b < 12 || b > 14) ? 'года' : 'лет');
+  }
+  if (LANG === 'en') return num + (n === 1 ? ' year' : ' years');
+  return num + ' yil';
+}

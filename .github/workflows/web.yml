@@ -4,17 +4,20 @@ on:
   push:
     branches: [main]
   workflow_dispatch:
+  # Har soatda yangi e'lonlar uchun sahifalar (Google va Telegram havola ko'rinishi) yangilanadi
+  schedule:
+    - cron: '23 * * * *'
 
 permissions:
   contents: write
 
-concurrency:
-  group: pages
-  cancel-in-progress: true
-
 jobs:
   build:
+    if: github.event_name != 'schedule'
     runs-on: ubuntu-latest
+    concurrency:
+      group: pages
+      cancel-in-progress: true
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
@@ -40,7 +43,10 @@ jobs:
           cp -n public/* dist/ 2>/dev/null || true
           sed -i 's#</head>#<link rel="apple-touch-icon" href="/apple-touch-icon.png"><link rel="manifest" href="/manifest.webmanifest"><meta name="apple-mobile-web-app-capable" content="yes"><meta name="mobile-web-app-capable" content="yes"><meta name="apple-mobile-web-app-title" content="Mohir bozor"><meta name="apple-mobile-web-app-status-bar-style" content="black-translucent"></head>#' dist/index.html
           grep -c apple-touch-icon dist/index.html
-          cp dist/index.html dist/404.html
+          # Har bir sahifa uchun alohida HTML (to'g'ri sarlavha, og: teglari, HTTP 200), sitemap va robots
+          cp dist/index.html dist/_shell.html
+          node scripts/static-pages.mjs dist
+          cp dist/_shell.html dist/404.html
           echo "{\"build\":\"${GITHUB_SHA::7}\"}" > dist/version.json
           touch dist/.nojekyll
           echo 'mohirbozor.uz' > dist/CNAME
@@ -53,3 +59,31 @@ jobs:
           git add -A
           git commit -q -m "Sayt: ${GITHUB_SHA::7}"
           git push -f "https://x-access-token:${{ secrets.GITHUB_TOKEN }}@github.com/${GITHUB_REPOSITORY}.git" gh-pages
+
+  # Faqat e'lon sahifalarini yangilash (ilovani qayta yig'masdan)
+  refresh:
+    if: github.event_name == 'schedule'
+    runs-on: ubuntu-latest
+    concurrency:
+      group: pages-refresh
+      cancel-in-progress: true
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/checkout@v4
+        with:
+          ref: gh-pages
+          path: dist
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+      - name: Sahifalarni yangilash
+        run: node scripts/static-pages.mjs dist
+      - name: O'zgargan bo'lsa joylash
+        run: |
+          cd dist
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add -A
+          if git diff --cached --quiet; then echo "O'zgarish yo'q"; exit 0; fi
+          git commit -q -m "Sahifalar yangilandi"
+          git push -q origin gh-pages || echo "::warning::Sayt shu orada yangilangan — keyingi soatda qayta urinadi"

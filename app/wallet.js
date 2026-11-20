@@ -8,8 +8,9 @@ import { InviteCard } from '../src/invite';
 import { PAYMENTS_IN_APP } from '../src/pay';
 import { Empty } from '../src/ui';
 import { tr } from '../src/i18n';
+import { withAuth } from '../src/gate';
 
-export default function Wallet() {
+function Wallet() {
   const t = useT();
   return (
     <ScrollView style={{ flex: 1, backgroundColor: t.bg }} contentContainerStyle={{ padding: 16, paddingBottom: 40, maxWidth: 760, width: '100%', alignSelf: 'center' }}>
@@ -18,3 +19,5 @@ export default function Wallet() {
     </ScrollView>
   );
 }
+
+export default withAuth(Wallet, { title: () => tr('Hisob') });

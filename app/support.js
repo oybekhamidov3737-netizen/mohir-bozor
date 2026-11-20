@@ -8,15 +8,19 @@ import { useApp, useRequire } from '../src/app-context';
 import { supabase, errText } from '../src/supabase';
 import { Btn, H } from '../src/ui';
 import { tr } from '../src/i18n';
+import { PAYMENTS_IN_APP } from '../src/pay';
 
 // Til almashganda qayta hisoblanishi uchun funksiya
 const FAQ = () => [
   [tr("Qanday e'lon joylayman?"), tr("Pastdagi \"Joylash\" tugmasini bosing. Avval kabinet ochasiz, keyin rasmlar, narx va tavsifni kiritasiz. E'lon darhol ko'rinadi.")],
   [tr("E'lonim nega qabul qilinmadi?"), tr("Bozor faqat SMM, montaj, dizayn, marketing va boshqa ijodiy xizmatlar uchun. Telegram, Instagram yoki WhatsApp manzillarini yozib bo'lmaydi: mijozlar ilova ichidagi chat orqali yozadi.")],
-  [tr("TOP va VIP nima?"), tr("TOP e'lonni qidiruvning tepasiga chiqaradi. VIP bundan tashqari bosh sahifadagi alohida oltin blokda ko'rsatadi. E'loningizda \"Reklama\" tugmasini bosing.")],
-  [tr("To'lov qildim, xizmat yoqilmadi"), tr("Payme orqali to'lov odatda darhol yoqiladi. Bir necha daqiqada yoqilmasa, \"Ilovada yozish\" orqali bizga yozing — tekshirib beramiz.")],
+  // To'lov haqidagi savollar faqat saytda (telefon ilovasida to'lov bo'limi yo'q)
+  ...(PAYMENTS_IN_APP ? [
+    [tr("TOP va VIP nima?"), tr("TOP e'lonni qidiruvning tepasiga chiqaradi. VIP bundan tashqari bosh sahifadagi alohida oltin blokda ko'rsatadi. E'loningizda \"Reklama\" tugmasini bosing.")],
+    [tr("To'lov qildim, xizmat yoqilmadi"), tr("Payme yoki Click orqali to'lov odatda darhol yoqiladi. Bir necha daqiqada yoqilmasa, \"Ilovada yozish\" orqali bizga yozing — tekshirib beramiz.")],
+  ] : []),
   [tr("Firibgarga duch keldim"), tr("E'lon sahifasidagi \"Shikoyat qilish\" tugmasini bosing va bizga yozing. Oldindan to'liq pul o'tkazmang, ishni bosqichma-bosqich to'lang.")],
-  [tr("Hisobimni qanday o'chiraman?"), tr("Kabinet → Hisob → \"Hisobni o'chirish\". Profil, e'lonlar va yozishmalar o'chiriladi.")],
+  [tr("Hisobimni qanday o'chiraman?"), tr("Kabinet → Sozlamalar → \"Hisobni o'chirish\". Profil, e'lonlar va yozishmalar butunlay o'chiriladi.")],
 ];
 
 export default function Support() {

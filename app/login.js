@@ -15,7 +15,9 @@ export default function Login() {
   const { next } = useLocalSearchParams();
   const { loadProfile, toast, config } = useApp();
   const smsOn = !!config?.sms_login;
-  const tgBot = config?.tg_login && config?.tg_bot ? config.tg_bot : '';
+  // iPhone ilovasida Telegram orqali kirish ko'rsatilmaydi: App Store qoidasi (4.8) uchinchi tomon orqali
+  // kirish bo'lsa "Sign in with Apple"ni ham talab qiladi. Pochta kodi bilan kirish ilovaning o'z tizimi.
+  const tgBot = Platform.OS !== 'ios' && config?.tg_login && config?.tg_bot ? config.tg_bot : '';
   const [tgTok, setTgTok] = useState('');
   const [tgOpened, setTgOpened] = useState(false);
   const [via, setVia] = useState(smsOn ? 'phone' : 'email');

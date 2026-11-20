@@ -9,12 +9,13 @@ import { onlinePayUrl, openPay, hasPayme, hasClick, PAYMENTS_IN_APP } from '../s
 import { Btn, Field, Note } from '../src/ui';
 import { PaymeButton, ClickButton } from '../src/paybtn';
 import { tr } from '../src/i18n';
+import { withAuth } from '../src/gate';
 
 const PRESETS = [10000, 25000, 50000, 100000, 200000];
 const MIN = 5000, MAX = 10000000;
 
 // Hisobni to'ldirish
-export default function TopUp() {
+function TopUp() {
   const t = useT();
   const router = useRouter();
   const need = useRequire();
@@ -93,3 +94,5 @@ export default function TopUp() {
     </ScrollView>
   );
 }
+
+export default withAuth(TopUp, {});

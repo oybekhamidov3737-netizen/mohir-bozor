@@ -7,12 +7,13 @@ import { useApp } from '../../src/app-context';
 import { supabase, errText } from '../../src/supabase';
 import { SVC, svcDesc } from '../../src/data';
 import { adState, fmtNum } from '../../src/format';
-import { Btn, Loading, Note } from '../../src/ui';
+import { Btn, Empty, Loading, Note } from '../../src/ui';
 import { PaymeButton, ClickButton } from '../../src/paybtn';
 import { PAYMENTS_IN_APP, onlinePayUrl, openPay } from '../../src/pay';
 import { tr } from '../../src/i18n';
+import { withAuth } from '../../src/gate';
 
-export default function Promo() {
+function Promo() {
   const { id, svc: want } = useLocalSearchParams();
   const t = useT();
   const router = useRouter();
@@ -34,6 +35,16 @@ export default function Promo() {
   const opts = id === 'slots' ? ['slots'] : !ad ? [] : adState(ad) === 'deleted' ? ['restore'] : adState(ad) === 'expired' ? ['extend'] : ['vip', 'top', 'bump', 'extend'];
   useEffect(() => { if (opts.length && !svc) setSvc(opts.includes(want) ? want : opts[0]); }, [opts.join(), want]);
 
+  // E'lon topilmasa yoki boshqa foydalanuvchiniki bo'lsa — cheksiz yuklanish o'rniga tushuntirish
+  if (id !== 'slots' && (ad === null || (ad && ad.user_id !== uid && !isAdmin))) return (
+    <View style={{ flex: 1, backgroundColor: t.bg, padding: 16 }}>
+      <View style={{ maxWidth: 560, width: '100%', alignSelf: 'center' }}>
+        <Empty title={ad === null ? tr("E'lon topilmadi") : tr("Bu e'lon sizga tegishli emas")}
+          text={ad === null ? tr("E'lon o'chirilgan bo'lishi mumkin.") : tr("Reklama xizmatlarini faqat o'z e'loningiz uchun yoqishingiz mumkin.")}
+          action={tr("Mening e'lonlarim")} onAction={() => router.replace('/my-ads')} />
+      </View>
+    </View>
+  );
   if (ad === undefined || !svc) return <View style={{ flex: 1, backgroundColor: t.bg }}><Loading /></View>;
   const price = config.prices[svc] || 0;
 
@@ -42,7 +53,7 @@ export default function Promo() {
     const { error } = await supabase.rpc('admin_activate', { p_ad: ad.id, p_svc: svc });
     setBusy(false);
     if (error) { toast(errText(error)); return; }
-    toast(SVC[svc] + ' yoqildi'); router.back();
+    toast(tr('{0} yoqildi', SVC[svc])); router.back();
   };
 
   // Payme / Click: buyurtma yaratib, to'lov sahifasini ochish
@@ -129,3 +140,5 @@ export default function Promo() {
     </ScrollView>
   );
 }
+
+export default withAuth(Promo, {});

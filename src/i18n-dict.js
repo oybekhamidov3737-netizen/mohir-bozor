@@ -1,5 +1,141 @@
 // Tarjimalar: o'zbekcha matn → [ruscha, inglizcha].
 export default {
+"Sahifa topilmadi": [
+"Страница не найдена",
+"Page not found"
+],
+"Havola eskirgan yoki xato yozilgan bo'lishi mumkin. Bosh sahifadan kerakli e'lonni toping.": [
+"Ссылка устарела или набрана с ошибкой. Найдите нужное объявление на главной странице.",
+"The link may be outdated or mistyped. Find the ad you need on the home page."
+],
+"Suhbat o'chirilgan yoki u sizga tegishli emas.": [
+"Чат удалён или не принадлежит вам.",
+"The chat was deleted or doesn't belong to you."
+],
+"Suhbatni ko'rish uchun hisobingizga kiring.": [
+"Войдите в аккаунт, чтобы открыть чат.",
+"Sign in to open this chat."
+],
+"E'lonlaringizni ko'rish va boshqarish uchun hisobingizga kiring.": [
+"Войдите в аккаунт, чтобы просматривать и управлять своими объявлениями.",
+"Sign in to view and manage your ads."
+],
+"Bu bo'limdan foydalanish uchun hisobingizga kiring.": [
+"Войдите в аккаунт, чтобы пользоваться этим разделом.",
+"Sign in to use this section."
+],
+"2. Atamalar": [
+"2. Термины",
+"2. Definitions"
+],
+"3. Xizmat predmeti": [
+"3. Предмет услуги",
+"3. Subject of the service"
+],
+"4. Xizmatlar narxi": [
+"4. Стоимость услуг",
+"4. Service prices"
+],
+"5. To'lov tartibi": [
+"5. Порядок оплаты",
+"5. Payment procedure"
+],
+"6. Pulni qaytarish": [
+"6. Возврат средств",
+"6. Refunds"
+],
+"7. Tomonlarning huquq va majburiyatlari": [
+"7. Права и обязанности сторон",
+"7. Rights and obligations of the parties"
+],
+"8. Shaxsiy ma'lumotlar": [
+"8. Персональные данные",
+"8. Personal data"
+],
+"9. Javobgarlik va fors-major": [
+"9. Ответственность и форс-мажор",
+"9. Liability and force majeure"
+],
+"10. Nizolarni hal qilish": [
+"10. Разрешение споров",
+"10. Dispute resolution"
+],
+"11. Amal qilish muddati": [
+"11. Срок действия",
+"11. Term"
+],
+"12. Ijrochi rekvizitlari": [
+"12. Реквизиты исполнителя",
+"12. Provider details"
+],
+"Kabinet → Sozlamalar → \"Hisobni o'chirish\" tugmasi orqali hisobingizni va unga bog'liq barcha ma'lumotlarni (profil, e'lonlar, yozishmalar) istalgan vaqtda o'chirishingiz mumkin.": [
+"Вы можете в любое время удалить аккаунт и все связанные с ним данные (профиль, объявления, переписку): Кабинет → Настройки → «Удалить аккаунт».",
+"You can delete your account and all related data (profile, ads, messages) at any time: My account → Settings → \"Delete account\"."
+],
+"Bu e'lon sizga tegishli emas": [
+"Это объявление не ваше",
+"This ad isn't yours"
+],
+"E'lon o'chirilgan bo'lishi mumkin.": [
+"Возможно, объявление удалено.",
+"The ad may have been deleted."
+],
+"Reklama xizmatlarini faqat o'z e'loningiz uchun yoqishingiz mumkin.": [
+"Платные услуги можно подключить только для своего объявления.",
+"Promotion services can only be enabled for your own ad."
+],
+"{0} yoqildi": [
+"{0}: подключено",
+"{0} enabled"
+],
+"Bildirishnomalar": [
+"Уведомления",
+"Notifications"
+],
+"Bildirishnomalar yoqildi": [
+"Уведомления включены",
+"Notifications on"
+],
+"Bildirishnomalar o'chirildi": [
+"Уведомления выключены",
+"Notifications off"
+],
+"Yangi xabar kelganda va e'lon muddati tugayotganda pochta yoki Telegram orqali xabar beramiz": [
+"Сообщим по почте или в Telegram о новых сообщениях и об окончании срока объявления",
+"We'll notify you by email or Telegram about new messages and when your ad is about to expire"
+],
+"Payme yoki Click orqali to'lov odatda darhol yoqiladi. Bir necha daqiqada yoqilmasa, \"Ilovada yozish\" orqali bizga yozing — tekshirib beramiz.": [
+"Оплата через Payme или Click обычно подключается сразу. Если услуга не включилась за несколько минут, напишите нам через «Написать в приложении» — проверим.",
+"Payments via Payme or Click are usually applied instantly. If the service isn't on within a few minutes, message us via \"Message in app\" and we'll check."
+],
+"Kabinet → Sozlamalar → \"Hisobni o'chirish\". Profil, e'lonlar va yozishmalar butunlay o'chiriladi.": [
+"Кабинет → Настройки → «Удалить аккаунт». Профиль, объявления и переписка удаляются полностью.",
+"My account → Settings → \"Delete account\". Your profile, ads and messages are deleted permanently."
+],
+"Telegram botimiz savollarga darhol javob beradi. Murakkab masalalar uchun ilovada yozing.": [
+"Наш Telegram-бот сразу отвечает на вопросы. По сложным вопросам пишите в приложении.",
+"Our Telegram bot answers questions instantly. For complex issues, message us in the app."
+],
+"Telegram yordamchi bot · 24/7": [
+"Telegram-бот поддержки · 24/7",
+"Telegram support bot · 24/7"
+],
+"Telegram bot": [
+"Telegram-бот",
+"Telegram bot"
+],
+"Narx 100 000 $ dan oshmasin.": [
+"Цена не должна превышать 100 000 $.",
+"The price can't exceed $100,000."
+],
+"Narx 1 mlrd so'mdan oshmasin.": [
+"Цена не должна превышать 1 млрд сумов.",
+"The price can't exceed 1 billion so'm."
+],
+"Tajribani 0 dan 50 gacha raqam bilan kiriting.": [
+"Укажите опыт числом от 0 до 50.",
+"Enter experience as a number from 0 to 50."
+],
 "Oxirgi yangilanish: 2026-yil 15-noyabr": [
 "Последнее обновление: 15 ноября 2026 г.",
 "Last updated: November 15, 2026"
