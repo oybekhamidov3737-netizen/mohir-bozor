@@ -17,7 +17,7 @@ export default function NotFound() {
         <View style={{ width: 84, height: 84, borderRadius: 28, backgroundColor: t.accentSoft, alignItems: 'center', justifyContent: 'center' }}>
           <Ionicons name="compass-outline" size={44} color={t.accent} />
         </View>
-        <Text style={{ fontFamily: FONT.display, fontSize: 22, color: t.ink, textAlign: 'center' }}>{tr("Sahifa topilmadi")}</Text>
+        <Text style={{ ...FONT.display, fontSize: 22, color: t.ink, textAlign: 'center' }}>{tr("Sahifa topilmadi")}</Text>
         <Text style={{ color: t.muted, fontSize: 15, lineHeight: 21, textAlign: 'center' }}>
           {tr("Havola eskirgan yoki xato yozilgan bo'lishi mumkin. Bosh sahifadan kerakli e'lonni toping.")}
         </Text>

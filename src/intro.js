@@ -257,7 +257,7 @@ export function Intro({ onDone }) {
           <View style={{ flexDirection: 'row' }}>
             {WORD.split('').map((ch, i) => (
               <Animated.Text key={i} style={{
-                fontFamily: FONT.display, fontSize: 30, color: '#fff',
+                ...FONT.display, fontSize: 30, color: '#fff',
                 opacity: A.letters[i],
                 transform: [
                   { translateY: A.letters[i].interpolate({ inputRange: [0, 1], outputRange: [-26, 0] }) },

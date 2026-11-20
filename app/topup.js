@@ -59,7 +59,7 @@ function TopUp() {
 
   return (
     <ScrollView style={{ flex: 1, backgroundColor: t.bg }} contentContainerStyle={{ padding: 16, gap: 14, paddingBottom: 40, maxWidth: 560, width: '100%', alignSelf: 'center' }} keyboardShouldPersistTaps="handled">
-      <Text style={{ fontFamily: FONT.display, fontSize: 22, color: t.ink }}>{tr("Hisobni to'ldirish")}</Text>
+      <Text style={{ ...FONT.display, fontSize: 22, color: t.ink }}>{tr("Hisobni to'ldirish")}</Text>
       <Text style={{ color: t.muted, lineHeight: 20 }}>{tr("Hisobingizdagi pul bilan TOP, VIP, ko'tarish va boshqa xizmatlarni bir bosishda yoqasiz.")}</Text>
 
       <View style={{ flexDirection: 'row', flexWrap: 'wrap', gap: 8 }}>

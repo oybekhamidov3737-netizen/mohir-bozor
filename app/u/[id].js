@@ -56,15 +56,14 @@ export default function PublicProfile() {
 
   const header = (
     <View style={{ gap: 12, marginBottom: 6 }}>
-      <LinearGradient colors={['#4A6CFF', '#2747D6', '#1631B8']} start={{ x: 0, y: 0 }} end={{ x: 1, y: 1 }} style={{ borderRadius: 26, padding: 18, gap: 12, overflow: 'hidden' }}>
-        <View pointerEvents="none" style={{ position: 'absolute', right: -50, top: -50, width: 180, height: 180, borderRadius: 90, backgroundColor: 'rgba(255,255,255,0.1)' }} />
+      <LinearGradient colors={t.dark ? ['#1F3BB3', '#14267E', '#0B1446'] : ['#3060FF', '#1E43D6', '#142C9E']} start={{ x: 0, y: 0 }} end={{ x: 1, y: 1 }} style={{ borderRadius: 26, padding: 18, gap: 12, overflow: 'hidden' }}>
         <View style={{ flexDirection: 'row', gap: 14, alignItems: 'center' }}>
           <View>
             <View style={{ padding: 3, borderRadius: 24, backgroundColor: 'rgba(255,255,255,0.35)' }}><Avatar profile={p} size={72} /></View>
-            {isOnline(p.last_seen) ? <View style={{ position: 'absolute', right: 0, bottom: 0, width: 16, height: 16, borderRadius: 8, backgroundColor: '#22C55E', borderWidth: 3, borderColor: '#2747D6' }} /> : null}
+            {isOnline(p.last_seen) ? <View style={{ position: 'absolute', right: 0, bottom: 0, width: 16, height: 16, borderRadius: 8, backgroundColor: '#22C55E', borderWidth: 3, borderColor: '#1E43D6' }} /> : null}
           </View>
           <View style={{ flex: 1, gap: 3 }}>
-            <Text style={{ fontFamily: FONT.display, fontSize: 19, color: '#fff' }} numberOfLines={2}>{p.name}</Text>
+            <Text style={{ ...FONT.display, fontSize: 19, color: '#fff' }} numberOfLines={2}>{p.name}</Text>
             <Text style={{ color: 'rgba(255,255,255,0.85)', fontSize: 13 }} numberOfLines={1}>{[p.cat ? catOf(p.cat).n : tr('Buyurtmachi'), loc].filter(Boolean).join(' · ')}</Text>
             <Text style={{ color: 'rgba(255,255,255,0.7)', fontSize: 12 }}>ID {p.public_id} · {p.last_seen ? seenText(p.last_seen) : since(p.created_at)}</Text>
           </View>
@@ -75,7 +74,7 @@ export default function PublicProfile() {
         <View style={{ flexDirection: 'row', backgroundColor: 'rgba(0,0,0,0.16)', borderRadius: 16, paddingVertical: 10 }}>
           {[[p.rating_count ? Number(p.rating).toFixed(1) : '—', tr('reyting')], [String(p.rating_count || 0), tr('baho')], [String(ads.length), tr("e'lon")]].map(([v, l], i) => (
             <View key={l} style={{ flex: 1, alignItems: 'center', borderLeftWidth: i ? 1 : 0, borderColor: 'rgba(255,255,255,0.15)' }}>
-              <Text style={{ fontFamily: FONT.display, fontSize: 18, color: '#fff' }}>{i === 0 && p.rating_count ? '★ ' : ''}{v}</Text>
+              <Text style={{ ...FONT.display, fontSize: 18, color: '#fff' }}>{i === 0 && p.rating_count ? '★ ' : ''}{v}</Text>
               <Text style={{ color: 'rgba(255,255,255,0.75)', fontSize: 11.5, fontWeight: '600' }}>{l}</Text>
             </View>
           ))}
@@ -93,7 +92,7 @@ export default function PublicProfile() {
       {view === 'reviews' && reviews.length ? (
         <View style={{ backgroundColor: t.surface, borderRadius: 18, padding: 14, flexDirection: 'row', gap: 16, alignItems: 'center' }}>
           <View style={{ alignItems: 'center', gap: 4 }}>
-            <Text style={{ fontFamily: FONT.display, fontSize: 34, color: t.ink }}>{Number(p.rating).toFixed(1)}</Text>
+            <Text style={{ ...FONT.display, fontSize: 34, color: t.ink }}>{Number(p.rating).toFixed(1)}</Text>
             <Stars value={Number(p.rating)} size={14} />
             <Text style={{ color: t.muted, fontSize: 12 }}>{tr('{0} ta baho', p.rating_count)}</Text>
           </View>

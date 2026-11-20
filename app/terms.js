@@ -18,11 +18,11 @@ export default function Terms() {
   const t = useT();
   return (
     <ScrollView style={{ flex: 1, backgroundColor: t.bg }} contentContainerStyle={{ padding: 20, gap: 10, maxWidth: 680, width: '100%', alignSelf: 'center', paddingBottom: 40 }}>
-      <Text style={{ fontFamily: FONT.display, fontSize: 22, color: t.ink }}>{tr("Foydalanish shartlari")}</Text>
+      <Text style={{ ...FONT.display, fontSize: 22, color: t.ink }}>{tr("Foydalanish shartlari")}</Text>
       <Text style={{ color: t.muted }}>{tr("Oxirgi yangilanish: 2026-yil 2-oktabr")}</Text>
       {S().map(([h, b]) => (
         <React.Fragment key={h}>
-          <Text style={{ fontFamily: FONT.displayM, fontSize: 16, color: t.ink, marginTop: 10 }}>{tr(h)}</Text>
+          <Text style={{ ...FONT.displayM, fontSize: 16, color: t.ink, marginTop: 10 }}>{tr(h)}</Text>
           <Text style={{ color: t.ink, lineHeight: 22, fontSize: 15 }}>{b}</Text>
         </React.Fragment>
       ))}

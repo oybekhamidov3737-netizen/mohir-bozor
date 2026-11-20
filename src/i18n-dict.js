@@ -1,5 +1,13 @@
 // Tarjimalar: o'zbekcha matn → [ruscha, inglizcha].
 export default {
+"O'zbekistondagi eng yaxshi ijodkorlar": [
+"Лучшие специалисты Узбекистана",
+"The best creators in Uzbekistan"
+],
+"SMM, montaj, dizayn va target — narxlarni solishtiring, ilova ichida yozing.": [
+"SMM, монтаж, дизайн и таргет — сравнивайте цены и пишите прямо в приложении.",
+"SMM, video editing, design and ads — compare prices and message right in the app."
+],
 "Sahifa topilmadi": [
 "Страница не найдена",
 "Page not found"

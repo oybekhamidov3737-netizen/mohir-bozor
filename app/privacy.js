@@ -17,11 +17,11 @@ export default function Privacy() {
   const t = useT();
   return (
     <ScrollView style={{ flex: 1, backgroundColor: t.bg }} contentContainerStyle={{ padding: 20, gap: 10, maxWidth: 680, width: '100%', alignSelf: 'center', paddingBottom: 40 }}>
-      <Text style={{ fontFamily: FONT.display, fontSize: 22, color: t.ink }}>{tr("Mohir bozor maxfiylik siyosati")}</Text>
+      <Text style={{ ...FONT.display, fontSize: 22, color: t.ink }}>{tr("Mohir bozor maxfiylik siyosati")}</Text>
       <Text style={{ color: t.muted }}>{tr("Oxirgi yangilanish: 2026-yil 15-noyabr")}</Text>
       {S().map(([h, b]) => (
         <React.Fragment key={h}>
-          <Text style={{ fontFamily: FONT.displayM, fontSize: 16, color: t.ink, marginTop: 10 }}>{tr(h)}</Text>
+          <Text style={{ ...FONT.displayM, fontSize: 16, color: t.ink, marginTop: 10 }}>{tr(h)}</Text>
           <Text style={{ color: t.ink, lineHeight: 22, fontSize: 15 }}>{b}</Text>
         </React.Fragment>
       ))}

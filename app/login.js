@@ -136,7 +136,7 @@ export default function Login() {
         <View style={{ width: 64, height: 64, borderRadius: 20, backgroundColor: '#229ED9', alignItems: 'center', justifyContent: 'center', marginTop: 10 }}>
           <Ionicons name="paper-plane" size={30} color="#fff" />
         </View>
-        <Text style={{ fontFamily: FONT.display, fontSize: 24, color: t.ink }}>{tr("Telegram orqali kirish")}</Text>
+        <Text style={{ ...FONT.display, fontSize: 24, color: t.ink }}>{tr("Telegram orqali kirish")}</Text>
         <View style={{ backgroundColor: t.surface, borderRadius: 16, padding: 14, gap: 10 }}>
           {[tr("Telegram'da Mohir bozor boti ochiladi — «START» ni bosing"), tr("«📱 Raqamni ulashish» tugmasini bosing"), tr("Shu sahifaga qayting — kirish avtomatik bo'ladi")].map((x, i) => (
             <View key={i} style={{ flexDirection: 'row', gap: 10, alignItems: 'flex-start' }}>
@@ -160,7 +160,7 @@ export default function Login() {
         <View style={{ width: 64, height: 64, borderRadius: 20, backgroundColor: t.accentSoft, alignItems: 'center', justifyContent: 'center', marginTop: 10 }}>
           <Ionicons name={step === 'code' ? 'key-outline' : step === 'pass' ? 'lock-closed-outline' : via === 'phone' && smsOn ? 'phone-portrait-outline' : 'mail-outline'} size={30} color={t.accent} />
         </View>
-        <Text style={{ fontFamily: FONT.display, fontSize: 24, color: t.ink }}>{step === 'email' ? tr("Kirish yoki ro'yxatdan o'tish") : step === 'pass' ? tr("Parol bilan kirish") : tr("Kodni kiriting")}</Text>
+        <Text style={{ ...FONT.display, fontSize: 24, color: t.ink }}>{step === 'email' ? tr("Kirish yoki ro'yxatdan o'tish") : step === 'pass' ? tr("Parol bilan kirish") : tr("Kodni kiriting")}</Text>
         <Text style={{ color: t.muted, lineHeight: 21 }}>
           {step === 'email'
             ? (via === 'phone' && smsOn ? tr("Telefon raqamingizni kiriting. Unga SMS orqali kirish kodi yuboramiz. Parol shart emas.") : tr("Gmail yoki iCloud pochtangizni kiriting. Unga kirish kodi yuboramiz. Parol shart emas."))

@@ -5,18 +5,17 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useRouter } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import { useT, FONT } from '../../src/theme';
+import { useT, FONT, cardShadow } from '../../src/theme';
 import { useApp, useRequire } from '../../src/app-context';
 import { CATS, ONLINE } from '../../src/data';
 import { shortReg } from '../../src/format';
 import { supabase } from '../../src/supabase';
 import { fetchFeed, fetchVip, fetchProfiles, PAGE } from '../../src/api';
-import { CatRow, HowItWorks, TopCreators, useStats, Stories, PromoCarousel, StatStrip } from '../../src/home';
+import { HowItWorks, TopCreators, useStats, StatStrip, CategoryStrip, HomeHero } from '../../src/home';
 import { RegionPicker, ListPicker } from '../../src/pickers';
 import { AdCard, Empty, FadeIn, H, Pill, Skeleton } from '../../src/ui';
 import { tr, LANGS, setLang, useLang } from '../../src/i18n';
 import { useTabBarSpace } from '../../src/glass-tabbar';
-import { Glass } from '../../src/glass';
 
 export default function Home() {
   const t = useT();
@@ -24,7 +23,7 @@ export default function Home() {
   const tabSpace = useTabBarSpace();
   const router = useRouter();
   const need = useRequire();
-  const { fav, toggleFav } = useApp();
+  const { fav, toggleFav, uid } = useApp();
   const { width } = useWindowDimensions();
   const W = Math.min(width, 1100);
   const cols = W < 640 ? 2 : W < 960 ? 3 : 4;
@@ -50,8 +49,6 @@ export default function Home() {
   const reqId = useRef(0);
   const stats = useStats();
   const [people, setPeople] = useState([]);
-  // Yuqori shisha panel balandligi (kontent uning ostidan o'tadi)
-  const [headH, setHeadH] = useState(ins.top + 110);
 
   useEffect(() => { AsyncStorage.getItem('loc').then((v) => { try { if (v) setLoc(JSON.parse(v)); } catch (e) {} }); }, []);
   useEffect(() => { const id = setTimeout(() => setSq(search), 300); return () => clearTimeout(id); }, [search]);
@@ -103,33 +100,25 @@ export default function Home() {
     <View>
       {!active ? (
         <>
-          <Stories onPick={setCat} />
-          <PromoCarousel width={W - 32} slides={[
-            { colors: ['#4A6CFF', '#1631B8'], icon: 'sparkles', tag: tr("Ijodkorlar bozori"), title: tr("Kerakli ijodkor shu yerda"), text: tr("Barcha viloyat va tumanlardagi mutaxassislar"), cta: tr("Xizmatlarni ko'rish"), onPress: () => setKind('xizmat') },
-            { colors: ['#FFA155', '#F0532E'], icon: 'film', tag: tr("Video montaj"), title: tr("Reels montaj — tez va sifatli"), text: tr("Montajchilarning narxi va ishlarini solishtiring"), cta: tr("Ko'rish"), onPress: () => setCat('montaj') },
-            { colors: ['#34DBA5', '#0C9A6A'], icon: 'phone-portrait', tag: tr("SMM"), title: tr("Biznesingizga SMM mutaxassisi"), text: tr("Instagram, Telegram va TikTok sahifalarini yuritish"), cta: tr("Tanlash"), onPress: () => setCat('smm') },
-            { colors: ['#AE8CFF', '#6A3FE0'], icon: 'add-circle', tag: tr("Bepul"), title: tr("Xizmatingizni joylang"), text: tr("Mijozlar sizni o'zi topib, chatga yozadi"), cta: tr("E'lon joylash"), onPress: () => { if (need('/post')) router.push('/post'); } },
-            { colors: ['#FF77AE', '#D8246C'], icon: 'color-palette', tag: tr("Dizayn"), title: tr("Logotip, banner va brendbuk"), text: tr("Grafik dizaynerlar bir joyda"), cta: tr("Ko'rish"), onPress: () => setCat('dizayn') },
-          ]} />
-          <StatStrip stats={stats} />
-          <H right={tr("12 yo'nalish")}>{tr("Kategoriyalar")}</H>
-          <CatRow counts={stats.cats} onPick={setCat} />
+          <CategoryStrip counts={stats.cats} onPick={setCat} />
+          <HomeHero onPost={() => { if (need('/post')) router.push('/post'); }} onBrowse={() => setKind('xizmat')} />
+          {/* Kichik raqamlar ("1 ta e'lon") ishonchni kamaytiradi — statistika faqat bozor kattalashganda */}
+          {stats.ads >= 50 ? <StatStrip stats={stats} /> : null}
           {vip.length ? (
-            <View style={{ backgroundColor: t.goldSoft, borderRadius: 22, padding: 14, paddingTop: 0, marginTop: 18 }}>
+            <View style={{ backgroundColor: t.goldSoft, borderRadius: 24, padding: 14, paddingTop: 0, marginTop: 18 }}>
               <H right={tr("{0} ta", vip.length)}>{tr("★ VIP e'lonlar")}</H>
               <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={{ gap: 10 }}>
                 {vip.map((a) => <AdCard key={a.id} ad={a} width={160} onPress={() => open(a)} fav={fav.includes(a.id)} onFav={() => toggleFav(a.id)} />)}
               </ScrollView>
             </View>
           ) : null}
-          {people.length ? (<><H right={tr("eng faollar")}>{tr("Top ijodkorlar")}</H><TopCreators people={people} onOpen={(p) => router.push(`/ad/${p.ad}`)} /></>) : null}
-          <H>{tr("Qanday ishlaydi")}</H>
-          <HowItWorks />
+          {people.length >= 3 ? (<><H right={tr("eng faollar")}>{tr("Top ijodkorlar")}</H><TopCreators people={people} onOpen={(p) => router.push(`/ad/${p.ad}`)} /></>) : null}
+          {!uid ? (<><H>{tr("Qanday ishlaydi")}</H><HowItWorks /></>) : null}
         </>
       ) : (
         <View style={{ paddingTop: 14, gap: 4 }}>
           <Pressable onPress={() => { setCat(null); setKind(null); setSearch(''); }}><Text style={{ color: t.accent, fontWeight: '700' }}>{tr("‹ Asosiy")}</Text></Pressable>
-          <Text style={{ fontFamily: FONT.displayM, fontSize: 20, color: t.ink }}>
+          <Text style={{ ...FONT.displayM, fontSize: 20, color: t.ink }}>
             {sq ? tr("«{0}» bo'yicha", sq) : cat ? CATS.find((c) => c.id === cat)?.n : kind === 'buyurtma' ? tr("Buyurtmalar") : tr("Xizmatlar")}
           </Text>
         </View>
@@ -149,14 +138,41 @@ export default function Home() {
 
   return (
     <View style={{ flex: 1, backgroundColor: t.bg }}>
+      <View style={{ paddingTop: ins.top + 8, paddingHorizontal: 16, paddingBottom: 6, backgroundColor: t.bg, gap: 12 }}>
+        <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', maxWidth: 1068, width: '100%', alignSelf: 'center' }}>
+          <Pressable onPress={() => { setCat(null); setKind(null); setSearch(''); }} style={{ flexDirection: 'row', alignItems: 'center', gap: 8 }}>
+            <Image source={require('../../assets/icon.png')} style={{ width: 32, height: 32, borderRadius: 9 }} />
+            <Text style={{ ...FONT.display, fontSize: 24, color: t.ink, letterSpacing: -1 }}>mohir</Text>
+          </Pressable>
+          <View style={{ flexDirection: 'row', gap: 8, alignItems: 'center', maxWidth: '62%' }}>
+            <Pressable onPress={() => setRegOpen(true)} style={{ flexDirection: 'row', alignItems: 'center', gap: 5, backgroundColor: t.surface, borderRadius: 999, height: 36, paddingHorizontal: 12, flexShrink: 1, ...cardShadow(t) }}>
+              <Ionicons name="location-outline" size={16} color={t.accent} />
+              <Text style={{ fontSize: 13, fontWeight: '600', color: t.ink }} numberOfLines={1}>{locText}</Text>
+            </Pressable>
+            <Pressable onPress={() => setLangOpen(true)} accessibilityLabel="Til / Язык / Language" style={{ height: 36, minWidth: 36, paddingHorizontal: 9, borderRadius: 18, backgroundColor: t.surface, alignItems: 'center', justifyContent: 'center', flexDirection: 'row', gap: 3, ...cardShadow(t) }}>
+              <Ionicons name="globe-outline" size={16} color={t.ink} />
+              <Text style={{ fontSize: 11, fontWeight: '800', color: t.ink }}>{lang.toUpperCase()}</Text>
+            </Pressable>
+            <Pressable onPress={() => router.push('/support')} accessibilityLabel={tr("Qo'llab-quvvatlash")} style={{ width: 36, height: 36, borderRadius: 18, backgroundColor: t.surface, alignItems: 'center', justifyContent: 'center', ...cardShadow(t) }}>
+              <Ionicons name="headset-outline" size={17} color={t.ink} />
+            </Pressable>
+          </View>
+        </View>
+        <View style={{ flexDirection: 'row', alignItems: 'center', gap: 8, backgroundColor: t.surface, borderRadius: 14, paddingHorizontal: 13, height: 48, maxWidth: 1068, width: '100%', alignSelf: 'center', ...cardShadow(t) }}>
+          <Ionicons name="search" size={19} color={t.muted} />
+          <TextInput value={search} onChangeText={setSearch} placeholder={tr("Xizmat, tuman yoki foydalanuvchi ID…")} placeholderTextColor={t.muted}
+            style={{ flex: 1, fontSize: 16, color: t.ink, height: '100%', outlineStyle: 'none', outlineWidth: 0 }} returnKeyType="search" autoCorrect={false} />
+          {search ? <Pressable onPress={() => setSearch('')} hitSlop={10}><Ionicons name="close-circle" size={19} color={t.muted} /></Pressable> : null}
+        </View>
+      </View>
+
       <FlatList
         key={'cols' + cols}
         data={loading ? Array.from({ length: cols * 2 }, (_, i) => ({ id: 'sk' + i, _sk: true })) : items}
         numColumns={cols}
         keyExtractor={(a) => a.id}
         columnWrapperStyle={{ gap }}
-        contentContainerStyle={{ paddingHorizontal: 16, paddingTop: headH, paddingBottom: tabSpace, gap, maxWidth: 1100, width: '100%', alignSelf: 'center' }}
-        scrollIndicatorInsets={{ top: headH }}
+        contentContainerStyle={{ paddingHorizontal: 16, paddingBottom: tabSpace, gap, maxWidth: 1100, width: '100%', alignSelf: 'center' }}
         ListHeaderComponent={header}
         renderItem={({ item, index }) => item._sk ? <Skeleton width={cardW} /> : (
           <FadeIn index={index % (cols * 4)}>
@@ -171,38 +187,8 @@ export default function Home() {
         )}
         onEndReachedThreshold={0.5}
         onEndReached={() => { if (more && !loading && items.length) load(false); }}
-        refreshControl={<RefreshControl refreshing={refreshing} tintColor={t.accent} progressViewOffset={headH} onRefresh={() => { setRefreshing(true); load(true); fetchVip(loc.region).then(setVip).catch(() => {}); }} />}
+        refreshControl={<RefreshControl refreshing={refreshing} tintColor={t.accent} onRefresh={() => { setRefreshing(true); load(true); fetchVip(loc.region).then(setVip).catch(() => {}); }} />}
       />
-
-      <Glass dark={t.dark} shadow={false} onLayout={(e) => { const h = Math.round(e.nativeEvent.layout.height); if (h && Math.abs(h - headH) > 1) setHeadH(h); }}
-        style={{ position: 'absolute', top: 0, left: 0, right: 0, borderRadius: 0, borderWidth: 0, borderBottomWidth: 1, borderColor: t.dark ? 'rgba(255,255,255,0.08)' : 'rgba(20,29,25,0.08)',
-          paddingTop: ins.top + 8, paddingHorizontal: 16, paddingBottom: 10, gap: 10 }}>
-        <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', maxWidth: 1068, width: '100%', alignSelf: 'center' }}>
-          <Pressable onPress={() => { setCat(null); setKind(null); setSearch(''); }} style={{ flexDirection: 'row', alignItems: 'center', gap: 8 }}>
-            <Image source={require('../../assets/icon.png')} style={{ width: 30, height: 30, borderRadius: 9 }} />
-            <Text style={{ fontFamily: FONT.display, fontSize: 20, color: t.ink }}>mohir</Text>
-          </Pressable>
-          <View style={{ flexDirection: 'row', gap: 8, alignItems: 'center', maxWidth: '62%' }}>
-            <Pressable onPress={() => setRegOpen(true)} style={{ flexDirection: 'row', alignItems: 'center', gap: 5, borderWidth: 1, borderColor: t.line, backgroundColor: t.surface, borderRadius: 999, height: 34, paddingHorizontal: 11, flexShrink: 1 }}>
-              <Ionicons name="location-outline" size={16} color={t.accent} />
-              <Text style={{ fontSize: 13, fontWeight: '600', color: t.ink }} numberOfLines={1}>{locText}</Text>
-            </Pressable>
-            <Pressable onPress={() => setLangOpen(true)} accessibilityLabel="Til / Язык / Language" style={{ height: 34, minWidth: 34, paddingHorizontal: 8, borderRadius: 17, borderWidth: 1, borderColor: t.line, backgroundColor: t.surface, alignItems: 'center', justifyContent: 'center', flexDirection: 'row', gap: 3 }}>
-              <Ionicons name="globe-outline" size={16} color={t.ink} />
-              <Text style={{ fontSize: 11, fontWeight: '800', color: t.ink }}>{lang.toUpperCase()}</Text>
-            </Pressable>
-            <Pressable onPress={() => router.push('/support')} accessibilityLabel={tr("Qo'llab-quvvatlash")} style={{ width: 34, height: 34, borderRadius: 17, borderWidth: 1, borderColor: t.line, backgroundColor: t.surface, alignItems: 'center', justifyContent: 'center' }}>
-              <Ionicons name="headset-outline" size={17} color={t.ink} />
-            </Pressable>
-          </View>
-        </View>
-        <View style={{ flexDirection: 'row', alignItems: 'center', gap: 8, backgroundColor: t.surface, borderWidth: 1, borderColor: t.line, borderRadius: 12, paddingHorizontal: 12, height: 46, maxWidth: 1068, width: '100%', alignSelf: 'center' }}>
-          <Ionicons name="search" size={19} color={t.muted} />
-          <TextInput value={search} onChangeText={setSearch} placeholder={tr("Xizmat, tuman yoki foydalanuvchi ID…")} placeholderTextColor={t.muted}
-            style={{ flex: 1, fontSize: 16, color: t.ink, height: '100%', outlineStyle: 'none', outlineWidth: 0 }} returnKeyType="search" autoCorrect={false} />
-          {search ? <Pressable onPress={() => setSearch('')} hitSlop={10}><Ionicons name="close-circle" size={19} color={t.muted} /></Pressable> : null}
-        </View>
-      </Glass>
 
       <RegionPicker visible={regOpen} onClose={() => setRegOpen(false)} onPick={pickLoc} allowAll current={loc} />
       <ListPicker visible={langOpen} onClose={() => setLangOpen(false)} title="Til · Язык · Language" value={lang} onPick={(l) => { setLangOpen(false); setLang(l); }}

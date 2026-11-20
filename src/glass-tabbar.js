@@ -1,7 +1,8 @@
-// Pastki menyu — Apple "Liquid Glass" uslubida.
-//  • Panel ekran chetidan ajralib turadi, shaffof shisha: orqadagi kontent xira ko'rinadi.
-//  • Tanlangan bo'lim ustida shisha "linza" turadi; bo'lim almashganda u suyuqlikdek cho'zilib sirpanadi.
-//  • Linza ostidagi belgi kattalashadi (lupa effekti). Barmoq bilan panel bo'ylab surib bo'lim tanlash mumkin.
+// Pastki menyu — Apple iOS 26 "Liquid Glass" tab bar uslubida.
+//  • Panel ekran chetidan ajralib suzib turadi: shaffof shisha, orqadagi kontent xira ko'rinadi.
+//  • Tanlangan bo'lim — yumshoq kulrang "kapsula" ichida, rangli belgi bilan.
+//  • Barmoq tekkanda kapsula shisha tomchiga (lupa) aylanib kattalashadi va ostidagi belgilarni
+//    kattalashtirib ko'rsatadi; barmoq bilan surilsa tomchi ergashadi, qo'yib yuborilganda o'sha bo'lim ochiladi.
 import React, { useEffect, useMemo, useRef } from 'react';
 import { Animated, PanResponder, Platform, Pressable, Text, View, useWindowDimensions } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
@@ -12,8 +13,11 @@ import { useT } from './theme';
 import { Glass } from './glass';
 
 const ND = Platform.OS !== 'web';
-const BAR_H = 66;
-const PAD = 6;
+const WEB = Platform.OS === 'web';
+const BAR_H = 64;
+const PAD = 4;
+const PILL_H = BAR_H - 10;
+const LIFT = 0.34; // tomchi qancha kattalashadi (lupa)
 const ICONS = { index: 'home', favorites: 'heart', chats: 'chatbubble', cabinet: 'person' };
 
 const bottomGap = (ins) => Math.max(10, ins.bottom - 4);
@@ -24,7 +28,10 @@ export function useTabBarSpace() {
   return BAR_H + bottomGap(ins) + 20;
 }
 
-const haptic = () => { if (ND) { try { Haptics.selectionAsync(); } catch (e) {} } };
+const haptic = (kind) => {
+  if (!ND) return;
+  try { kind === 'light' ? Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light) : Haptics.selectionAsync(); } catch (e) {}
+};
 
 export function GlassTabBar({ state, descriptors, navigation }) {
   const t = useT();
@@ -32,29 +39,35 @@ export function GlassTabBar({ state, descriptors, navigation }) {
   const { width } = useWindowDimensions();
   const routes = state.routes;
   const n = routes.length;
-  const barW = Math.min(width - 24, 540);
+  const barW = Math.min(width - 24, 520);
   const itemW = (barW - PAD * 2) / n;
+  const pillW = Math.min(itemW - 4, 96);
   const center = routes.findIndex((r) => r.name === 'new');
+  const dark = t.dark;
 
-  const pos = useRef(new Animated.Value(state.index)).current;   // linza joyi (bo'lim raqami, kasr ham)
-  const stretch = useRef(new Animated.Value(0)).current;          // sirpanishda cho'zilish
-  const hold = useRef(new Animated.Value(0)).current;             // barmoq tekkanda kattalashish
+  const pos = useRef(new Animated.Value(state.index)).current;   // tomchi joyi (bo'lim raqami, kasr ham)
+  const hold = useRef(new Animated.Value(0)).current;             // 0 — kapsula, 1 — ko'tarilgan tomchi (lupa)
+  const stretch = useRef(new Animated.Value(0)).current;          // sirpanishdagi suyuq cho'zilish
   const live = useRef({ state, navigation });
   live.current = { state, navigation };
   const start = useRef(state.index);
+  const cancelTimer = useRef(null);
 
-  const settle = (i) => {
+  const springTo = (v, toValue, cfg = {}) => Animated.spring(v, { toValue, useNativeDriver: ND, stiffness: 320, damping: 26, mass: 0.9, ...cfg });
+  const slide = (i) => {
     Animated.parallel([
-      Animated.spring(pos, { toValue: i, useNativeDriver: ND, stiffness: 260, damping: 22, mass: 0.9 }),
+      springTo(pos, i, { stiffness: 260, damping: 24 }),
       Animated.sequence([
-        Animated.timing(stretch, { toValue: 1, duration: 120, useNativeDriver: ND }),
-        Animated.spring(stretch, { toValue: 0, useNativeDriver: ND, stiffness: 240, damping: 11 }),
+        Animated.timing(stretch, { toValue: 1, duration: 110, useNativeDriver: ND }),
+        springTo(stretch, 0, { stiffness: 260, damping: 13 }),
       ]),
     ]).start();
   };
+  const lift = (on) => springTo(hold, on ? 1 : 0, on ? { stiffness: 420, damping: 24 } : { stiffness: 300, damping: 14 }).start();
+
   const last = useRef(state.index);
   useEffect(() => {
-    if (last.current !== state.index) { last.current = state.index; settle(state.index); }
+    if (last.current !== state.index) { last.current = state.index; slide(state.index); }
   }, [state.index]);
 
   const go = (i) => {
@@ -62,116 +75,152 @@ export function GlassTabBar({ state, descriptors, navigation }) {
     const route = st.routes[i];
     if (!route) return;
     const ev = nav.emit({ type: 'tabPress', target: route.key, canPreventDefault: true });
-    if (!ev.defaultPrevented && st.index !== i) nav.navigate(route.name, route.params);
-    haptic();
+    if (!ev.defaultPrevented && st.index !== i) { nav.navigate(route.name, route.params); haptic(); }
   };
 
-  // Barmoq bilan surish: linza barmoqqa ergashadi, qo'yib yuborilganda eng yaqin bo'limga o'tadi
+  // Barmoq bilan surish
   const clamp = (v) => Math.max(0, Math.min(n - 1, v));
   const nearest = (p) => {
     let i = Math.round(p);
     if (i === center) i = p < center ? center - 1 : center + 1;
     return Math.max(0, Math.min(n - 1, i));
   };
-  const pan = useMemo(() => PanResponder.create({
-    onMoveShouldSetPanResponder: (_, g) => Math.abs(g.dx) > 10 && Math.abs(g.dx) > Math.abs(g.dy) * 1.5,
-    onMoveShouldSetPanResponderCapture: (_, g) => Math.abs(g.dx) > 10 && Math.abs(g.dx) > Math.abs(g.dy) * 1.5,
-    onPanResponderTerminationRequest: () => false,
-    onPanResponderGrant: () => {
-      pos.stopAnimation((v) => { start.current = v; });
-      Animated.spring(hold, { toValue: 1, useNativeDriver: ND, stiffness: 300, damping: 18 }).start();
-    },
-    onPanResponderMove: (_, g) => { pos.setValue(clamp(start.current + g.dx / itemW)); },
-    onPanResponderRelease: (_, g) => {
-      Animated.spring(hold, { toValue: 0, useNativeDriver: ND, stiffness: 260, damping: 16 }).start();
-      const i = nearest(clamp(start.current + g.dx / itemW));
-      if (i !== live.current.state.index) go(i); else settle(i);
-    },
-    onPanResponderTerminate: () => {
-      Animated.spring(hold, { toValue: 0, useNativeDriver: ND }).start();
-      settle(live.current.state.index);
-    },
-  }), [itemW, n, center]);
+  const pan = useMemo(() => {
+    const want = (_, g) => Math.abs(g.dx) > 8 && Math.abs(g.dx) > Math.abs(g.dy) * 1.4;
+    return PanResponder.create({
+      onMoveShouldSetPanResponder: want,
+      onMoveShouldSetPanResponderCapture: want,
+      onPanResponderTerminationRequest: () => false,
+      onPanResponderGrant: () => {
+        clearTimeout(cancelTimer.current);
+        pos.stopAnimation((v) => { start.current = v; });
+        lift(true);
+        haptic('light');
+      },
+      onPanResponderMove: (_, g) => { pos.setValue(clamp(start.current + g.dx / itemW)); },
+      onPanResponderRelease: (_, g) => {
+        const i = nearest(clamp(start.current + g.dx / itemW));
+        lift(false);
+        springTo(pos, i, { stiffness: 260, damping: 22 }).start();
+        if (i !== live.current.state.index) go(i);
+      },
+      onPanResponderTerminate: () => { lift(false); slide(live.current.state.index); },
+    });
+  }, [itemW, n, center]);
 
-  const lensW = itemW - 2;
-  const lensH = BAR_H - 12;
-  const translateX = pos.interpolate({ inputRange: [0, Math.max(1, n - 1)], outputRange: [PAD + 1, PAD + 1 + Math.max(1, n - 1) * itemW] });
-  const scaleX = Animated.add(1, Animated.add(Animated.multiply(stretch, 0.24), Animated.multiply(hold, 0.12)));
-  const scaleY = Animated.add(1, Animated.add(Animated.multiply(stretch, -0.1), Animated.multiply(hold, 0.12)));
+  // Bosilganda: tomchi o'sha bo'limga sirpanib, kattalashadi; qo'yib yuborilganda kapsulaga qaytadi
+  const pressIn = (i) => {
+    clearTimeout(cancelTimer.current);
+    if (i === center) return;
+    lift(true);
+    springTo(pos, i, { stiffness: 300, damping: 24 }).start();
+  };
+  const pressOut = (i) => {
+    if (i === center) return;
+    lift(false);
+    // Bosish bekor qilinsa (masalan, sahifa surildi) — tanlangan bo'limga qaytish
+    cancelTimer.current = setTimeout(() => { if (live.current.state.index !== i) slide(live.current.state.index); }, 160);
+  };
 
-  const dark = t.dark;
-  const lens = dark
-    ? { backgroundColor: 'rgba(255,255,255,0.13)', borderColor: 'rgba(255,255,255,0.22)' }
-    : { backgroundColor: 'rgba(255,255,255,0.7)', borderColor: 'rgba(255,255,255,1)' };
-  const webLens = Platform.OS === 'web'
-    ? { boxShadow: dark
-      ? 'inset 0 1px 1px rgba(255,255,255,0.25), inset 0 -6px 12px rgba(0,0,0,0.25), 0 6px 18px rgba(0,0,0,0.35)'
-      : 'inset 0 1px 1px rgba(255,255,255,1), inset 0 -6px 14px rgba(30,72,214,0.10), 0 6px 18px rgba(18,32,80,0.16)' }
-    : { shadowColor: '#000', shadowOpacity: dark ? 0.35 : 0.14, shadowRadius: 10, shadowOffset: { width: 0, height: 4 } };
-  const outerShadow = Platform.OS === 'web' ? {} : { shadowColor: '#0B1640', shadowOpacity: dark ? 0.5 : 0.18, shadowRadius: 22, shadowOffset: { width: 0, height: 10 }, elevation: 14 };
+  const pillX0 = PAD + (itemW - pillW) / 2;
+  const lensX = pos.interpolate({ inputRange: [0, Math.max(1, n - 1)], outputRange: [pillX0, pillX0 + Math.max(1, n - 1) * itemW] });
+  const scale = Animated.add(1, Animated.multiply(hold, LIFT));
+  const scaleX = Animated.add(1, Animated.multiply(stretch, 0.22));
+  const lensTransform = [{ translateX: lensX }, { scale }, { scaleX }];
+
+  // Ranglar (Apple: tanlanmagan belgi — asosiy matn rangi, tanlangan — aksent)
+  const baseInk = t.ink;
+  const pillFill = dark ? '#34393E' : '#E6E8EE';
+  const dropFill = dark ? '#43494F' : '#FFFFFF';
+  const barBg = dark ? 'rgba(28,32,34,0.55)' : 'rgba(255,255,255,0.5)';
+
+  const renderItem = (route, i, tone) => {
+    const opts = descriptors[route.key]?.options || {};
+    const label = typeof opts.title === 'string' ? opts.title : route.name;
+    if (i === center) {
+      return (
+        <View key={route.key + tone} style={{ width: itemW, height: BAR_H, alignItems: 'center', justifyContent: 'center' }}>
+          <View style={{ width: 46, height: 46, borderRadius: 23, backgroundColor: t.accent, alignItems: 'center', justifyContent: 'center',
+            ...(WEB ? { boxShadow: `0 4px 14px ${dark ? 'rgba(0,0,0,0.45)' : 'rgba(30,72,214,0.35)'}` } : { shadowColor: t.accent, shadowOpacity: 0.35, shadowRadius: 8, shadowOffset: { width: 0, height: 4 } }) }}>
+            <Ionicons name="add" size={28} color={t.accentInk} />
+          </View>
+        </View>
+      );
+    }
+    const on = tone === 'accent';
+    const color = on ? t.accent : baseInk;
+    const badge = opts.tabBarBadge;
+    const name = ICONS[route.name] || 'ellipse';
+    return (
+      <View key={route.key + tone} style={{ width: itemW, height: BAR_H, alignItems: 'center', justifyContent: 'center', gap: 1 }}>
+        <View style={{ width: 30, height: 27, alignItems: 'center', justifyContent: 'center' }}>
+          <Ionicons name={on ? name : name + '-outline'} size={24} color={color} />
+          {badge ? (
+            <View style={{ position: 'absolute', top: -4, right: -9, minWidth: 18, height: 18, borderRadius: 9, paddingHorizontal: 4, backgroundColor: '#FF3B30', alignItems: 'center', justifyContent: 'center' }}>
+              <Text style={{ color: '#fff', fontSize: 10.5, fontWeight: '800' }}>{badge > 99 ? '99+' : badge}</Text>
+            </View>
+          ) : null}
+        </View>
+        <Text numberOfLines={1} style={{ fontSize: 10.5, fontWeight: on ? '700' : '600', color, maxWidth: itemW - 2 }}>{label}</Text>
+      </View>
+    );
+  };
 
   return (
     <View pointerEvents="box-none" style={{ position: 'absolute', left: 0, right: 0, bottom: 0, alignItems: 'center', paddingBottom: bottomGap(ins) }}>
-      <View style={{ width: barW, height: BAR_H, borderRadius: BAR_H / 2, ...outerShadow }}>
-        <Glass dark={dark} dataSet={{ glassTabbar: '1' }} style={{ flex: 1, borderRadius: BAR_H / 2 }} {...pan.panHandlers}>
-          {/* Shisha yuzasidagi yorug' aks */}
-          <LinearGradient pointerEvents="none" colors={dark ? ['rgba(255,255,255,0.10)', 'rgba(255,255,255,0)'] : ['rgba(255,255,255,0.6)', 'rgba(255,255,255,0)']}
-            style={{ position: 'absolute', left: 0, right: 0, top: 0, height: BAR_H * 0.55 }} />
-
-          {/* Linza (tanlangan bo'lim) */}
-          <Animated.View pointerEvents="none" style={{
-            position: 'absolute', top: 6, left: 0, width: lensW, height: lensH, borderRadius: lensH / 2, borderWidth: 1, overflow: 'hidden',
-            ...lens, ...webLens, transform: [{ translateX }, { scaleX }, { scaleY }],
-          }}>
-            <LinearGradient colors={dark ? ['rgba(255,255,255,0.22)', 'rgba(255,255,255,0)'] : ['rgba(255,255,255,1)', 'rgba(255,255,255,0.15)']}
-              style={{ position: 'absolute', left: 0, right: 0, top: 0, height: lensH * 0.6 }} />
-          </Animated.View>
-
+      <View style={{ width: barW, height: BAR_H }}>
+        {/* 1) Shisha panel va oddiy (tanlanmagan) belgilar */}
+        <Glass dark={dark} dataSet={{ glassTabbar: '1' }} {...pan.panHandlers}
+          style={{ position: 'absolute', left: 0, top: 0, width: barW, height: BAR_H, borderRadius: BAR_H / 2, backgroundColor: barBg,
+            borderColor: dark ? 'rgba(255,255,255,0.14)' : 'rgba(255,255,255,0.75)',
+            ...(WEB ? { boxShadow: dark
+              ? '0 10px 30px rgba(0,0,0,0.5), inset 0 1px 0 rgba(255,255,255,0.12), inset 0 -1px 0 rgba(255,255,255,0.04)'
+              : '0 10px 30px rgba(15,25,60,0.14), 0 1px 3px rgba(15,25,60,0.08), inset 0 1px 0 rgba(255,255,255,0.95), inset 0 -1px 0 rgba(255,255,255,0.4)' }
+              : { shadowColor: '#0B1640', shadowOpacity: dark ? 0.5 : 0.16, shadowRadius: 20, shadowOffset: { width: 0, height: 8 }, elevation: 12 }) }}>
           <View style={{ flex: 1, flexDirection: 'row', paddingHorizontal: PAD }}>
             {routes.map((route, i) => {
               const opts = descriptors[route.key]?.options || {};
               const label = typeof opts.title === 'string' ? opts.title : route.name;
-              if (i === center) {
-                return (
-                  <Pressable key={route.key} onPress={() => go(i)} accessibilityRole="button" accessibilityLabel={label}
-                    style={({ pressed }) => ({ width: itemW, alignItems: 'center', justifyContent: 'center', transform: [{ scale: pressed ? 0.9 : 1 }] })}>
-                    <LinearGradient colors={['#7A96FF', '#3D5EF0', '#2242D0']} start={{ x: 0.1, y: 0 }} end={{ x: 0.9, y: 1 }}
-                      style={{ width: 48, height: 48, borderRadius: 24, alignItems: 'center', justifyContent: 'center', borderWidth: 1, borderColor: 'rgba(255,255,255,0.55)',
-                        ...(Platform.OS === 'web' ? { boxShadow: '0 6px 18px rgba(39,71,214,0.45), inset 0 1px 1px rgba(255,255,255,0.7)' } : { shadowColor: '#2747D6', shadowOpacity: 0.45, shadowRadius: 10, shadowOffset: { width: 0, height: 5 } }) }}>
-                      <LinearGradient pointerEvents="none" colors={['rgba(255,255,255,0.45)', 'rgba(255,255,255,0)']} style={{ position: 'absolute', left: 4, right: 4, top: 2, height: 20, borderRadius: 12 }} />
-                      <Ionicons name="add" size={28} color="#fff" />
-                    </LinearGradient>
-                  </Pressable>
-                );
-              }
-              const focused = state.index === i;
-              const mag = pos.interpolate({ inputRange: [i - 1, i, i + 1], outputRange: [0, 1, 0], extrapolate: 'clamp' });
-              const scale = mag.interpolate({ inputRange: [0, 1], outputRange: [1, 1.16] });
-              const ty = mag.interpolate({ inputRange: [0, 1], outputRange: [0, -1] });
-              const badge = opts.tabBarBadge;
-              const name = ICONS[route.name] || 'ellipse';
               return (
-                <Pressable key={route.key} onPress={() => go(i)} accessibilityRole="tab" accessibilityLabel={label} accessibilityState={{ selected: focused }}
-                  style={{ width: itemW, alignItems: 'center', justifyContent: 'center', gap: 2 }}>
-                  <Animated.View style={{ width: 30, height: 26, alignItems: 'center', justifyContent: 'center', transform: [{ scale }, { translateY: ty }] }}>
-                    <Animated.View style={{ position: 'absolute', opacity: Animated.subtract(1, mag) }}>
-                      <Ionicons name={name + '-outline'} size={23} color={t.muted} />
-                    </Animated.View>
-                    <Animated.View style={{ position: 'absolute', opacity: mag }}>
-                      <Ionicons name={name} size={23} color={t.accent} />
-                    </Animated.View>
-                    {badge ? (
-                      <View style={{ position: 'absolute', top: -5, right: -9, minWidth: 18, height: 18, borderRadius: 9, paddingHorizontal: 4, backgroundColor: '#FF3B30', alignItems: 'center', justifyContent: 'center', borderWidth: 1.5, borderColor: dark ? '#1A201D' : '#FFFFFF' }}>
-                        <Text style={{ color: '#fff', fontSize: 10.5, fontWeight: '800' }}>{badge > 99 ? '99+' : badge}</Text>
-                      </View>
-                    ) : null}
-                  </Animated.View>
-                  <Text numberOfLines={1} style={{ fontSize: 10.5, fontWeight: focused ? '700' : '600', color: focused ? t.accent : t.muted, maxWidth: itemW - 4 }}>{label}</Text>
+                <Pressable key={route.key} onPress={() => go(i)} onPressIn={() => pressIn(i)} onPressOut={() => pressOut(i)}
+                  accessibilityRole={i === center ? 'button' : 'tab'} accessibilityLabel={label} accessibilityState={i === center ? undefined : { selected: state.index === i }}
+                  style={({ pressed }) => ({ width: itemW, height: BAR_H, transform: i === center && pressed ? [{ scale: 0.92 }] : undefined })}>
+                  {renderItem(route, i, 'base')}
                 </Pressable>
               );
             })}
           </View>
         </Glass>
+
+        {/* 2) Ko'tarilgan tomchining soyasi */}
+        <Animated.View pointerEvents="none" style={{
+          position: 'absolute', top: 5, left: 0, width: pillW, height: PILL_H, borderRadius: PILL_H / 2, backgroundColor: dropFill, opacity: hold,
+          transform: lensTransform,
+          ...(WEB ? { boxShadow: dark ? '0 10px 26px rgba(0,0,0,0.55)' : '0 10px 26px rgba(15,25,60,0.22)' } : { shadowColor: '#000', shadowOpacity: dark ? 0.5 : 0.22, shadowRadius: 14, shadowOffset: { width: 0, height: 8 } }),
+        }} />
+
+        {/* 3) Kapsula / lupa: ichida tanlangan (rangli) belgilar — tomchi kattalashganda ular ham kattalashadi */}
+        <Animated.View pointerEvents="none" style={{
+          position: 'absolute', top: 5, left: 0, width: pillW, height: PILL_H, borderRadius: PILL_H / 2, overflow: 'hidden', backgroundColor: pillFill,
+          transform: lensTransform,
+        }}>
+          <Animated.View style={{ position: 'absolute', left: 0, right: 0, top: 0, bottom: 0, backgroundColor: dropFill, opacity: hold }} />
+          <Animated.View style={{ position: 'absolute', top: -5, left: 0, width: barW, height: BAR_H, flexDirection: 'row', paddingHorizontal: PAD,
+            transform: [{ translateX: Animated.multiply(lensX, -1) }] }}>
+            {routes.map((route, i) => renderItem(route, i, 'accent'))}
+          </Animated.View>
+          {/* Shisha tomchining yorug' qirrasi va sinish (refraksiya) aksi */}
+          <Animated.View style={{ position: 'absolute', left: 0, right: 0, top: 0, bottom: 0, opacity: hold }}>
+            <LinearGradient colors={dark ? ['rgba(255,255,255,0.22)', 'rgba(255,255,255,0)'] : ['rgba(255,255,255,0.9)', 'rgba(255,255,255,0)']}
+              style={{ position: 'absolute', left: 6, right: 6, top: 1, height: PILL_H * 0.42, borderRadius: PILL_H / 2 }} />
+            <LinearGradient start={{ x: 0, y: 0.5 }} end={{ x: 1, y: 0.5 }}
+              colors={dark ? ['rgba(0,0,0,0.25)', 'rgba(0,0,0,0)', 'rgba(0,0,0,0)', 'rgba(0,0,0,0.25)'] : ['rgba(20,40,90,0.08)', 'rgba(20,40,90,0)', 'rgba(20,40,90,0)', 'rgba(20,40,90,0.08)']}
+              locations={[0, 0.22, 0.78, 1]} style={{ position: 'absolute', left: 0, right: 0, top: 0, bottom: 0 }} />
+            <View style={{ position: 'absolute', left: 0, right: 0, top: 0, bottom: 0, borderRadius: PILL_H / 2, borderWidth: 1,
+              borderColor: dark ? 'rgba(255,255,255,0.32)' : 'rgba(255,255,255,1)',
+              ...(WEB ? { boxShadow: dark ? 'inset 0 1px 1px rgba(255,255,255,0.35), inset 0 -2px 6px rgba(0,0,0,0.3)' : 'inset 0 1px 1px rgba(255,255,255,1), inset 0 -3px 8px rgba(20,40,90,0.08)' } : {}) }} />
+          </Animated.View>
+        </Animated.View>
       </View>
     </View>
   );

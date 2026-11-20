@@ -62,7 +62,7 @@ export function InviteCard() {
     <View style={{ marginTop: 14, backgroundColor: t.goldSoft, borderRadius: 18, padding: 16, gap: 12 }}>
       <View style={{ flexDirection: 'row', gap: 10, alignItems: 'center' }}>
         <Ionicons name="gift" size={26} color={t.gold} />
-        <Text style={{ flex: 1, fontFamily: FONT.displayM, fontSize: 17, color: t.ink }}>{tr("Do'stlarni taklif qiling")}</Text>
+        <Text style={{ flex: 1, ...FONT.displayM, fontSize: 17, color: t.ink }}>{tr("Do'stlarni taklif qiling")}</Text>
       </View>
       <Text style={{ color: t.ink, lineHeight: 20 }}>
         {tr("Do'stingiz havolangiz orqali ro'yxatdan o'tsa, unga")}{' '}<Text style={{ fontWeight: '800' }}>{fmtNum(new_)} {tr("so'm")}</Text>{tr(", birinchi e'lonini joylaganda sizga")}{' '}<Text style={{ fontWeight: '800' }}>{fmtNum(inv)} {tr("so'm")}</Text> {tr("bonus beriladi. Bonus TOP, VIP va boshqa xizmatlarga sarflanadi.")}

@@ -40,7 +40,7 @@ export default function Feedback() {
   return (
     <ScrollView style={{ flex: 1, backgroundColor: t.bg }} contentContainerStyle={{ padding: 16, gap: 14, paddingBottom: 40, maxWidth: 640, width: '100%', alignSelf: 'center' }} keyboardShouldPersistTaps="handled">
       <Stack.Screen options={{ title: tr('Teskari aloqa') }} />
-      <Text style={{ fontFamily: FONT.display, fontSize: 22, color: t.ink }}>{tr('Ilovani birga yaxshilaymiz')}</Text>
+      <Text style={{ ...FONT.display, fontSize: 22, color: t.ink }}>{tr('Ilovani birga yaxshilaymiz')}</Text>
       <Text style={{ color: t.muted, lineHeight: 20 }}>{tr("Nima yoqdi, nima yoqmadi, nimani qo'shishimiz kerak? Har bir fikrni o'qiymiz.")}</Text>
       <View style={{ flexDirection: 'row', gap: 8, flexWrap: 'wrap' }}>
         {KINDS.map(([k, l, ic]) => {

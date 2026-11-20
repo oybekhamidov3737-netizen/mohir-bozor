@@ -41,7 +41,7 @@ export default function Favorites() {
         keyExtractor={(a) => a.id}
         columnWrapperStyle={{ gap: 10 }}
         contentContainerStyle={{ padding: 16, paddingBottom: tabSpace, gap: 10, maxWidth: 1100, width: '100%', alignSelf: 'center' }}
-        ListHeaderComponent={<Text style={{ fontFamily: FONT.displayM, fontSize: 20, color: t.ink, paddingBottom: 6 }}>{tr("Saralangan e'lonlar")}</Text>}
+        ListHeaderComponent={<Text style={{ ...FONT.displayM, fontSize: 20, color: t.ink, paddingBottom: 6 }}>{tr("Saralangan e'lonlar")}</Text>}
         renderItem={({ item }) => <AdCard ad={item} width={cardW} onPress={() => router.push(`/ad/${item.id}`)} fav onFav={() => toggleFav(item.id)} />}
         ListEmptyComponent={items === null ? <Loading /> : (
           <Empty title={tr("Saralanganlar bo'sh")} text={tr("Yoqqan e'londagi yurakcha belgisini bosing, u shu yerda saqlanadi.")} action={tr("E'lonlarga o'tish")} onAction={() => router.push('/')} />

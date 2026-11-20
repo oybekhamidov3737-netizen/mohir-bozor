@@ -42,7 +42,7 @@ function Orders() {
         <>
           <View style={{ backgroundColor: t.surface, borderRadius: 18, padding: 14, flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' }}>
             <Text style={{ color: t.muted, fontWeight: '700' }}>{packs ? tr('Jami xizmatlar: {0}', rows.length) : tr('Jami to\'langan')}</Text>
-            <Text style={{ fontFamily: FONT.display, fontSize: 18, color: t.ink }}>{fmtNum(total)} {tr("so'm")}</Text>
+            <Text style={{ ...FONT.display, fontSize: 18, color: t.ink }}>{fmtNum(total)} {tr("so'm")}</Text>
           </View>
           {rows.map((o) => (
             <View key={o.id} style={{ backgroundColor: t.surface, borderRadius: 18, padding: 12, flexDirection: 'row', gap: 12, alignItems: 'center' }}>

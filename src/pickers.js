@@ -16,7 +16,7 @@ function Sheet({ visible, onClose, title, onBack, children }) {
         <View style={{ backgroundColor: t.bg, borderTopLeftRadius: 22, borderTopRightRadius: 22, maxHeight: '88%', paddingBottom: ins.bottom + 10, width: '100%', maxWidth: 640, alignSelf: 'center' }}>
           <View style={{ flexDirection: 'row', alignItems: 'center', padding: 14, gap: 10 }}>
             {onBack ? <Pressable onPress={onBack} hitSlop={10}><Ionicons name="chevron-back" size={24} color={t.ink} /></Pressable> : null}
-            <Text style={{ flex: 1, fontFamily: FONT.displayM, fontSize: 16, color: t.ink }} numberOfLines={1}>{title}</Text>
+            <Text style={{ flex: 1, ...FONT.displayM, fontSize: 16, color: t.ink }} numberOfLines={1}>{title}</Text>
             <Pressable onPress={onClose} hitSlop={10} accessibilityLabel={tr("Yopish")}><Ionicons name="close" size={24} color={t.ink} /></Pressable>
           </View>
           {children}
