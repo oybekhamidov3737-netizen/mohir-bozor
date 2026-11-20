@@ -2,11 +2,11 @@ name: DNS tekshirish
 on:
   push:
     branches: [main]
-    paths: ['.github/workflows/dns-check.yml']
+    paths: ['.github/workflows/dns-check.yml', '.github/audit/**']
 permissions:
   contents: write
 jobs:
-  shots:
+  audit:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
@@ -14,27 +14,9 @@ jobs:
           set +e
           mkdir -p out && cd out
           npm i -s playwright@1.48.2 >/dev/null 2>&1 && npx -y playwright@1.48.2 install --with-deps chromium >/dev/null 2>&1
-          cat > t.js <<'JS'
-          const { chromium } = require('playwright');
-          const pages = [['1-home','/'],['2-ad','/ad/132b5e9e-706c-41a0-a78e-db4ce50a8a06'],['3-jobs','/jobs'],['4-login','/login'],['5-about','/about'],['6-support','/support']];
-          const sizes = { ios: { w: 440, h: 956, s: 3 }, android: { w: 360, h: 640, s: 3 } };
-          (async () => {
-            const b = await chromium.launch();
-            for (const [k, z] of Object.entries(sizes)) {
-              const ctx = await b.newContext({ viewport: { width: z.w, height: z.h }, deviceScaleFactor: z.s, isMobile: true, hasTouch: true, locale: 'uz-UZ', colorScheme: 'light' });
-              const p = await ctx.newPage();
-              for (const [n, u] of pages) {
-                await p.goto('https://mohirbozor.uz' + u, { waitUntil: 'networkidle', timeout: 45000 }).catch(e => console.log(n, e.message));
-                await p.waitForTimeout(4000);
-                await p.screenshot({ path: `${k}-${n}.png` });
-              }
-              await ctx.close();
-            }
-            await b.close();
-          })();
-          JS
-          node t.js; rm -rf node_modules package*.json t.js; ls -la
+          cp ../.github/audit/audit.js . && node audit.js > log.txt 2>&1; tail -60 log.txt
+          rm -rf node_modules package*.json audit.js
       - if: always()
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        run: bash .github/scripts/push-results.sh store-shots out
+        run: bash .github/scripts/push-results.sh audit out
