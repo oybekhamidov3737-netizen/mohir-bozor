@@ -28,9 +28,10 @@ const report = [];
       p.on('console', (m) => { if (m.type() === 'error' || m.type() === 'warning') rec.console.push(m.type() + ': ' + m.text().slice(0, 300)); });
       p.on('pageerror', (e) => rec.pageErrors.push(String(e).slice(0, 400)));
       p.on('requestfailed', (q) => rec.failed.push(q.url().slice(0, 160) + ' ' + (q.failure() || {}).errorText));
-      p.on('response', (s) => { if (s.status() >= 400) rec.bad.push(s.status() + ' ' + s.url().slice(0, 180)); });
+      p.on('response', (s) => { if (s.status() >= 400 && s.url() !== BASE + r) rec.bad.push(s.status() + ' ' + s.url().slice(0, 180)); });
       const t0 = Date.now();
-      await p.goto(BASE + r, { waitUntil: 'networkidle', timeout: 45000 }).catch((e) => rec.pageErrors.push('GOTO ' + e.message.slice(0, 200)));
+      const resp = await p.goto(BASE + r, { waitUntil: 'networkidle', timeout: 45000 }).catch((e) => { rec.pageErrors.push('GOTO ' + e.message.slice(0, 200)); return null; });
+      rec.docStatus = resp ? resp.status() : 0;
       rec.loadMs = Date.now() - t0;
       await p.waitForTimeout(5000);
       rec.finalUrl = p.url().replace(BASE, '');
@@ -81,6 +82,13 @@ const report = [];
   for (const r of report) {
     if (r.steps) { console.log('INTERACTIONS', r.steps.join(' | '), r.pageErrors.join(' ; ')); continue; }
     const issues = r.console.length + r.pageErrors.length + r.failed.length + r.bad.length + (r.overflowX > 0 ? 1 : 0);
-    console.log(`${r.run} ${r.route} -> ${r.finalUrl} ${r.loadMs}ms issues=${issues}${r.overflowX > 0 ? ' OVERFLOW=' + r.overflowX : ''}`);
+    console.log(`${r.run} ${r.route} [${r.docStatus}] -> ${r.finalUrl} ${r.loadMs}ms issues=${issues}${r.overflowX > 0 ? ' OVERFLOW=' + r.overflowX : ''}`);
+  }
+  // SEO va havola ko'rinishi
+  for (const u of ['/sitemap.xml', '/robots.txt', '/og.jpg', `/ad/${AD}`, `/u/${USER}`, '/privacy']) {
+    const res = await fetch(BASE + u).catch(() => null);
+    const txt = res ? await res.text() : '';
+    const og = (txt.match(/<meta property="og:(title|image)" content="[^"]*"/g) || []).join(' | ');
+    console.log('HTTP', u, res ? res.status : 'ERR', (txt.match(/<title>[^<]*<\/title>/) || [''])[0], og.slice(0, 300));
   }
 })();
