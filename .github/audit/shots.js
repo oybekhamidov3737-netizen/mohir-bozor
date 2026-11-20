@@ -14,7 +14,7 @@ const AD = '132b5e9e-706c-41a0-a78e-db4ce50a8a06';
     for (const [n, u] of [['home', '/'], ['cabinet', '/cabinet'], ['ad', `/ad/${AD}`]]) {
       await p.goto(BASE + u, { waitUntil: 'networkidle' }).catch(() => {});
       await p.waitForTimeout(n === 'home' ? 5500 : 3000);
-      if (n === 'home') await p.mouse.wheel(0, 500).catch(() => {});
+      if (n === 'home') { await p.screenshot({ path: `design/${scheme}-home-top.png` }); await p.mouse.wheel(0, 420).catch(() => {}); }
       await p.waitForTimeout(600);
       await p.screenshot({ path: `design/${scheme}-${n}.png` });
     }
